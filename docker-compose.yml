@@ -1,0 +1,26 @@
+version: '3'
+networks:
+  configtool:
+
+services:
+  web:
+    image: php:7.4-apache
+    container_name: web
+    volumes:
+      - ./dist:/var/www/html
+    ports:
+      - "8080:80"
+    networks:
+      - configtool
+
+  npm:
+    image: node:13.7
+    container_name: npm
+    environment:
+      NODE_ENV: "dev"
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ['npm', '--no-bin-files']
+    networks:
+      - configtool
