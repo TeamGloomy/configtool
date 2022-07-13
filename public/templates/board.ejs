@@ -91,7 +91,7 @@ serial.aux.rxTxPins = {NoPin, NoPin};
 //TMC Smart Drivers
 stepper.numSmartDrivers = <%- numSmartDrivers -%>;
 <%_ } -%>
-<%_ if (board.stepperDriverSmart && board.type === 'STM32F4') { -%>
+<%_ if (board.stepperDriverSmart && (board.type === 'STM32F4' || board.type === 'STM32H7')) { -%>
 	<%_ let num5160Drivers = 0; -%>
 	<%_ for (let i = 0; i < template.drives.length; ++i) { -%>
 		<%_ if (template.drives[i].stepperDriver === 'TMC5160') { -%>
@@ -243,7 +243,7 @@ serial.aux.rxTxPins = {<%- board.auxRX %>, <%- board.auxTX %>};
 // Diag Pins
 stepper.TmcDiagPins = { <%- diag0 -%> , <%- diag1 -%>, <%- diag2 -%>, <%- diag3 -%>, <%- diag4 -%>};
 <% } -%>
-<%if (board.type === 'STM32F4' && diagCount !== 0) { -%>
+<%if ((board.type === 'STM32F4' || board.type === 'STM32H7') && diagCount !== 0) { -%>
 // Diag Pins
 stepper.TmcDiagPins = { <%- diag0 -%> , <%- diag1 -%>, <%- diag2 -%>, <%- diag3 -%>, <%- diag4 -%>, <%- diag5 -%>, <%- diag6 -%>, <%- diag7 -%>, <%- diag8 -%>, <%- diag9 -%>, <%- diag10 -%>};
 <% } -%>
