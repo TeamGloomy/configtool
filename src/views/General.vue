@@ -20,6 +20,7 @@
 							<option value="fly_geminiv1.1">Fly-Gemini-V1.1</option>
 							<option value="fly_geminiv2.0">Fly-Gemini-V2.0</option>
 							<option value="fly_super8">Fly-Super8</option>
+							<option value="fly_super8h7">Fly-Super8-Pro</option>
 							<option value="fysetc_spider">Fysetc Spider 407 Version</option>
 							<option value="mkssbase_1.3">MKS SBase 1.3</option>
 							<option value="mkssgenl_1.0">MKS SGen L v1.0</option>
@@ -33,6 +34,7 @@
 							<option value="biquskr_1.3">SKR v1.3</option>
 							<option value="biquskr_1.4">SKR v1.4</option>
 							<option value="biquskr_2">SKR v2.0</option>
+							<option value="biquskr_3">SKR v3/SKR v3 EZ</option>
 							<option value="smoothieboard">Smoothieboard</option>
 							<!--option value="duet085">Duet 0.8.5</option>
 							<option value="duetwifi10">Duet 2 WiFi</option>
