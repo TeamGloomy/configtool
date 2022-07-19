@@ -55,7 +55,7 @@ heat.tempSensePins = {<%- tempSensePins.toString() -%>}; //Max of 3 entries
 8266wifi.csPin = <%- board.wifi8266CSPin -%>;	
 <% } -%>
 <%_	if (board.name !== 'biquskr_1.4') { -%>
-	<%_ if (template.network.espRXTX || template.network.esp32RXTX) { -%>
+	<%_ if ((template.network.espRXTX || template.network.esp32RXTX) && (template.network.enabled || template.network.enabled32)) { -%>
 //ESP RX/TX Settings
 8266wifi.serialRxTxPins = { <%- board.serialRxPin %>, <%- board.serialTxPin -%> } ;
 serial.aux.rxTxPins = {NoPin, NoPin};

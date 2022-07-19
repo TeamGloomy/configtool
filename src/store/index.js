@@ -119,9 +119,9 @@ export default new Vuex.Store({
 			state.requiresBeta = newBoard.requiresBeta;
 			state.board.requiresBeta = newBoard.requiresBeta;
 			state.template.network.enabled = newBoard.hasESPOnboard;
-			state.template.network.espRXTX = newBoard.hasESPOnboard;
+			state.template.network.espRXTX = newBoard.hasESPOnboard || newBoard.requiresRXTX;
 			state.template.network.enabled32 = newBoard.hasESP32Onboard;
-			state.template.network.esp32RXTX = newBoard.hasESP32Onboard;
+			state.template.network.esp32RXTX = newBoard.hasESP32Onboard || newBoard.requiresRXTX;
 
 			// Update series resistors
 			state.preset.heaters.forEach(function(heater) {

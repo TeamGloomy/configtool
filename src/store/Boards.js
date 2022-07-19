@@ -88,7 +88,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
 
 		},
         {
@@ -178,7 +179,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'biquskr_1.3',
@@ -279,7 +281,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
 	    {
             name: 'biquskr_1.4',
@@ -380,7 +383,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'1.24'
+            neopixel :'1.24',
+            requiresRXTX: false
         },
 	    {
             name: 'azsmz',
@@ -469,7 +473,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
 	    {
             name: 'azteegX5_1.1',
@@ -558,7 +563,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'rearm',
@@ -644,7 +650,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'mkssbase_1.3',
@@ -730,7 +737,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'mkssgenl_1.0',
@@ -831,7 +839,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'mkssgenl_2.0',
@@ -932,7 +941,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'biquskr_e3t',
@@ -1033,7 +1043,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'1.24'
+            neopixel :'1.24',
+            requiresRXTX: false
         },
         {
             name: 'biquskrpro_1.1',
@@ -1065,8 +1076,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: ['BTT EXP-MOT'],
@@ -1156,7 +1167,8 @@ export default {
                 espResetPin:'F.12',
                 wifi8266CSPin: 'B.12'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'biqugtr_1.0',
@@ -1188,8 +1200,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: ['M5'],
@@ -1275,7 +1287,8 @@ export default {
                 espResetPin:'B.10',
                 wifi8266CSPin: 'B.12'
             },
-            neopixel :'F.13'
+            neopixel :'F.13',
+            requiresRXTX: false
         },
         {
             name: 'fly_cdy',
@@ -1379,7 +1392,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: true
         },
         {
             name: 'fly_F407ZG',
@@ -1411,8 +1425,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -1492,7 +1506,8 @@ export default {
                 espResetPin:'B.2',
                 wifi8266CSPin: 'F.11'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'fly_E3',
@@ -1524,7 +1539,7 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
             firmwareWifi32File: 'N/A',
             requiresBeta: false,
             iapFile: '',
@@ -1590,7 +1605,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: true
         },
         {
             name: 'fly_cdyv2',
@@ -1622,7 +1638,7 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
             firmwareWifi32File: 'N/A',
             requiresBeta: false,
             iapFile: '',
@@ -1694,7 +1710,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'D.15'
+            neopixel :'D.15',
+            requiresRXTX: true
         },
         {
             name: 'biquskr_rrf_e3_1.1',
@@ -1726,7 +1743,7 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
             firmwareWifi32File: 'N/A',
             requiresBeta: false,
             iapFile: '',
@@ -1792,7 +1809,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'N/A'
             },
-            neopixel :'B.7'
+            neopixel :'B.7',
+            requiresRXTX: true
         },
         {
             name: 'fly_e3_pro',
@@ -1824,7 +1842,7 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
             firmwareWifi32File: 'N/A',
             requiresBeta: false,
             iapFile: '',
@@ -1893,7 +1911,8 @@ export default {
                 espResetPin:'N/A',
                 wifi8266CSPin: 'NoPin'
             },
-            neopixel :'B.11'
+            neopixel :'B.11',
+            requiresRXTX: true
         },
         {
             name: 'biquskr_2',
@@ -1925,8 +1944,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: ['BTT EXP-MOT'],
@@ -1994,7 +2013,8 @@ export default {
                 espResetPin:'C.14',
                 wifi8266CSPin: 'NoPin'
             },
-            neopixel :'E.6'
+            neopixel :'E.6',
+            requiresRXTX: true
         },
         {
             name: 'fysetc_spider',
@@ -2026,8 +2046,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -2098,7 +2118,8 @@ export default {
                 espResetPin:'A.8',
                 wifi8266CSPin: 'C.9'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: false
         },
         {
             name: 'fly_super8',
@@ -2131,8 +2152,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -2209,7 +2230,8 @@ export default {
                 espResetPin:'D.10',
                 wifi8266CSPin: 'NoPin'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: true
         },
         {
             name: 'fly_cdyv3',
@@ -2242,7 +2264,7 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32',
             firmwareWifi32File: 'N/A',
             requiresBeta: false,
             iapFile: '',
@@ -2314,7 +2336,8 @@ export default {
                 espResetPin:'E.11',
                 wifi8266CSPin: 'NoPin'
             },
-            neopixel :'D.15'
+            neopixel :'D.15',
+            requiresRXTX: true
         },
         {
             name: 'fly_e3_prov3',
@@ -2347,7 +2370,7 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32',
             firmwareWifi32File: 'N/A',
             requiresBeta: false,
             iapFile: '',
@@ -2416,7 +2439,8 @@ export default {
                 espResetPin:'E.15',
                 wifi8266CSPin: 'NoPin'
             },
-            neopixel :'B.11'
+            neopixel :'B.11',
+            requiresRXTX: true
         },
         {
             name: 'biqoctopus_1.1',
@@ -2448,8 +2472,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -2526,7 +2550,8 @@ export default {
                 espResetPin:'G.7',
                 wifi8266CSPin: 'B.12'
             },
-            neopixel :'B.0'
+            neopixel :'B.0',
+            requiresRXTX: true
         },
         {
             name: 'biqoctopuspro_1.0',
@@ -2558,8 +2583,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -2636,7 +2661,8 @@ export default {
                 espResetPin:'G.7',
                 wifi8266CSPin: 'B.12'
             },
-            neopixel :'B.0'
+            neopixel :'B.0',
+            requiresRXTX: true
         },
         {
             name: 'fly_gemini',
@@ -2668,8 +2694,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -2731,7 +2757,8 @@ export default {
                 espResetPin:'G.7',
                 wifi8266CSPin: 'B.12'
             },
-            neopixel :'B.0'
+            neopixel :'B.0',
+            requiresRXTX: false
         },
         {
             name: 'fly_geminiv1.1',
@@ -2763,8 +2790,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -2826,7 +2853,8 @@ export default {
                 espResetPin:'G.7',
                 wifi8266CSPin: 'B.12'
             },
-            neopixel :'B.0'
+            neopixel :'B.0',
+            requiresRXTX: false
         },
         {
             name: 'fly_geminiv2.0',
@@ -2858,8 +2886,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32f4-wifi',
             firmwareSBCFile: 'firmware-stm32f4-sbc',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -2921,7 +2949,8 @@ export default {
                 espResetPin:'G.7',
                 wifi8266CSPin: 'B.12'
             },
-            neopixel :'B.0'
+            neopixel :'B.0',
+            requiresRXTX: false
         },
         {
             name: 'biquskr_3',
@@ -2953,8 +2982,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32h7-wifi',
             firmwareSBCFile: '',
-            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -3022,7 +3051,8 @@ export default {
                 espResetPin:'C.14',
                 wifi8266CSPin: 'NoPin'
             },
-            neopixel :'E.6'
+            neopixel :'E.6',
+            requiresRXTX: true
         },
         {
             name: 'fly_super8h7',
@@ -3055,8 +3085,8 @@ export default {
             supports12864: false,
             firmwareStandaloneFile: 'firmware-stm32h7-wifi',
             firmwareSBCFile: '',
-            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32f4',
-            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32f4',
+            firmwareWifiFile: 'DuetWiFiServer-esp32-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: [],
@@ -3133,7 +3163,8 @@ export default {
                 espResetPin:'D.10',
                 wifi8266CSPin: 'NoPin'
             },
-            neopixel :'NoPin'
+            neopixel :'NoPin',
+            requiresRXTX: true
         },
 	],
 
