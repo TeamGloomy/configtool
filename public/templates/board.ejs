@@ -105,7 +105,7 @@ stepper.num5160Drivers = <%- num5160Drivers -%>;
 stepper.spiChannel = <%- board.stepperDriver5160SPI -%>;
 <%_ } -%>
 <%_ } -%>
-<%_ if (board.stepperDriver5160Pins !== 'N/A') { -%>
+<%_ if (board.stepperDriver5160Pins !== 'N/A'  && num5160Drivers !==0 ) { -%>
 SPI<%- board.stepperDriver5160SPI -%>.pins = <%- board.stepperDriver5160Pins -%>;
 <%_ } -%>
 <%_ } -%>
