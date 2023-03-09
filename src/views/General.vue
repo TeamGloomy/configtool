@@ -22,7 +22,7 @@
 							<option value="fly_geminiv2.0">Fly-Gemini-V2.0</option>
 							<option value="fly_super8">Fly-Super8</option>
 							<option value="fly_super8h7">Fly-Super8-Pro H743</option>
-							<option value="fly_super8h7">Fly-Super8-Pro H723</option>
+							<option value="fly_super8_pro_h723">Fly-Super8-Pro H723</option>
 							<option value="fysetc_spider">Fysetc Spider 407 Version</option>
 							<option value="mkssbase_1.3">MKS SBase 1.3</option>
 							<option value="mkssgenl_1.0">MKS SGen L v1.0</option>

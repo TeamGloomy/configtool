@@ -7,7 +7,7 @@ export default {
 	// Returns a copy of the default config template
 	getDefaultTemplate() {
 		return {
-			board: 'biquskr_1.4',
+			board: 'fly_e3_prov3',
 			expansion_boards: [],
 			firmware: 3.00,
 			standalone: true,

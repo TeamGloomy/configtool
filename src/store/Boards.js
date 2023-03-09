@@ -3169,7 +3169,7 @@ export default {
         {
             name: 'fly_super8_pro_h723',
             type: 'STM32H7',
-            caption: 'Fly Super8 Pro H743',
+            caption: 'Fly Super8 Pro H723',
             motorWarningCurrent: 1800,
             motorLimitCurrent: 2000,
             seriesResistor: 4700,
