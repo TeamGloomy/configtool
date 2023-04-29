@@ -20,6 +20,7 @@
 							<option value="fly_gemini">Fly-Gemini-V1</option>
 							<option value="fly_geminiv1.1">Fly-Gemini-V1.1</option>
 							<option value="fly_geminiv2.0">Fly-Gemini-V2.0</option>
+							<option value="fly_super5_h723">Fly-Super5-Pro H723</option>
 							<option value="fly_super8">Fly-Super8</option>
 							<option value="fly_super8h7">Fly-Super8-Pro H743</option>
 							<option value="fly_super8_pro_h723">Fly-Super8-Pro H723</option>
