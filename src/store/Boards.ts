@@ -666,6 +666,7 @@ export const Boards: Record<BoardType, BoardDescriptor> = {
 		supportsBME280: false
 	},
 	[BoardType.FlyCDYv2]: {
+		displayDotstarPort: null,
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
 		hasInputPullUps: true,
@@ -681,8 +682,8 @@ export const Boards: Record<BoardType, BoardDescriptor> = {
 			[PortType.analogIn]: ["probe"],
 			[PortType.fan]: ["fan0", "fan1", "fan2", "laser"],
 			[PortType.fanTacho]: ["out2.tach", "out4.tach"],
-			[PortType.gpIn]: ["xmin", "xmax", "ymin", "ymax", "zmin", "zmax"],
-			[PortType.gpInInterrupt]: ["xmin", "xmax", "ymin", "ymax", "zmin", "zmax", "probe"],
+			[PortType.gpIn]: ["xstop","xstopmax","ystop","ystopmax","zstop","zstopmax", "probe"],
+			[PortType.gpInInterrupt]: ["xstop","xstopmax","ystop","ystopmax","zstop","zstopmax", "probe"],
 			[PortType.gpOut]: [],
 			[PortType.heater]: ["bed", "e0heat", "e1heat", "e2heat"],
 			[PortType.pwm]: ["servo", "laser"],
