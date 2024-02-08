@@ -61,7 +61,7 @@ export default {
 					endstop_pin: 'xstop',		// v3+
 					endstop_type: 1,
 					endstop_location: 1,
-                    stepperDriver: "",
+                    stepperDriver: "TMC2209",
                     stepperDriverTimings: ""
 				},
 				{
@@ -78,7 +78,7 @@ export default {
 					endstop_pin: 'ystop',		// v3+
 					endstop_type: 1,
 					endstop_location: 1,
-                    stepperDriver: "",
+                    stepperDriver: "TMC2209",
                     stepperDriverTimings: ""
 
 				},
@@ -97,7 +97,7 @@ export default {
 					endstop: null,
 					endstop_type: 3,
 					endstop_location: 1,
-                    stepperDriver: "",
+                    stepperDriver: "TMC2209",
                     stepperDriverTimings: ""
 
 				},
@@ -112,7 +112,7 @@ export default {
 					current: 800,
 					driver: 3,					// v1-2 only
 					driver_v3: '0.3',			// v3+
-                    stepperDriver: "",
+                    stepperDriver: "TMC2209",
                     stepperDriverTimings: ""
 
 				}
