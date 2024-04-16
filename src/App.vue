@@ -147,7 +147,7 @@ import LocaleSwitcher from "@/components/LocaleSwitcher"
 export default {
 	components: { LocaleSwitcher },
 	computed: {
-		...mapState(['board', 'template', 'addDWC', 'addRRF', 'addWiFi', 'requiresBeta']),
+		...mapState(['board', 'template', 'addDWC', 'addRRF', 'addWiFi', 'requiresBeta','requiresBoardTxt']),
 		isFirstPage() { return this.$route.path === '/Start'; },
 		isLastPage() { return this.$route.path === '/Finish'; }
 	},

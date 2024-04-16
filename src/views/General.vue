@@ -31,7 +31,8 @@
 							<option value="rearm">ReArm</option>
 							<option value="biquskr_e3t">SKR E3 Turbo</option>
 							<option value="biqugtr_1.0">SKR GTR v1.0</option>
-							<option value="biquskrpro_1.1">SKR Pro v1.1 and 1.2</option>
+							<option value="biquskrpro_1.1">SKR Pro v1.1</option>
+							<option value="biquskrpro_1.2">SKR Pro v1.2</option>
 							<option value="biquskr_rrf_e3_1.1">SKR RRF E3 v1.1</option>
 							<option value="biquskr_1.1">SKR v1.1</option>
 							<option value="biquskr_1.3">SKR v1.3</option>

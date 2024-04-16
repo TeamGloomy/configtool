@@ -1048,6 +1048,132 @@ export default {
         },
         {
             name: 'biquskrpro_1.1',
+            requiresBoardTxt: true,
+            type: 'STM32F4',
+            caption: 'SKR Pro',
+            motorWarningCurrent: 1200,
+            motorLimitCurrent: 2000,
+            seriesResistor: 4700,
+            microstepping: true,
+            microsteppingInterpolation: true,
+            numDrives: 6,
+            heaterPorts: ['bed', 'e0heat', 'e1heat','e2heat'],
+            fanPorts: ['fan0','fan1','fan2'],
+            pwmPorts: ['bed', 'e0heat', 'e1heat','e2heat','fan0','fan1','fan2'],
+            gpioPorts: ['xstop','ystop','zstop', 'e0stop','e1stop','e2stop','probe'],
+            analogPorts: ['bedtemp', 'e0temp', 'e1temp','e2temp'],
+            blPorts: ['servo0'],
+            spiCsPorts: [],
+            hasEthernet: false,
+            hasWiFi: false,
+            hasESP: true,
+            hasESPUpdate: false,
+            hasESPOnboard: false,
+            hasSBC: true,
+            hasSBCOnboard: false,
+            hasPowerFailureDetection: false,
+            hasMotorLoadDetection: true,
+            supportsDisplay: true,
+            supports12864: false,
+            firmwareStandaloneFile: 'firmware-stm32f4-wifi',
+            firmwareSBCFile: 'firmware-stm32f4-sbc',
+            firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
+            firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
+            requiresBeta: false,
+            iapFile: '',
+            expansionBoards: ['BTT EXP-MOT'],
+            maxExpansionBoards: 1,
+            stepperDriver: "",
+            stepperDriverTimings: "",
+            stepperDriverSmart: true,
+            stepperDriver5160: true,
+            stepperDriver5160SPI: '2',
+            stepperDriver5160Pins: 'N/A',
+            stepperDriver5160CS: [
+                {
+                    diag: "A.15",
+                },
+                {
+                    diag: "B.8",
+                },
+                {
+                    diag: "B.9",
+                },
+                {
+                    diag: "B.3",
+                },
+                {
+                    diag: "G.15",
+                },
+                {
+                    diag: "G.12",
+                }
+            ],
+            serialRxPin:'D.9',
+            serialTxPin:'D.8',
+            espDataReadyPin:'A.8',
+            lpcTfrReadyPin:'G.4',
+            espResetPin:'F.12',
+            lpc: {
+                externalSDCard:{
+                    csPin: "NoPin",
+                    cardDetectPin: "NoPin",
+                    spiFrequencyHz: 4000000,
+                    spiChannel: 0,
+                },
+                internalSDCardSPIFrequencyHz: 25000000,
+                softwareSPI:{
+                    pins: ["NoPin", "NoPin", "NoPin"],
+                },
+                lcd:{
+                    lcdCSPin:       "NoPin",
+                    lcdBeepPin:     "NoPin",
+                    encoderPinA:    "NoPin",
+                    encoderPinB:    "NoPin",
+                    encoderPinSw:   "NoPin",
+                    lcdDCPin:       "NoPin",
+                    panelButtonPin: "NoPin",
+                    spiChannel: 2, //Software SPI
+                },
+                diagnosticPin: "A.7",
+            },
+            drives: [
+                {
+                diag: "B.10",
+                },
+                {
+                diag: "E.12",
+                },
+                {
+                diag: "G.8",
+                },
+                {
+                diag: "E.15",
+                },
+                {
+                diag: "E.10",
+                },
+                {
+                diag: "G.5",
+                }
+            ],
+            auxRX:'A.10',
+            auxTX:'A.9',
+            serialAmount:'3',
+            wifi8266CSPin: 'NoPin',
+            esp32: {
+                esp32Supported: true,
+                espDataReadyPin:'G.10',
+                lpcTfrReadyPin:'F.11',
+                espResetPin:'F.12',
+                wifi8266CSPin: 'B.12'
+            },
+            neopixel :'NoPin',
+            requiresRXTX: false
+        },
+        {
+            name: 'biquskrpro_1.2',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'SKR Pro',
             motorWarningCurrent: 1200,
@@ -1172,6 +1298,7 @@ export default {
         },
         {
             name: 'biqugtr_1.0',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'SKR GTR v1.0',
             motorWarningCurrent: 1200,
@@ -1397,6 +1524,7 @@ export default {
         },
         {
             name: 'fly_F407ZG',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'Fly-F407ZG',
             motorWarningCurrent: 1200,
@@ -1511,6 +1639,7 @@ export default {
         },
         {
             name: 'fly_E3',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'Fly-E3',
             motorWarningCurrent: 1200,
@@ -1610,6 +1739,7 @@ export default {
         },
         {
             name: 'fly_cdyv2',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'Fly-CDYv2',
             motorWarningCurrent: 1200,
@@ -1715,6 +1845,7 @@ export default {
         },
         {
             name: 'biquskr_rrf_e3_1.1',
+            requiresBoardTxt: false,
             type: 'STM32F4',
             caption: 'SKR-RFF-E3-v1.1',
             motorWarningCurrent: 1200,
@@ -1814,6 +1945,7 @@ export default {
         },
         {
             name: 'fly_e3_pro',
+            requiresBoardTxt: false,
             type: 'STM32F4',
             caption: 'Fly-E3-Pro',
             motorWarningCurrent: 1200,
@@ -1916,6 +2048,7 @@ export default {
         },
         {
             name: 'biquskr_2',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'BTT SKR 2',
             motorWarningCurrent: 1200,
@@ -2018,6 +2151,7 @@ export default {
         },
         {
             name: 'fysetc_spider',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'Fysetc Spider 407 Version',
             motorWarningCurrent: 1200,
@@ -2123,6 +2257,7 @@ export default {
         },
         {
             name: 'fly_super8',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'Fly Super8',
             motorWarningCurrent: 1800,
@@ -2235,6 +2370,7 @@ export default {
         },
         {
             name: 'fly_cdyv3',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'Fly-CDYv3',
             motorWarningCurrent: 1200,
@@ -2341,6 +2477,7 @@ export default {
         },
         {
             name: 'fly_e3_prov3',
+            requiresBoardTxt: false,
             type: 'STM32F4',
             caption: 'Fly-E3-Pro-v3',
             motorWarningCurrent: 1200,
@@ -2444,6 +2581,7 @@ export default {
         },
         {
             name: 'biqoctopus_1.1',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'BTT Octopus v1.1 F429',
             motorWarningCurrent: 1200,
@@ -2555,6 +2693,7 @@ export default {
         },
         {
             name: 'biqoctopuspro_1.0',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'BTT Octopus Pro v1.0 F429',
             motorWarningCurrent: 1200,
@@ -2666,6 +2805,7 @@ export default {
         },
         {
             name: 'fly_gemini',
+            requiresBoardTxt: false,
             type: 'STM32F4',
             caption: 'Fly-Gemini',
             motorWarningCurrent: 1200,
@@ -2762,6 +2902,7 @@ export default {
         },
         {
             name: 'fly_geminiv1.1',
+            requiresBoardTxt: false,
             type: 'STM32F4',
             caption: 'Fly-Gemini-V1.1',
             motorWarningCurrent: 1200,
@@ -2858,6 +2999,7 @@ export default {
         },
         {
             name: 'fly_geminiv2.0',
+            requiresBoardTxt: false,
             type: 'STM32F4',
             caption: 'Fly-Gemini-V2.0',
             motorWarningCurrent: 1200,
@@ -2954,6 +3096,7 @@ export default {
         },
         {
             name: 'biquskr_3',
+            requiresBoardTxt: true,
             type: 'STM32H7',
             caption: 'BTT SKR3 H743',
             motorWarningCurrent: 1200,
@@ -3056,6 +3199,7 @@ export default {
         },
         {
             name: 'fly_super8h7',
+            requiresBoardTxt: true,
             type: 'STM32H7',
             caption: 'Fly Super8 Pro H743',
             motorWarningCurrent: 1800,
@@ -3168,6 +3312,7 @@ export default {
         },
         {
             name: 'fly_super8_pro_h723',
+            requiresBoardTxt: true,
             type: 'STM32H7',
             caption: 'Fly Super8 Pro H723',
             motorWarningCurrent: 1800,
@@ -3280,6 +3425,7 @@ export default {
         },
         {
             name: 'biquskr_3_h723',
+            requiresBoardTxt: true,
             type: 'STM32H7',
             caption: 'BTT SKR3 H723',
             motorWarningCurrent: 1200,
@@ -3382,6 +3528,7 @@ export default {
         },
         {
             name: 'biquskr_3_ez',
+            requiresBoardTxt: true,
             type: 'STM32H7',
             caption: 'BTT SKR3 EZ',
             motorWarningCurrent: 1200,
@@ -3484,6 +3631,7 @@ export default {
         },
         {
             name: 'fly_e3_v2',
+            requiresBoardTxt: true,
             type: 'STM32F4',
             caption: 'Fly-E3-v2',
             motorWarningCurrent: 1200,
@@ -3587,6 +3735,7 @@ export default {
         },
         {
             name: 'fly_super5_h723',
+            requiresBoardTxt: true,
             type: 'STM32H7',
             caption: 'Fly Super5 Pro H723',
             motorWarningCurrent: 1800,

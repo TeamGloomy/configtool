@@ -38,6 +38,7 @@ export default {
 		panelDue: 'template.panelDue',
 		customSettings: 'template.custom_settings',
 		standalone: 'template.standalone',
+		requiresBoardTxt: `template.requiresBoardTxt`,
 		requiresBeta: 'template.requiresBeta'
 	}),
 	methods: {

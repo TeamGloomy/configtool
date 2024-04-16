@@ -9,11 +9,8 @@
 //    : Comments can be defined with // or # (comments are not supported inside arrays)
 //    : Each config entry must be all on a single line.
 
-board = <%- template.board -%>; 
-
 //LED blinks to indicate Platform is spinning or other diagnostic 
 //Comment out or set to NoPin if not wanted.
-leds.diagnostic = <%- board.lpc.diagnosticPin -%>; 
 
 <% if (template.display.type)  { -%>
 //LCD Pins (only ST9720 SPI currently supported)

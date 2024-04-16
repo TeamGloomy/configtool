@@ -118,6 +118,7 @@ export default new Vuex.Store({
 			state.template.requiresBeta = newBoard.requiresBeta;
 			state.requiresBeta = newBoard.requiresBeta;
 			state.board.requiresBeta = newBoard.requiresBeta;
+			state.template.requiresBoardTxt = newBoard.requiresBoardTxt;
 			state.template.network.enabled = newBoard.hasESPOnboard;
 			state.template.network.espRXTX = newBoard.hasESPOnboard || newBoard.requiresRXTX;
 			state.template.network.enabled32 = newBoard.hasESP32Onboard;
