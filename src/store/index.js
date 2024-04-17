@@ -116,6 +116,7 @@ export default new Vuex.Store({
 			});
 
 			state.template.requiresBeta = newBoard.requiresBeta;
+			state.template.firmwareNew = newBoard.firmwareNew
 			state.requiresBeta = newBoard.requiresBeta;
 			state.board.requiresBeta = newBoard.requiresBeta;
 			state.template.requiresBoardTxt = newBoard.requiresBoardTxt;

@@ -8,6 +8,9 @@ export default {
 	getDefaultTemplate() {
 		return {
 			board: 'fly_e3_prov3',
+			showLPC: false,
+			firmwareNew: false,
+			unknownWifi: false,
 			requiresBoardTxt: false,
 			expansion_boards: [],
 			firmware: 3.00,

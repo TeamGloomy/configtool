@@ -5,11 +5,11 @@
 				<b-col>
 					<b-form-group :label="$t('general.board')">
 						<b-form-select :value="template.board" @change="setSelectedBoard($event)" v-preset="preset.board" :title="$t('general.boardDescription')">
-							<option value="azsmz">Azsmz Mini</option>
-							<option value="azteegX5_1.1">Azteeg X5 Mini v1.1</option>
-							<option value="biqoctopus_1.1">BTT Octopus v1.1 F429</option>
+							<option v-if="template.showLPC" value="azsmz">Azsmz Mini</option>
+							<option v-if="template.showLPC" value="azteegX5_1.1">Azteeg X5 Mini v1.1</option>
+							<option v-if="template.showLPC" value="biqoctopus_1.1">BTT Octopus v1.1 F429</option>
 							<option value="biqoctopuspro_1.0">BTT Octopus Pro v1.0 F429</option>
-							<option value="fly_cdy">Fly-CDY</option>
+							<option v-if="template.showLPC" value="fly_cdy">Fly-CDY</option>
 							<option value="fly_cdyv2">Fly-CDYv2</option>
 							<option value="fly_cdyv3">Fly-CDYv3</option>
 							<option value="fly_E3">Fly-E3</option>
@@ -25,23 +25,23 @@
 							<option value="fly_super8h7">Fly-Super8-Pro H743</option>
 							<option value="fly_super8_pro_h723">Fly-Super8-Pro H723</option>
 							<option value="fysetc_spider">Fysetc Spider 407 Version</option>
-							<option value="mkssbase_1.3">MKS SBase 1.3</option>
-							<option value="mkssgenl_1.0">MKS SGen L v1.0</option>
-							<option value="mkssgenl_2.0">MKS SGen L v2.0</option>
-							<option value="rearm">ReArm</option>
-							<option value="biquskr_e3t">SKR E3 Turbo</option>
+							<option v-if="template.showLPC" value="mkssbase_1.3">MKS SBase 1.3</option>
+							<option v-if="template.showLPC" value="mkssgenl_1.0">MKS SGen L v1.0</option>
+							<option v-if="template.showLPC" value="mkssgenl_2.0">MKS SGen L v2.0</option>
+							<option v-if="template.showLPC" value="rearm">ReArm</option>
+							<option v-if="template.showLPC" value="biquskr_e3t">SKR E3 Turbo</option>
 							<option value="biqugtr_1.0">SKR GTR v1.0</option>
 							<option value="biquskrpro_1.1">SKR Pro v1.1</option>
 							<option value="biquskrpro_1.2">SKR Pro v1.2</option>
 							<option value="biquskr_rrf_e3_1.1">SKR RRF E3 v1.1</option>
-							<option value="biquskr_1.1">SKR v1.1</option>
-							<option value="biquskr_1.3">SKR v1.3</option>
-							<option value="biquskr_1.4">SKR v1.4</option>
+							<option v-if="template.showLPC" value="biquskr_1.1">SKR v1.1</option>
+							<option v-if="template.showLPC" value="biquskr_1.3">SKR v1.3</option>
+							<option v-if="template.showLPC" value="biquskr_1.4">SKR v1.4</option>
 							<option value="biquskr_2">SKR v2.0</option>
 							<option value="biquskr_3">SKR v3 H743</option>#
 							<option value="biquskr_3_ez">SKR v3 EZ</option>
 							<option value="biquskr_3_h723">SKR v3 H723</option>
-							<option value="smoothieboard">Smoothieboard</option>
+							<option v-if="template.showLPC" value="smoothieboard">Smoothieboard</option>
 							<!--option value="duet085">Duet 0.8.5</option>
 							<option value="duetwifi10">Duet 2 WiFi</option>
 							<option value="duetethernet10">Duet 2 Ethernet</option>
@@ -60,7 +60,8 @@
 							<option :value="1.21">1.21</option>
 							<option :value="2">2.0</option>
 							<option :value="2.03">2.03 to 2.05</option-->
-							<option :value="3">3.0 or later (stable)</option>
+							<option :value="3">3.4(stable)</option>
+							<option v-if="!template.showLPC" :value="3.5">3.5(stable)</option>
 						</b-form-select>
 					</b-form-group>
 				</b-col>
@@ -73,6 +74,7 @@
 			</b-form-row>
 
 			<!--b-form-checkbox v-if="template.board === 'duet3'" v-model="standalone" v-preset.left title="Run RepRapFirmware in stand-alone mode without an attached single-board computer">Run in standalone mode without SBC</b-form-checkbox-->
+			<b-form-checkbox v-model="showLPC" v-preset.left title="Show LPC Boards">Show LPC Boards</b-form-checkbox>
 			<b-form-checkbox v-if="board.hasSBC && !board.hasSBCOnboard" v-model="standalone" v-preset.left :title="$t('general.sbcDescription')">{{$t('general.sbc')}}</b-form-checkbox>
 			<b-form-checkbox v-model="nvram" v-preset.left :title="$t('general.M501Description')">{{$t('general.M501')}}</b-form-checkbox>
 			<b-form-checkbox v-if="board.hasPowerFailureDetection" v-model="autoSaveEnabled" v-preset.left="preset.auto_save.enabled" :title="$t('general.M911Description')">{{$t('general.M911')}}</b-form-checkbox>
@@ -230,6 +232,7 @@ export default {
 		...mapFields({
 			name: 'template.network.name',
 			standalone: 'template.standalone',
+			showLPC: 'template.showLPC',
 			nvram: 'template.nvram',
 			autoSaveEnabled: 'template.auto_save.enabled',
 			autoSaveThreshold: 'template.auto_save.save_threshold',

@@ -53,7 +53,7 @@ tr > td:last-child > select {
 				<timing-input :drive="drive" :index="index"/>
 			</b-form-group>
 		</td>
-		<td v-show="board.stepperDriver=='' && ((board.type=='STM32F4' || board.type=='STM32H7') && board.name != 'fly_F407ZG')">
+		<td v-show="board.stepperDriver=='' && ((board.type=='STM32F4' || board.type=='STM32H7') && template.firmware == 3 && board.name != 'fly_F407ZG')">
 			<b-select v-model="driverOption" v-preset :title="$t('motors.row.stepperDriver')">
 				<option v-for="(value, name) in stepperDriverTimingsSTM32F4" v-bind:key="name" v-bind:value="name">{{name}}</option>
 			</b-select> 
@@ -61,6 +61,11 @@ tr > td:last-child > select {
 			<b-form-group :label="$t('motors.row.stepperTiming')" v-show="drive.stepperDriver == 'Custom'">
 				<timing-input :drive="drive" :index="index"/>
 			</b-form-group>
+		</td>
+		<td v-show="board.stepperDriver=='' && ((board.type=='STM32F4' || board.type=='STM32H7') && template.firmware == 3.5 && board.name != 'fly_F407ZG')">
+			<b-select v-model="driverOption" v-preset :title="$t('motors.row.stepperDriver')">
+				<option v-for="(value, name) in stepperDriverTimingsSTM32F4_35" v-bind:key="name" v-bind:value="name">{{name}}</option>
+			</b-select> 
 		</td>
 		<td :class="{ 'reduce-padding' : drive.microstepping_interpolation }" v-show="board.microstepping">
 			<b-select v-model="microsteppingOption" v-preset="presetMicrosteppingOption" :title="$t('motors.row.microstepping')" :disabled="!board.microstepping">
@@ -134,18 +139,17 @@ export default {
 				"Custom": "1.0:1.0:0.4:0.4",
 			},
 			stepperDriverTimingsSTM32F4: {
-				"DRV8825": "1.9:1.9:0.65:0.65",
-				"A4988": "1.0:1.0:0.2:0.2",
-				"A4982": "1.0:1.0:0.2:0.2",
-				"A5984": "1.0:1.0:0.4:0.4",
-				"THB6128": "0.5:0.5:0.5:0.5",
 				"TMC2208": "",
 				"TMC2209": "",
-				"TMC2225": "",
-				"TMC2226": "",
 				"TMC5160": "",
-				"LV8729" : "0.5:0.5:0.5:0.5",
-				"Custom": "1.0:1.0:0.4:0.4",
+				"stepdir": "",
+			},
+			stepperDriverTimingsSTM32F4_35: {
+				"TMC2208": "",
+				"TMC2209": "",
+				"TMC2240": "",
+				"TMC5160": "",
+				"stepdir": "",
 			},
 		}
 	},

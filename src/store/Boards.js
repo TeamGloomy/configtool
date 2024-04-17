@@ -1049,6 +1049,7 @@ export default {
         {
             name: 'biquskrpro_1.1',
             requiresBoardTxt: true,
+            unknownWifi: true,
             type: 'STM32F4',
             caption: 'SKR Pro',
             motorWarningCurrent: 1200,
@@ -1079,6 +1080,7 @@ export default {
             firmwareSBCFile: 'firmware-stm32f4-sbc',
             firmwareWifiFile: 'DuetWiFiServer-esp8266-stm32',
             firmwareWifi32File: 'DuetWiFiServer-esp32-stm32',
+            firmwareNew: 'btt/firmware_skrpro1_1_f4.bin',
             requiresBeta: false,
             iapFile: '',
             expansionBoards: ['BTT EXP-MOT'],
@@ -1174,6 +1176,7 @@ export default {
         {
             name: 'biquskrpro_1.2',
             requiresBoardTxt: true,
+            unknownWifi: true,
             type: 'STM32F4',
             caption: 'SKR Pro',
             motorWarningCurrent: 1200,
@@ -1299,6 +1302,7 @@ export default {
         {
             name: 'biqugtr_1.0',
             requiresBoardTxt: true,
+            unknownWifi: true,
             type: 'STM32F4',
             caption: 'SKR GTR v1.0',
             motorWarningCurrent: 1200,
@@ -1525,6 +1529,7 @@ export default {
         {
             name: 'fly_F407ZG',
             requiresBoardTxt: true,
+            unknownWifi: true,
             type: 'STM32F4',
             caption: 'Fly-F407ZG',
             motorWarningCurrent: 1200,
@@ -1640,6 +1645,7 @@ export default {
         {
             name: 'fly_E3',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-E3',
             motorWarningCurrent: 1200,
@@ -1740,6 +1746,7 @@ export default {
         {
             name: 'fly_cdyv2',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-CDYv2',
             motorWarningCurrent: 1200,
@@ -1846,6 +1853,7 @@ export default {
         {
             name: 'biquskr_rrf_e3_1.1',
             requiresBoardTxt: false,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'SKR-RFF-E3-v1.1',
             motorWarningCurrent: 1200,
@@ -1946,6 +1954,7 @@ export default {
         {
             name: 'fly_e3_pro',
             requiresBoardTxt: false,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-E3-Pro',
             motorWarningCurrent: 1200,
@@ -2049,6 +2058,7 @@ export default {
         {
             name: 'biquskr_2',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'BTT SKR 2',
             motorWarningCurrent: 1200,
@@ -2152,6 +2162,7 @@ export default {
         {
             name: 'fysetc_spider',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fysetc Spider 407 Version',
             motorWarningCurrent: 1200,
@@ -2258,6 +2269,7 @@ export default {
         {
             name: 'fly_super8',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly Super8',
             motorWarningCurrent: 1800,
@@ -2371,6 +2383,7 @@ export default {
         {
             name: 'fly_cdyv3',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-CDYv3',
             motorWarningCurrent: 1200,
@@ -2478,6 +2491,7 @@ export default {
         {
             name: 'fly_e3_prov3',
             requiresBoardTxt: false,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-E3-Pro-v3',
             motorWarningCurrent: 1200,
@@ -2582,6 +2596,7 @@ export default {
         {
             name: 'biqoctopus_1.1',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'BTT Octopus v1.1 F429',
             motorWarningCurrent: 1200,
@@ -2694,6 +2709,7 @@ export default {
         {
             name: 'biqoctopuspro_1.0',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'BTT Octopus Pro v1.0 F429',
             motorWarningCurrent: 1200,
@@ -2806,6 +2822,7 @@ export default {
         {
             name: 'fly_gemini',
             requiresBoardTxt: false,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-Gemini',
             motorWarningCurrent: 1200,
@@ -2903,6 +2920,7 @@ export default {
         {
             name: 'fly_geminiv1.1',
             requiresBoardTxt: false,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-Gemini-V1.1',
             motorWarningCurrent: 1200,
@@ -3000,6 +3018,7 @@ export default {
         {
             name: 'fly_geminiv2.0',
             requiresBoardTxt: false,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-Gemini-V2.0',
             motorWarningCurrent: 1200,
@@ -3097,6 +3116,7 @@ export default {
         {
             name: 'biquskr_3',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32H7',
             caption: 'BTT SKR3 H743',
             motorWarningCurrent: 1200,
@@ -3200,6 +3220,7 @@ export default {
         {
             name: 'fly_super8h7',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32H7',
             caption: 'Fly Super8 Pro H743',
             motorWarningCurrent: 1800,
@@ -3313,6 +3334,7 @@ export default {
         {
             name: 'fly_super8_pro_h723',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32H7',
             caption: 'Fly Super8 Pro H723',
             motorWarningCurrent: 1800,
@@ -3426,6 +3448,7 @@ export default {
         {
             name: 'biquskr_3_h723',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32H7',
             caption: 'BTT SKR3 H723',
             motorWarningCurrent: 1200,
@@ -3529,6 +3552,7 @@ export default {
         {
             name: 'biquskr_3_ez',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32H7',
             caption: 'BTT SKR3 EZ',
             motorWarningCurrent: 1200,
@@ -3632,6 +3656,7 @@ export default {
         {
             name: 'fly_e3_v2',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32F4',
             caption: 'Fly-E3-v2',
             motorWarningCurrent: 1200,
@@ -3736,6 +3761,7 @@ export default {
         {
             name: 'fly_super5_h723',
             requiresBoardTxt: true,
+            unknownWifi: false,
             type: 'STM32H7',
             caption: 'Fly Super5 Pro H723',
             motorWarningCurrent: 1800,

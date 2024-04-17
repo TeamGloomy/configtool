@@ -87,12 +87,16 @@ export default {
 		} else if (filename.startsWith('tpost')) {
 			targetFilename = 'templates/tpost.ejs';
 			options.index = parseInt(filename.match('tpost(\\d+).g')[1]);
-		} else if (filename.startsWith("board")) {
+		} else if (template.firmware == 3 && filename.startsWith("board")) {
             targetFilename = "templates/board.ejs";
             //dont align comments for Board.txt
             const content = await this.compileFile(targetFilename, options);
             return content;
-
+        } else if (template.firmware == 3.5 && filename.startsWith("board")) {
+            targetFilename = "templates/board1.ejs";
+            //dont align comments for Board.txt
+            const content = await this.compileFile(targetFilename, options);
+            return content;
         }
 
 		const content = await this.compileFile(targetFilename, options);
