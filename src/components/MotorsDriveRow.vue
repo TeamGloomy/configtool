@@ -22,6 +22,9 @@ tr > td:nth-child(3) > select {
 tr > td:nth-child(4) > select {
 	width: 8rem;
 }
+tr > td:nth-child(5) > select {
+	width: 8rem;
+}
 tr > td:nth-child(5) > div,
 tr > td:nth-child(6) > input,
 tr > td:nth-child(9) > input {
