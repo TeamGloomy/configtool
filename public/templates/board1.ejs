@@ -9,11 +9,14 @@
 //    : Comments can be defined with // or # (comments are not supported inside arrays)
 //    : Each config entry must be all on a single line.
 
-<%_ let stepperDrivers = []; -%>
-    <%_ for (let i = 0; i < template.drives.length -1; ++i) { -%>
-        <%_ stepperDrivers.push(template.drives[i].stepperDriver); -%>
+
+<%_ let noStepperDrivers = []; -%>
+    <%_ for (let i = 0; i < template.drives.length; ++i) { -%>
+        <%_ if (template.drives[i].stepperDriver != "")  { -%>
+            <%_ noStepperDrivers.push(template.drives[i].stepperDriver); -%>
+        <%_ } _%>
     <%_ } _%>
-stepper.DriverType = {<%- stepperDrivers -%>}
+stepper.DriverType = {<%- noStepperDrivers -%>}
 
 <%_ if (board.hasESP && board.unknownWifi)  { -%>
 	<%_ if (template.network.enabled || template.network.enabled32) { -%>
@@ -26,9 +29,7 @@ stepper.DriverType = {<%- stepperDrivers -%>}
 <%	if (board.name == 'fly_F407ZG' && board.hasESP && template.network.enabled && board.unknownWifi) { -%>
 8266wifi.csPin = <%- board.wifi8266CSPin -%>;	
 <% } -%>
-<%_ if ((template.network.espRXTX || template.network.esp32RXTX) && (template.network.enabled || template.network.enabled32)) { -%>
+<%_ if ((template.network.espRXTX || template.network.esp32RXTX) && (template.network.enabled || template.network.enabled32) && board.needWifiSerial) { -%>
 //ESP RX/TX Settings
 8266wifi.serialRxTxPins = { <%- board.serialRxPin %>, <%- board.serialTxPin -%> } ;
-serial.aux.rxTxPins = {NoPin, NoPin};
 <%_ } -%>
-

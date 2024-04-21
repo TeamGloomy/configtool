@@ -7,7 +7,7 @@
 						<b-form-select :value="template.board" @change="setSelectedBoard($event)" v-preset="preset.board" :title="$t('general.boardDescription')">
 							<option v-if="template.showLPC" value="azsmz">Azsmz Mini</option>
 							<option v-if="template.showLPC" value="azteegX5_1.1">Azteeg X5 Mini v1.1</option>
-							<option v-if="template.showLPC" value="biqoctopus_1.1">BTT Octopus v1.1 F429</option>
+							<option value="biqoctopus_1.1">BTT Octopus v1.1 F429</option>
 							<option value="biqoctopuspro_1.0">BTT Octopus Pro v1.0 F429</option>
 							<option v-if="template.showLPC" value="fly_cdy">Fly-CDY</option>
 							<option value="fly_cdyv2">Fly-CDYv2</option>
@@ -24,7 +24,6 @@
 							<option value="fly_super8">Fly-Super8</option>
 							<option value="fly_super8h7">Fly-Super8-Pro H743</option>
 							<option value="fly_super8_pro_h723">Fly-Super8-Pro H723</option>
-							<option value="fysetc_spider">Fysetc Spider 407 Version</option>
 							<option v-if="template.showLPC" value="mkssbase_1.3">MKS SBase 1.3</option>
 							<option v-if="template.showLPC" value="mkssgenl_1.0">MKS SGen L v1.0</option>
 							<option v-if="template.showLPC" value="mkssgenl_2.0">MKS SGen L v2.0</option>
@@ -60,8 +59,8 @@
 							<option :value="1.21">1.21</option>
 							<option :value="2">2.0</option>
 							<option :value="2.03">2.03 to 2.05</option-->
-							<option :value="3">3.4(stable)</option>
-							<option v-if="!template.showLPC" :value="3.5">3.5(stable)</option>
+							<option :value="3">3.4</option>
+							<option v-if="!template.showLPC" :value="3.5">3.5 (stable)</option>
 						</b-form-select>
 					</b-form-group>
 				</b-col>

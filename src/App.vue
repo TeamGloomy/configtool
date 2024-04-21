@@ -243,7 +243,7 @@ export default {
 						if (latestRelease) {
 							// Try to download RRF from our own assets
 							try {
-								this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${this.board.firmwareStandaloneFile+'-'+latestReleaseNew+'.bin'}`, 'blob', 'application/octet-stream');
+								this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${this.board.firmwareStandaloneFile+'-'+latestReleaseNew+'.bin'}`, 'blob', 'application/octet-stream');
 								this.rrfFile.name = this.board.firmwareStandaloneFile;
 							} catch {
 								this.rrfFile = null;
@@ -254,7 +254,7 @@ export default {
 							// Try to download IAP from our own assets
 							const iapFile = (!this.template.board.startsWith('duet3') || this.template.standalone) ? this.board.iapFile : null;
 							try {
-								this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${iapFile}`, 'blob', 'application/octet-stream');
+								this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${iapFile}`, 'blob', 'application/octet-stream');
 								this.iapFile.name = iapFile;
 							} catch {
 								this.iapFile = null;
@@ -268,12 +268,12 @@ export default {
 									if (this.rrfFile === null && item.name === this.board.firmwareStandaloneFile+'-'+latestReleaseNew+'.bin') {
 										rrfLink = item.browser_download_url;
 										this.rrfVersion = latestRelease.tag_name;
-										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${item.name}`, 'blob', 'application/octet-stream');
 										this.rrfFile.name = item.name;
 									}
 									else if (this.iapFile === null && item.name === iapFile) {
 										iapLink = item.browser_download_url;
-										this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${item.name}`, 'blob', 'application/octet-stream');
 										this.iapFile.name = item.name;
 									}
 								} catch (e) {
@@ -318,7 +318,7 @@ export default {
 									if (item.name.indexOf('esp') !== -1) {
 										rrfLink = item.browser_download_url;
 										this.rrfVersion = latestRelease.tag_name;
-										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${(this.board.firmwareStandaloneFile+'-'+latestReleaseNew+'.bin')}`, 'blob', 'application/octet-stream');
+										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${(this.board.firmwareStandaloneFile+'-'+latestReleaseNew+'.bin')}`, 'blob', 'application/octet-stream');
 										this.rrfFile.name = item.name;
 									}
 								} catch (e) {
@@ -356,7 +356,7 @@ export default {
 						if (latestRelease) {
 							// Try to download RRF from our own assets
 							try {
-								this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${this.board.firmwareStandaloneFile+'-'+latestReleaseNew+'.bin'}`, 'blob', 'application/octet-stream');
+								this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${this.board.firmwareStandaloneFile+'-'+latestReleaseNew+'.bin'}`, 'blob', 'application/octet-stream');
 								this.rrfFile.name = this.board.firmwareStandaloneFile;
 							} catch {
 								this.rrfFile = null;
@@ -367,7 +367,7 @@ export default {
 							// Try to download IAP from our own assets
 							const iapFile = (!this.template.board.startsWith('duet3') || this.template.standalone) ? this.board.iapFile : null;
 							try {
-								this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${iapFile}`, 'blob', 'application/octet-stream');
+								this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${iapFile}`, 'blob', 'application/octet-stream');
 								this.iapFile.name = iapFile;
 							} catch {
 								this.iapFile = null;
@@ -381,12 +381,12 @@ export default {
 									if (this.rrfFile === null && item.name === this.board.firmwareSBCFile+'-'+latestReleaseNew+'.bin') {
 										rrfLink = item.browser_download_url;
 										this.rrfVersion = latestRelease.tag_name;
-										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${item.name}`, 'blob', 'application/octet-stream');
 										this.rrfFile.name = item.name;
 									}
 									else if (this.iapFile === null && item.name === iapFile) {
 										iapLink = item.browser_download_url;
-										this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										this.iapFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${item.name}`, 'blob', 'application/octet-stream');
 										this.iapFile.name = item.name;
 									}
 								} catch (e) {
@@ -431,7 +431,7 @@ export default {
 									if (item.name.indexOf('sbc') !== -1) {
 										rrfLink = item.browser_download_url;
 										this.rrfVersion = latestRelease.tag_name;
-										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-${latestRelease.tag_name}/${(this.board.firmwareSBCFile+'-'+latestReleaseNew+'.bin')}`, 'blob', 'application/octet-stream');
+										this.rrfFile = await Compiler.downloadFile(`assets/RepRapFirmware-v3.4.6_101/${(this.board.firmwareSBCFile+'-'+latestReleaseNew+'.bin')}`, 'blob', 'application/octet-stream');
 										this.rrfFile.name = item.name;
 									}
 								} catch (e) {
@@ -447,260 +447,398 @@ export default {
 						console.warn(`Failed to load RRF: ${e}`);
 					}
 				}
-			}
+				// Load ESP8266 stable from the server
+				if (this.addWiFi && this.template.standalone && this.template.network.enabled && !this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
 
-			// Load latest unstable RRF version from GitHub
-			if (this.addRRF && this.template.firmware == 3.5) {
-				try {
-					// Get GitHub list of releases and assets. 
-					const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/RepRapFirmware/releases', 'json');
-					const firmware = this.template.firmware;
-					let latestRelease = null;
-					releaseInfo.forEach(function(item) {
-						if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
-							latestRelease = item;
-						}
-					});
+						// Attempt to download the required files (IAP+RRF)
+						let latestReleaseNew = latestRelease.tag_name.substring(1);
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
 
-					// Attempt to download the required files (IAP+RRF)
-					let latestReleaseNew = latestRelease.tag_name.substring(1);
-					let latestReleaseNew1 = latestReleaseNew.toLowerCase();
-					if (latestRelease) {
-						// Fall back to GitHub (although this probably won't work due to their odd CORS restrictions)
-						for (let i = 0; i < latestRelease.assets.length; i++) {
-							const item = latestRelease.assets[i];
-							let rrfLink = null;
-							try {
-								rrfLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`;
-								this.rrfVersion = latestRelease.tag_name;
-								this.rrfFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`, 'blob', 'application/octet-stream');
-								this.rrfFile.name = item.name;
-								
-							} catch (e) {
-								if (rrfLink && this.rrfFile === null) {
-									this.rrfLink = rrfLink;
+								let wifiLink = null;
+								try {
+									if (item.name === this.board.firmwareWifiFile+'-'+latestReleaseNew+'.bin') {
+										wifiLink = item.browser_download_url;
+										this.wifiVersion = latestRelease.tag_name;
+										this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.wifiLink = wifiLink;
 								}
 							}
 						}
-					} else {
-						throw 'Could not find suitable RepRapFirmware version on GitHub';
+					} catch (e) {
+						console.warn(`Failed to load ESP: ${e}`);
 					}
-				} catch (e) {
-					console.warn(`Failed to load RRF: ${e}`);
 				}
-			}
 
-			// Load ESP8266 stable from the server
-			if (this.addWiFi && this.template.standalone && this.template.network.enabled && !this.template.requiresBeta) {
-				try {
-					// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
-					const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
-					let latestRelease = null;
-					releaseInfo.forEach(function(item) {
-						if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
-							latestRelease = item;
-						}
-					});
+				// Load ESP8266 unstable from the server
+				if (this.addWiFi && this.template.standalone && this.template.network.enabled && this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
 
-					// Attempt to download the required files (IAP+RRF)
-					let latestReleaseNew = latestRelease.tag_name.substring(1);
-					if (latestRelease) {
-						for (let i = 0; i < latestRelease.assets.length; i++) {
-							const item = latestRelease.assets[i];
+						// Attempt to download the required files (IAP+RRF)
+						let latestReleaseNew = latestRelease.tag_name.substring(1);
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
 
-							let wifiLink = null;
-							try {
-								if (item.name === this.board.firmwareWifiFile+'-'+latestReleaseNew+'.bin') {
-									wifiLink = item.browser_download_url;
-									this.wifiVersion = latestRelease.tag_name;
-									this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
-									break;
+								let wifiLink = null;
+								try {
+									if (item.name === this.board.firmwareWifiFile+'-'+latestReleaseNew+'.bin') {
+										wifiLink = item.browser_download_url;
+										this.wifiVersion = latestRelease.tag_name;
+										this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.wifiLink = wifiLink;
 								}
-							} catch (e) {
-								this.wifiLink = wifiLink;
 							}
 						}
+					} catch (e) {
+						console.warn(`Failed to load ESP: ${e}`);
 					}
-				} catch (e) {
-					console.warn(`Failed to load ESP: ${e}`);
 				}
-			}
 
-			// Load ESP8266 unstable from the server
-			if (this.addWiFi && this.template.standalone && this.template.network.enabled && this.template.requiresBeta) {
-				try {
-					// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
-					const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
-					let latestRelease = null;
-					releaseInfo.forEach(function(item) {
-						if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
-							latestRelease = item;
-						}
-					});
+				// Load ESP32 stable from the server
+				if (this.addWiFi && this.template.standalone && this.template.network.enabled32 && !this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
 
-					// Attempt to download the required files (IAP+RRF)
-					let latestReleaseNew = latestRelease.tag_name.substring(1);
-					if (latestRelease) {
-						for (let i = 0; i < latestRelease.assets.length; i++) {
-							const item = latestRelease.assets[i];
+						// Attempt to download the required files (IAP+RRF)
+						let latestReleaseNew = latestRelease.tag_name.substring(1);
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
 
-							let wifiLink = null;
-							try {
-								if (item.name === this.board.firmwareWifiFile+'-'+latestReleaseNew+'.bin') {
-									wifiLink = item.browser_download_url;
-									this.wifiVersion = latestRelease.tag_name;
-									this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
-									break;
+								let wifiLink = null;
+								try {
+									if (item.name === this.board.firmwareWifi32File+'-'+latestReleaseNew+'.bin') {
+										wifiLink = item.browser_download_url;
+										this.wifiVersion = latestRelease.tag_name;
+										this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.wifiLink = wifiLink;
 								}
-							} catch (e) {
-								this.wifiLink = wifiLink;
 							}
 						}
+					} catch (e) {
+						console.warn(`Failed to load ESP: ${e}`);
 					}
-				} catch (e) {
-					console.warn(`Failed to load ESP: ${e}`);
 				}
-			}
 
-			// Load ESP32 stable from the server
-			if (this.addWiFi && this.template.standalone && this.template.network.enabled32 && !this.template.requiresBeta) {
-				try {
-					// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
-					const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
-					let latestRelease = null;
-					releaseInfo.forEach(function(item) {
-						if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
-							latestRelease = item;
-						}
-					});
+				// Load ESP32 unstable from the server
+				if (this.addWiFi && this.template.standalone && this.template.network.enabled32 && this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
 
-					// Attempt to download the required files (IAP+RRF)
-					let latestReleaseNew = latestRelease.tag_name.substring(1);
-					if (latestRelease) {
-						for (let i = 0; i < latestRelease.assets.length; i++) {
-							const item = latestRelease.assets[i];
+						// Attempt to download the required files (IAP+RRF)
+						let latestReleaseNew = latestRelease.tag_name.substring(1);
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
 
-							let wifiLink = null;
-							try {
-								if (item.name === this.board.firmwareWifi32File+'-'+latestReleaseNew+'.bin') {
-									wifiLink = item.browser_download_url;
-									this.wifiVersion = latestRelease.tag_name;
-									this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
-									break;
+								let wifiLink = null;
+								try {
+									if (item.name === this.board.firmwareWifi32File+'-'+latestReleaseNew+'.bin') {
+										wifiLink = item.browser_download_url;
+										this.wifiVersion = latestRelease.tag_name;
+										this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.wifiLink = wifiLink;
 								}
-							} catch (e) {
-								this.wifiLink = wifiLink;
 							}
 						}
+					} catch (e) {
+						console.warn(`Failed to load ESP: ${e}`);
 					}
-				} catch (e) {
-					console.warn(`Failed to load ESP: ${e}`);
 				}
-			}
 
-			// Load ESP32 unstable from the server
-			if (this.addWiFi && this.template.standalone && this.template.network.enabled32 && this.template.requiresBeta) {
-				try {
-					// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
-					const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/DuetWiFiSocketServer/releases', 'json');
-					let latestRelease = null;
-					releaseInfo.forEach(function(item) {
-						if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
-							latestRelease = item;
-						}
-					});
+				// Load DWC stable from the server
+				if (this.addDWC && this.template.standalone && !this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/chrishamm/DuetWebControl/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
 
-					// Attempt to download the required files (IAP+RRF)
-					let latestReleaseNew = latestRelease.tag_name.substring(1);
-					if (latestRelease) {
-						for (let i = 0; i < latestRelease.assets.length; i++) {
-							const item = latestRelease.assets[i];
+						// Attempt to download the required files (IAP+RRF)
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
 
-							let wifiLink = null;
-							try {
-								if (item.name === this.board.firmwareWifi32File+'-'+latestReleaseNew+'.bin') {
-									wifiLink = item.browser_download_url;
-									this.wifiVersion = latestRelease.tag_name;
-									this.wifiFile = await Compiler.downloadFile(`assets/DuetWiFiSocketServer-${latestRelease.tag_name}/${item.name}`, 'blob', 'application/octet-stream');
-									break;
+								let dwcLink = null;
+								try {
+									if (item.name.indexOf('SD') !== -1) {
+										dwcLink = 'https://github.com/Duet3D/DuetWebControl/releases/download/v3.4.6/DuetWebControl-SD.zip';
+										this.dwcVersion = 'v3.4.6';
+										this.dwcFile = await Compiler.downloadFile(`assets/DuetWebControl-${latestRelease.tag_name}.zip`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.dwcLink = dwcLink;
 								}
-							} catch (e) {
-								this.wifiLink = wifiLink;
 							}
 						}
+					} catch (e) {
+						console.warn(`Failed to load DWC: ${e}`);
 					}
-				} catch (e) {
-					console.warn(`Failed to load ESP: ${e}`);
 				}
-			}
 
-			// Load DWC stable from the server
-			if (this.addDWC && this.template.standalone && !this.template.requiresBeta) {
-				try {
-					// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
-					const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/chrishamm/DuetWebControl/releases', 'json');
-					let latestRelease = null;
-					releaseInfo.forEach(function(item) {
-						if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
-							latestRelease = item;
-						}
-					});
+				// Load DWC unstable from the server
+				if (this.addDWC && this.template.standalone && this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/chrishamm/DuetWebControl/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
 
-					// Attempt to download the required files (IAP+RRF)
-					if (latestRelease) {
-						for (let i = 0; i < latestRelease.assets.length; i++) {
-							const item = latestRelease.assets[i];
+						// Attempt to download the required files (IAP+RRF)
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
 
-							let dwcLink = null;
-							try {
-								if (item.name.indexOf('SD') !== -1) {
-									dwcLink = item.browser_download_url;
-									this.dwcVersion = latestRelease.tag_name;
-									this.dwcFile = await Compiler.downloadFile(`assets/DuetWebControl-${latestRelease.tag_name}.zip`, 'blob', 'application/octet-stream');
-									break;
+								let dwcLink = null;
+								try {
+									if (item.name.indexOf('SD') !== -1) {
+										dwcLink = item.browser_download_url;
+										this.dwcVersion = latestRelease.tag_name;
+										this.dwcFile = await Compiler.downloadFile(`assets/DuetWebControl-${latestRelease.tag_name}.zip`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.dwcLink = dwcLink;
 								}
-							} catch (e) {
-								this.dwcLink = dwcLink;
 							}
 						}
+					} catch (e) {
+						console.warn(`Failed to load DWC: ${e}`);
 					}
-				} catch (e) {
-					console.warn(`Failed to load DWC: ${e}`);
 				}
+
 			}
+			if (this.template.firmware == 3.5) {
+				// Load latest stable RRF version from GitHub
+				if (this.addRRF && !this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. 
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/RepRapFirmware/releases', 'json');
+						const firmware = this.template.firmware;
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
 
-			// Load DWC unstable from the server
-			if (this.addDWC && this.template.standalone && this.template.requiresBeta) {
-				try {
-					// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
-					const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/chrishamm/DuetWebControl/releases', 'json');
-					let latestRelease = null;
-					releaseInfo.forEach(function(item) {
-						if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
-							latestRelease = item;
-						}
-					});
-
-					// Attempt to download the required files (IAP+RRF)
-					if (latestRelease) {
-						for (let i = 0; i < latestRelease.assets.length; i++) {
-							const item = latestRelease.assets[i];
-
-							let dwcLink = null;
-							try {
-								if (item.name.indexOf('SD') !== -1) {
-									dwcLink = item.browser_download_url;
-									this.dwcVersion = latestRelease.tag_name;
-									this.dwcFile = await Compiler.downloadFile(`assets/DuetWebControl-${latestRelease.tag_name}.zip`, 'blob', 'application/octet-stream');
-									break;
+						// Attempt to download the required files (IAP+RRF)
+						let latestReleaseNew = latestRelease.tag_name.substring(1);
+						let latestReleaseNew1 = latestReleaseNew.toLowerCase();
+						if (latestRelease) {
+							// Fall back to GitHub (although this probably won't work due to their odd CORS restrictions)
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
+								let rrfLink = null;
+								try {
+									rrfLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`;
+									this.rrfVersion = latestRelease.tag_name;
+									this.rrfFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`, 'blob', 'application/octet-stream');
+									this.rrfFile.name = item.name;
+									
+								} catch (e) {
+									if (rrfLink && this.rrfFile === null) {
+										this.rrfLink = rrfLink;
+									}
 								}
-							} catch (e) {
-								this.dwcLink = dwcLink;
+							}
+						} else {
+							throw 'Could not find suitable RepRapFirmware version on GitHub';
+						}
+					} catch (e) {
+						console.warn(`Failed to load RRF: ${e}`);
+					}
+				}
+				// Load DWC stable from the server
+				if (this.addDWC && this.template.standalone && !this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/chrishamm/DuetWebControl/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
+
+						// Attempt to download the required files (IAP+RRF)
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
+
+								let dwcLink = null;
+								try {
+									if (item.name.indexOf('SD') !== -1) {
+										dwcLink = item.browser_download_url;
+										this.dwcVersion = latestRelease.tag_name;
+										this.dwcFile = await Compiler.downloadFile(`assets/DuetWebControl-${latestRelease.tag_name}.zip`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.dwcLink = dwcLink;
+								}
 							}
 						}
+					} catch (e) {
+						console.warn(`Failed to load DWC: ${e}`);
 					}
-				} catch (e) {
-					console.warn(`Failed to load DWC: ${e}`);
+				}
+
+				// Load DWC unstable from the server
+				if (this.addDWC && this.template.standalone && this.template.requiresBeta) {
+					try {
+						// Get GitHub list of releases and assets. Do NOT get drafts and prereleases
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/chrishamm/DuetWebControl/releases', 'json');
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
+
+						// Attempt to download the required files (IAP+RRF)
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
+
+								let dwcLink = null;
+								try {
+									if (item.name.indexOf('SD') !== -1) {
+										dwcLink = item.browser_download_url;
+										this.dwcVersion = latestRelease.tag_name;
+										this.dwcFile = await Compiler.downloadFile(`assets/DuetWebControl-${latestRelease.tag_name}.zip`, 'blob', 'application/octet-stream');
+										break;
+									}
+								} catch (e) {
+									this.dwcLink = dwcLink;
+								}
+							}
+						}
+					} catch (e) {
+						console.warn(`Failed to load DWC: ${e}`);
+					}
+				}
+				// Load ESP32 stable from the server
+				if (this.addWiFi && this.template.standalone && this.template.network.enabled32) {
+					try {
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/RepRapFirmware/releases', 'json');
+						const firmware = this.template.firmware;
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
+
+						// Attempt to download the required files (IAP+RRF)
+						let latestReleaseNew = latestRelease.tag_name.substring(1);
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
+
+								let wifiLink = null;
+								try {
+									wifiLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifi32FileNew}`;
+									this.wifiVersion = '';
+									this.wifiFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifi32FileNew}`, 'blob', 'application/octet-stream');
+									break;
+									
+								} catch (e) {
+									this.wifiLink = wifiLink;
+								}
+							}
+						}
+					} catch (e) {
+						console.warn(`Failed to load ESP: ${e}`);
+					}
+				}
+				// Load ESP8266 unstable from the server
+				if (this.addWiFi && this.template.standalone && this.template.network.enabled) {
+					try {
+						const releaseInfo = await Compiler.downloadFile('https://api.github.com/repos/gloomyandy/RepRapFirmware/releases', 'json');
+						const firmware = this.template.firmware;
+						let latestRelease = null;
+						releaseInfo.forEach(function(item) {
+							if (!item.draft && !item.prerelease && (!latestRelease || item.created_at > latestRelease.created_at)) {
+								latestRelease = item;
+							}
+						});
+
+						// Attempt to download the required files (IAP+RRF)
+						let latestReleaseNew = latestRelease.tag_name.substring(1);
+						if (latestRelease) {
+							for (let i = 0; i < latestRelease.assets.length; i++) {
+								const item = latestRelease.assets[i];
+
+								let wifiLink = null;
+								try {
+									wifiLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifiFileNew}`;
+									this.wifiVersion = '';
+									this.wifiFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifiFileNew}`, 'blob', 'application/octet-stream');
+									break;
+									
+								} catch (e) {
+									this.wifiLink = wifiLink;
+								}
+							}
+						}
+					} catch (e) {
+						console.warn(`Failed to load ESP: ${e}`);
+					}
 				}
 			}
 

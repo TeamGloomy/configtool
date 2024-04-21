@@ -107,13 +107,25 @@ export default new Vuex.Store({
 				});
 			}
 
-			state.template.drives.forEach(function(drive) {	
-				if ((newBoard.name == "biquskr_rrf_e3_1.1") || (newBoard.name == "fly_e3_pro") || (newBoard.name == "fly_e3_prov3")) {
-					drive.stepperDriver = newBoard.stepperDriver
-				} else {
-					drive.stepperDriver = ''
-				}
-			});
+			if (state.template.firmware == 3.5) {
+				state.template.drives.forEach(function(drive, index) {	
+					if ((newBoard.type == "STM32F4") || (newBoard.type == "STM32H7")) {
+						drive.stepperDriver = newBoard.drives[index].stepperDriver
+					} else {
+						drive.stepperDriver = ''
+					}
+				});
+			}
+
+			if (state.template.firmware == 3) {
+				state.template.drives.forEach(function(drive, index) {	
+					if ((newBoard.name == "biquskr_rrf_e3_1.1") || (newBoard.name == "fly_e3_pro") || (newBoard.name == "fly_e3_prov3") || (newBoard.name == "btt_kraken")) {
+						drive.stepperDriver = newBoard.stepperDriver
+					} else {
+						drive.stepperDriver = ''
+					}
+				});
+			}
 
 			state.template.requiresBeta = newBoard.requiresBeta;
 			state.template.firmwareNew = newBoard.firmwareNew
