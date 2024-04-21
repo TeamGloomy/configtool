@@ -1,6 +1,6 @@
 {
   "name": "configtool",
-  "version": "3.4.0-LPC-STM32+8",
+  "version": "3.5.0-STM32",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
