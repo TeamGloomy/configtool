@@ -710,7 +710,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 			[PortType.thermistor]: ["bedtemp", "e0temp", "e1temp", "e2temp"],
 			[PortType.uart]: ["usb", "urxd0+utxd0"]
 		},
-
+	
 		expansionBoards: new Set(),
 		objectModelBoard: initObject(Board, {
 			canAddress: null,
@@ -806,6 +806,9 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 			},
 			serialAmount: 2,
 			neopixel: 'PD_15',
+			accelerometer: {
+				spiChannel: '4',
+			}
 		}
 	},
 	[STM32F4BoardType.Fly_CDYv2]: {
