@@ -72,7 +72,7 @@
 									 :preset="store.preset.configTool.networkEspType === ConfigNetworkEspType.esp8266" />
 					</div>
 					<!-- ESP module pins settings-->
-					<div v-if="isESP32 || isESP8266" class="row ms-5 mt-2">
+					<div v-if="(isESP32 || isESP8266) && !store.data.boards[0].name.startsWith('Duet')" class="row ms-5 mt-2">
 						<div class="row">
 							<div class="col-2">
 								<text-input label="espDataReadyPin" title="This is the pin to be used in board.txt for 8266wifi.espDataReadyPin" :max-length="8"
