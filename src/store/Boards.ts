@@ -53,6 +53,7 @@ export type BoardDescriptors = BoardDescriptor | STMBoardDescriptor
  */
 export const Boards: Record<BoardTypes, BoardDescriptors> = {
 	[BoardType.Duet3Mini5PlusEthernet]: {
+		manufacturer: "Duet3D",
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
 		hasInputPullUps: true,
@@ -134,6 +135,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: true
 	},
 	[BoardType.Duet3Mini5PlusWiFi]: {
+		manufacturer: "Duet3D",
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
 		hasInputPullUps: true,
@@ -215,6 +217,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: true
 	},
 	[BoardType.Duet3MB6HC]: {
+		manufacturer: "Duet3D",
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
 		hasInputPullUps: true,
@@ -292,6 +295,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: true
 	},
 	[BoardType.Duet3MB6XD]: {
+		manufacturer: "Duet3D",
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
 		hasInputPullUps: true,
@@ -370,6 +374,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: true
 	},
 	[BoardType.Duet2Ethernet]: {
+		manufacturer: "Duet3D",
 		hasADCAutoCalibration: false,
 		hasClosedLoopDrivers: false,
 		hasInputPullUps: false,
@@ -450,6 +455,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: false
 	},
 	[BoardType.Duet2WiFi]: {
+		manufacturer: "Duet3D",
 		hasADCAutoCalibration: false,
 		hasClosedLoopDrivers: false,
 		hasInputPullUps: false,
@@ -530,6 +536,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: false
 	},
 	[BoardType.Duet2SBC]: {
+		manufacturer: "Duet3D",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: false,
 		hasClosedLoopDrivers: false,
@@ -606,6 +613,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: false
 	},
 	[BoardType.Duet2Maestro]: {
+		manufacturer: "Duet3D",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: false,
 		hasClosedLoopDrivers: false,
@@ -684,6 +692,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		supportsBME280: false
 	},
 	[STM32F4BoardType.BTT_GTR_V1]: {  // FIXME: Set the correct definition values
+		manufacturer: "TeamGloomy",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
@@ -713,7 +722,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 
 		expansionBoards: new Set(),
 		objectModelBoard: initObject(Board, {
-			canAddress: 0,
+			canAddress: null,
 			firmwareFileName: "firmware_gtr1_0_f4.bin",
 			iapFileNameSBC: "",
 			iapFileNameSD: "",
@@ -809,6 +818,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		}
 	},
 	[STM32F4BoardType.Fly_CDYv2]: {
+		manufacturer: "TeamGloomy",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
@@ -932,6 +942,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		}
 	},
 	[STM32F4BoardType.Fly_CDYv3]: {
+		manufacturer: "TeamGloomy",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
@@ -1055,6 +1066,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		}
 	},
 	[STM32F4BoardType.Fly_E3]: {
+		manufacturer: "TeamGloomy",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
@@ -1178,6 +1190,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		}
 	},
 	[STM32H723BoardType.Fly_Super8Pro_H723]: {  // FIXME: Set the correct definition values
+		manufacturer: "TeamGloomy",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
@@ -1301,6 +1314,7 @@ export const Boards: Record<BoardTypes, BoardDescriptors> = {
 		}
 	},
 	[STM32H743BoardType.Fly_Super8Pro_H743]: {  // FIXME: Set the correct definition values
+		manufacturer: "TeamGloomy",
 		displayDotstarPort: null,
 		hasADCAutoCalibration: true,
 		hasClosedLoopDrivers: false,
