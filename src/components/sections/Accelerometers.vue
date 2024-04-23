@@ -27,10 +27,19 @@
                         <th>
                             Orientation
                         </th>
-                        <th>
+                        <th v-if ="store.data.boards[0].name.startsWith('Duet')">
                             SPI CS Port
                         </th>
-                        <th>
+                        <th v-if ="store.data.boards[0].name.startsWith('Duet')">
+                            INT Port
+                        </th>
+                        <th v-if ="!store.data.boards[0].name.startsWith('Duet')">
+                            SPI Channel
+                        </th>
+                        <th v-if ="!store.data.boards[0].name.startsWith('Duet')">
+                            SPI CS Port
+                        </th>
+                        <th v-if ="!store.data.boards[0].name.startsWith('Duet')">
                             INT Port
                         </th>
                     </tr>
@@ -50,16 +59,20 @@
                                           :options="OrientationOptions" :model-value="getAccelerometerOrientation(board)"
                                           @update:model-value="setAccelerometerOrientation(board, $event)" />
                         </td>
-                        <td>
+                        <td v-if ="store.data.boards[0].name.startsWith('Duet')">
                             <port-input :board="board.canAddress" :function="ConfigPortFunction.accelerometerSpiCs"
                                         :index="board.canAddress ?? 0" :disabled="getAccelerometerModel(board) === null"
                                         :required="!hasBuiltInAccelerometer(board)" />
                         </td>
-                        <td>
+                        <td v-if ="store.data.boards[0].name.startsWith('Duet')">
                             <port-input :board="board.canAddress" :function="ConfigPortFunction.accelerometerInt"
                                         :index="board.canAddress ?? 0" :disabled="getAccelerometerModel(board) === null"
                                         :required="!hasBuiltInAccelerometer(board)" />
                         </td>
+                        <td v-if ="!store.data.boards[0].name.startsWith('Duet')" >
+							<text-input label="spiChannel" title="This is the pin to be used in board.txt for 8266wifi.serialRxPin and is used to update the ESP from DWC" :max-length="8"
+										v-model="spiChannel" :required="false" />
+						</td>
                     </tr>
                 </tbody>
             </table>
@@ -221,6 +234,26 @@ const accelerometerBoards = computed(() => {
         }
     }
     return result;
+});
+
+const spiChannel = computed({
+	get: () => {
+		if (store.data.configTool.networkEspType === ConfigNetworkEspType.esp32) {
+			return store.data.boardDefinition?.stm?.esp32.rxPin === null ? 'NoPin' : store.data.boardDefinition?.stm?.esp32.rxPin;
+		} else if (store.data.configTool.networkEspType === ConfigNetworkEspType.esp8266) {
+			return store.data.boardDefinition?.stm?.esp8266.rxPin === null ? 'NoPin' : store.data.boardDefinition?.stm?.esp8266.rxPin;
+		}
+	},
+	set(value) {
+		if (store.data.boardDefinition !== null && store.data.boardDefinition.stm !== null){
+			const newValue = value.trim() === "" ? 'NoPin' : value.trim();
+			if (store.data.configTool.networkEspType === ConfigNetworkEspType.esp32) {
+				store.data.boardDefinition.stm.esp32.rxPin = newValue;
+			} else if (store.data.configTool.networkEspType === ConfigNetworkEspType.esp8266) {
+				store.data.boardDefinition.stm.esp8266.rxPin = newValue;
+			}
+		}
+	}
 });
 
 function hasBuiltInAccelerometer(board: StoreState<Board>) {
