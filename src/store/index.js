@@ -119,7 +119,7 @@ export default new Vuex.Store({
 
 			if (state.template.firmware == 3) {
 				state.template.drives.forEach(function(drive, index) {	
-					if ((newBoard.name == "biquskr_rrf_e3_1.1") || (newBoard.name == "fly_e3_pro") || (newBoard.name == "fly_e3_prov3") || (newBoard.name == "btt_kraken")) {
+					if ((newBoard.name == "biquskr_rrf_e3_1.1") || (newBoard.name == "fly_e3_pro") || (newBoard.name == "fly_e3_prov3") || (newBoard.name == "fly_e3_ultra") || (newBoard.name == "btt_kraken") || (newBoard.name == "btt_scylla_v1")) {
 						drive.stepperDriver = newBoard.stepperDriver
 					} else {
 						drive.stepperDriver = ''
