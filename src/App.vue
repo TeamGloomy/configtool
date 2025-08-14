@@ -685,9 +685,9 @@ export default {
 								const item = latestRelease.assets[i];
 								let rrfLink = null;
 								try {
-									rrfLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`;
+									rrfLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.6-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`;
 									this.rrfVersion = latestRelease.tag_name;
-									this.rrfFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`, 'blob', 'application/octet-stream');
+									this.rrfFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.6-dev/releases/${latestReleaseNew}/mainboard/${this.board.firmwareNew}`, 'blob', 'application/octet-stream');
 									this.rrfFile.name = item.name;
 									
 								} catch (e) {
@@ -792,9 +792,9 @@ export default {
 
 								let wifiLink = null;
 								try {
-									wifiLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifi32FileNew}`;
+									wifiLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.6-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifi32FileNew}`;
 									this.wifiVersion = '';
-									this.wifiFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifi32FileNew}`, 'blob', 'application/octet-stream');
+									this.wifiFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.6-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifi32FileNew}`, 'blob', 'application/octet-stream');
 									break;
 									
 								} catch (e) {
@@ -826,9 +826,9 @@ export default {
 
 								let wifiLink = null;
 								try {
-									wifiLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifiFileNew}`;
+									wifiLink = `https://github.com/gloomyandy/RRFBuild/raw/v3.6-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifiFileNew}`;
 									this.wifiVersion = '';
-									this.wifiFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.5-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifiFileNew}`, 'blob', 'application/octet-stream');
+									this.wifiFile = await Compiler.downloadFile(`https://github.com/gloomyandy/RRFBuild/raw/v3.6-dev/releases/${latestReleaseNew}/wifi/${this.board.firmwareWifiFileNew}`, 'blob', 'application/octet-stream');
 									break;
 									
 								} catch (e) {
