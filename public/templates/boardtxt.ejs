@@ -116,4 +116,22 @@ heat.spiTempSensorChannel=<%- ct.stm32SpiTempChannel %>
 <%  }
 %>
 heat.spiTempSensorCSPins={<%- _csPins.join(',') %>}
-<% } %>
+<% }
+
+// Sensorless homing DIAG pins (TMC2209/2226). Emit stepper.TmcDiagPins listing the diag pin
+// for each mainboard driver that has sensorless enabled (StallGuard threshold set), NoPin for
+// the rest. The diag pin shares the endstop connector, so a configured driver's endstop input
+// is unavailable. TMC5160 boards (no diagPins) are handled by RRF without this line.
+const _diagPins = model.boardDefinition?.diagPins;
+if (_diagPins && _diagPins.length > 0) {
+    // Which mainboard (board 0) drivers have sensorless enabled?
+    const _sensorless = new Set();
+    for (const d of model.configTool.drivers) {
+        if (!d.id.board && d.sgThreshold !== 0) _sensorless.add(d.id.driver);
+    }
+    if (_sensorless.size > 0) {
+        const _list = _diagPins.map((pin, i) => _sensorless.has(i) ? pin : "NoPin").join(",");
+%>
+stepper.TmcDiagPins={<%- _list %>}
+<%  }
+} %>

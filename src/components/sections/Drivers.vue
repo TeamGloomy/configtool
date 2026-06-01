@@ -91,6 +91,15 @@
 					<i class="bi-info"></i>
 					If you cannot set up required drivers, map them to axes or extruders first.
 				</div>
+
+				<div v-if="sensorlessEndstopWarning" class="alert alert-warning mb-0 mt-2">
+					<i class="bi-exclamation-triangle"></i>
+					Sensorless homing is enabled on {{ sensorlessEndstopWarning }} (StallGuard threshold set).
+					On TMC2209/2226 drivers the DIAG pin shares the endstop connector, so the matching
+					endstop input <strong>cannot be used</strong> for a physical switch and must be left
+					unplugged on those drivers. Remember to set the endstop type to "sensorless" (M574 S3)
+					for the affected axes.
+				</div>
 			</template>
 		</card>
 
@@ -349,6 +358,22 @@ const stm32Def = computed(() => {
 const showDriverTypeColumn = computed(() =>
 	stm32Def.value !== null && !stm32Def.value.builtInDrivers
 );
+
+// Warn about the DIAG-pin / endstop conflict when sensorless homing (StallGuard threshold set)
+// is enabled on a mainboard driver of an STM32 board that wires sensorless via diag pins.
+const sensorlessEndstopWarning = computed(() => {
+	const def = stm32Def.value;
+	if (!def || !def.diagPins || def.diagPins.length === 0) {
+		return null;
+	}
+	const drivers = store.data.configTool.drivers
+		.filter(d => !d.id.board && d.sgThreshold !== 0)
+		.map(d => `driver ${d.id.driver}`);
+	if (drivers.length === 0) {
+		return null;
+	}
+	return drivers.length === 1 ? drivers[0] : `${drivers.slice(0, -1).join(", ")} and ${drivers[drivers.length - 1]}`;
+});
 
 function getDriverType(driverIndex: number): string {
 	const raw = store.data.configTool.stm32DriverTypes;

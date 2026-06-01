@@ -241,7 +241,9 @@ export const useStore = defineStore("model", {
 
 			darkTheme: (localStorage.getItem("theme") ?? "auto" === "auto") ? window.matchMedia("(prefers-color-scheme: dark)").matches : (localStorage.getItem("theme") === "dark"),
 			theme: "auto" as "dark" | "light" | "auto",
-			showCommunityBoards: localStorage.getItem("showSTM32Boards") === "true"
+			// Default the STM32/RRF community boards on (this is the STM32-focused tool); honour an
+			// explicit "false" the user has previously saved.
+			showCommunityBoards: localStorage.getItem("showSTM32Boards") !== "false"
 		};
     },
     actions: {

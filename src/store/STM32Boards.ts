@@ -144,6 +144,17 @@ export interface STM32BoardDescriptor extends BoardDescriptor {
     builtInDrivers?: boolean;
     /** Per-driver M569.9 setup for boards with non-standard sense resistors (e.g. Kraken built-in 5160s) */
     m569DriverSetup?: { rsense: number; scale: number; driverCount: number };
+    /**
+     * Per-driver TMC DIAG pin names (STM32 notation, ordered by driver 0,1,2...) used for
+     * sensorless homing on TMC2209/2226 boards. Written to stepper.TmcDiagPins in board.txt
+     * for drivers that have sensorless enabled. The diag pin shares the endstop connector, so
+     * enabling sensorless on a driver makes that endstop input unusable.
+     * Omit for boards that don't support sensorless via diag pins (e.g. TMC5160 boards like
+     * Kraken/Scylla, which RRF handles without diag pins).
+     */
+    diagPins?: string[];
+    /** Board-specific setup notes/warnings shown on the General page (from the TeamGloomy wiki). */
+    notes?: string[];
 }
 
 /**
@@ -219,6 +230,10 @@ interface MakeBoardParams {
     builtInDrivers?: boolean;
     /** Per-driver M569.9 setup for boards with non-standard sense resistors (e.g. Kraken built-in 5160s) */
     m569DriverSetup?: { rsense: number; scale: number; driverCount: number };
+    /** Per-driver TMC DIAG pin names for sensorless homing (TMC2209/2226 boards) */
+    diagPins?: string[];
+    /** Board-specific setup notes/warnings shown on the General page */
+    notes?: string[];
 }
 
 function makeLimits(numDrivers: number): Limits {
@@ -318,6 +333,8 @@ function makeBoard(p: MakeBoardParams): STM32BoardDescriptor {
         hidden:           p.hidden,
         builtInDrivers:   p.builtInDrivers,
         m569DriverSetup:  p.m569DriverSetup,
+        diagPins:         p.diagPins,
+        notes:            p.notes,
     };
 }
 
@@ -331,6 +348,12 @@ export const STM32Boards: Record<STM32BoardType, STM32BoardDescriptor> = {
 
     [STM32BoardType.BTT_Kraken_v1_0]: makeBoard({
         shortName: "kraken_h723", longName: "BTT Kraken V1.0 STM32H723", manufacturer: "BTT",
+        notes: [
+            "Requires RepRapFirmware 3.5.0-rc.2 or later.",
+            "Built-in TMC5160 drivers: the M569.9 sense-resistor lines are generated automatically (V1.0 uses R0.022).",
+            "Remove the DIAG-pin jumpers on the first four drivers — RRF does not use them for sensorless homing on TMC5160.",
+            "Driver power is 24-60V via HV-IN; fan output voltage is jumper-selectable (5V / 12V / VCC).",
+        ],
         numDrivers: 8,
         hasWiFi: true, hasSBC: true, hasVin: false,
         builtInDrivers: true,
@@ -394,6 +417,12 @@ heat.spiTempSensorCSPins={C.9,A.8}`,
 
     [STM32BoardType.BTT_Kraken_v1_1]: makeBoard({
         shortName: "kraken_h723", longName: "BTT Kraken V1.1 STM32H723", manufacturer: "BTT",
+        notes: [
+            "Requires RepRapFirmware 3.5.0-rc.2 or later.",
+            "Built-in TMC5160 drivers: the M569.9 sense-resistor lines are generated automatically (V1.1 uses R0.05).",
+            "Remove the DIAG-pin jumpers on the first four drivers — RRF does not use them for sensorless homing on TMC5160.",
+            "Driver power is 24-60V via HV-IN; fan output voltage is jumper-selectable (5V / 12V / VCC).",
+        ],
         numDrivers: 8,
         hasWiFi: true, hasSBC: true, hasVin: false,
         builtInDrivers: true,
@@ -457,6 +486,13 @@ heat.spiTempSensorCSPins={C.9,A.8}`,
 
     [STM32BoardType.BTT_OctopusPro_v1_1_H723]: makeBoard({
         shortName: "octopuspro1_1_h723", longName: "BTT Octopus Pro V1.1 STM32H723", manufacturer: "BTT",
+        diagPins: ["G.6", "G.9", "G.10", "G.11", "G.12", "G.13", "G.14", "G.15"],
+        notes: [
+            "Requires RepRapFirmware 3.5.0-rc.2 or later.",
+            "Firmware only supports the STM32H723ZG chip variant, NOT the H723ZE — check the chip marking.",
+            "Set the per-driver jumpers correctly: UART mode for TMC22xx, SPI mode for TMC5160.",
+            "Driver power is jumper-selectable: VIN (12/24V) or MOT-PWR (up to 60V). Fan voltage is jumper-selectable (5V / 12V / VCC).",
+        ],
         numDrivers: 8,
         hasWiFi: true, hasSBC: true, hasVin: false,
         accelPreset: { spiChannel: 5, csPin: "E.12", intPin: "E.10", spiPins: { sck: "E.8", miso: "E.9", mosi: "E.7" } },
@@ -512,6 +548,12 @@ can.readPin=D.0`,
 
     [STM32BoardType.BTT_SKR3_H723]: makeBoard({
         shortName: "skr3_h723", longName: "BTT SKR3 STM32H723", manufacturer: "BTT",
+        diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
+        notes: [
+            "The SKR3 H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
+            "Driver jumpers: 'Normal' for standalone drivers, 'UART mode' (with interpolation) for TMC2208/2209/2225/2226.",
+            "For PT1000 sensors fit the PT1000 jumper and use R1000 in M308; remove the jumper for standard thermistors.",
+        ],
         numDrivers: 5,
         hasWiFi: true, hasSBC: true, hasVin: false,
         accelPreset: { spiChannel: 4, csPin: "E.10", intPin: "E.9" },
@@ -562,6 +604,12 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3_H743]: makeBoard({
         shortName: "skr3_h743", longName: "BTT SKR3 STM32H743", manufacturer: "BTT",
+        diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
+        notes: [
+            "The SKR3 H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
+            "Driver jumpers: 'Normal' for standalone drivers, 'UART mode' (with interpolation) for TMC2208/2209/2225/2226.",
+            "For PT1000 sensors fit the PT1000 jumper and use R1000 in M308; remove the jumper for standard thermistors.",
+        ],
         numDrivers: 5,
         hasWiFi: true, hasSBC: true, hasVin: false,
         accelPreset: { spiChannel: 4, csPin: "E.10", intPin: "E.9" },
@@ -612,6 +660,12 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3EZ_H723]: makeBoard({
         shortName: "skr3ez_h723", longName: "BTT SKR3 EZ STM32H723", manufacturer: "BTT",
+        diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
+        notes: [
+            "The SKR3 EZ H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
+            "You cannot mix SPI and UART drivers on this board (no mixing TMC5160 with TMC22xx).",
+            "For PT1000 sensors fit the PT1000 jumper and use R2200 in M308 (note: differs from the non-EZ SKR3, which uses R1000); remove the jumper for standard thermistors.",
+        ],
         numDrivers: 5,
         hasWiFi: true, hasSBC: true, hasVin: false,
         accelPreset: { spiChannel: 4, csPin: "E.10", intPin: "E.9" },
@@ -662,6 +716,12 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3EZ_H743]: makeBoard({
         shortName: "skr3ez_h743", longName: "BTT SKR3 EZ STM32H743", manufacturer: "BTT",
+        diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
+        notes: [
+            "The SKR3 EZ H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
+            "You cannot mix SPI and UART drivers on this board (no mixing TMC5160 with TMC22xx).",
+            "For PT1000 sensors fit the PT1000 jumper and use R2200 in M308 (note: differs from the non-EZ SKR3, which uses R1000); remove the jumper for standard thermistors.",
+        ],
         numDrivers: 5,
         hasWiFi: true, hasSBC: true, hasVin: false,
         accelPreset: { spiChannel: 4, csPin: "E.10", intPin: "E.9" },
@@ -748,6 +808,13 @@ sbc.spiChannel=6`,
 
     [STM32BoardType.BTT_Scylla]: makeBoard({
         shortName: "scylla1_0_h723", longName: "BTT Scylla V1.0 STM32H723", manufacturer: "BTT",
+        builtInDrivers: true,
+        m569DriverSetup: { rsense: 0.05, scale: 10, driverCount: 4 },
+        notes: [
+            "Requires RepRapFirmware 3.5.1 or later.",
+            "Built-in TMC5160 drivers: the M569.9 sense-resistor lines are generated automatically (R0.05).",
+            "24-60V input; the aux outputs run at the input voltage (there is no separate aux rail).",
+        ],
         numDrivers: 4,
         hasWiFi: true, hasSBC: true, hasVin: false,
         thermistors: [],
@@ -883,6 +950,13 @@ heat.tempSensePins={C.5,C.2,C.3,C.4}`,
 
     [STM32BoardType.Fly_E3Ultra]: makeBoard({
         shortName: "e3ultra_h723", longName: "Fly E3 Ultra STM32H723", manufacturer: "Fly",
+        diagPins: ["D.12", "B.10", "C.4"],
+        notes: [
+            "Thermistor inputs use a 2.2k pull-up (not 4.7k); this is pre-configured in RRF 3.5.0+.",
+            "Both 24V inputs must be connected: the right input powers the MCU/WiFi, the left powers motors/heaters/bed.",
+            "Maximum input voltage 32V. If only one Z output is used, fit the jumpers on the unused Z output.",
+            "Ships without firmware — the board appears as an unidentified USB device until flashed.",
+        ],
         numDrivers: 5,
         hasWiFi: true, hasSBC: false, hasVin: true,
         builtInDrivers: true,
@@ -937,6 +1011,13 @@ heat.spiTempSensorCSPins={D.13,C.7}`,
 
     [STM32BoardType.Fly_Super5]: makeBoard({
         shortName: "super5_h723", longName: "Fly Super5 STM32H723", manufacturer: "Fly",
+        diagPins: ["B.7", "C.12", "C.7", "C.14", "C.6"],
+        notes: [
+            "Thermistor inputs use a 2.2k pull-up — add R2200 to every M308 thermistor command.",
+            "Power must be connected to 'Power In Bed' even if the bed output is unused.",
+            "No diag-disable jumper: designed for Fly-2209 drivers (onboard diag switch). With other drivers used for endstops, physically remove/bend the diag pin.",
+            "Endstop voltage defaults to 0V — fit a jumper to select 5V or 12V. Fan voltage is jumper-selectable (5V / 12V / Vin). Ships without firmware.",
+        ],
         numDrivers: 5,
         hasWiFi: true, hasSBC: true, hasVin: true,
         accelPreset: { spiChannel: 2, csPin: "B.6", intPin: "D.6" },
@@ -988,6 +1069,12 @@ heat.thermistorSeriesResistor = 2200`,
 
     [STM32BoardType.Fly_Super8Pro_H723]: makeBoard({
         shortName: "super8pro_h723", longName: "Fly Super8 Pro STM32H723", manufacturer: "Fly",
+        diagPins: ["G.12", "G.11", "G.10", "G.9", "D.7", "D.6", "A.8", "F.3"],
+        notes: [
+            "Ships WITHOUT fuses fitted, and they differ from the AliExpress listing — fit them as pictured in the docs before powering on.",
+            "No diag-disable jumper unless using Fly-2209 drivers; with other drivers used for endstops, physically remove/bend the diag pin.",
+            "Driver signal and IO voltages are jumper-selectable (3.3V / 5V / 12V, default 5V). Fan voltage is jumper-selectable (5V / 12V / Vin).",
+        ],
         numDrivers: 8,
         hasWiFi: true, hasSBC: true, hasVin: true,
         accelPreset: { spiChannel: 3, csPin: "D.1", intPin: "D.0" },
@@ -1039,6 +1126,12 @@ heat.tempSensePins={F.4,F.5,F.9,F.10,C.0,C.1}`,
 
     [STM32BoardType.Fly_Super8Pro_H743]: makeBoard({
         shortName: "super8pro_h743", longName: "Fly Super8 Pro STM32H743", manufacturer: "Fly",
+        diagPins: ["G.12", "G.11", "G.10", "G.9", "D.7", "D.6", "A.8", "F.3"],
+        notes: [
+            "Ships WITHOUT the RRF bootloader — the bootloader must be flashed before the firmware.",
+            "No diag-disable jumper unless using Fly-2209 drivers; with other drivers used for endstops, physically remove/bend the diag pin.",
+            "Driver signal and IO voltages are jumper-selectable (3.3V / 5V / 12V, default 5V). Fan voltage is jumper-selectable (5V / 12V / Vin).",
+        ],
         numDrivers: 8,
         hasWiFi: true, hasSBC: true, hasVin: true,
         accelPreset: { spiChannel: 3, csPin: "D.1", intPin: "D.0" },
@@ -1090,6 +1183,12 @@ heat.tempSensePins={F.4,F.5,F.9,F.10,C.0,C.1}`,
 
     [STM32BoardType.Fly_ProX10_H723]: makeBoard({
         shortName: "prox10_h723", longName: "Fly Pro X10 STM32H723", manufacturer: "Fly",
+        diagPins: ["G.8", "G.7", "G.6", "G.5", "G.4", "G.3", "G.2", "B.1", "F.9", "C.6"],
+        notes: [
+            "Each driver has a jumper to select its power source (HVIN or VIN).",
+            "Driver 9's DIAG pin is shared with the BLTouch probe pin; other DIAG pins share the IO connectors — watch for conflicts when using sensorless homing.",
+            "IO voltage is jumper-selectable (5V / 12V); fan voltage is jumper-selectable (5V / 12V / Vin). Ships without firmware.",
+        ],
         numDrivers: 10,
         hasWiFi: true, hasSBC: false, hasVin: true,
         spiChannelLocks: { 1: "WiFi" },

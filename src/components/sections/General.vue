@@ -8,7 +8,7 @@
 				<div class="mt-1">
 					<check-input label="Show STM32/RRF community boards (H7 series)"
 								 title="Show boards supported by the TeamGloomy STM32H7 port of RepRapFirmware"
-								 v-model="showSTM32" :preset="false" />
+								 v-model="showSTM32" :preset="true" />
 				</div>
 			</div>
 			<div v-if="supportsSbcMode" class="col">
@@ -21,6 +21,16 @@
 				<text-input label="Printer Name"
 							title="Name of your printer (M550). If you use mDNS, you can access your printer via Myprinter.local"
 							:max-length="50" v-model="store.data.network.name" :preset="store.preset.network.name" />
+			</div>
+		</div>
+		<div v-if="boardNotes.length > 0" class="row">
+			<div class="col-12">
+				<div class="alert alert-info mb-0">
+					<strong><i class="bi-info-circle"></i> Notes for this board</strong>
+					<ul class="mb-0 mt-1">
+						<li v-for="(note, i) in boardNotes" :key="i">{{ note }}</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 		<div class="row">
@@ -143,10 +153,12 @@ const showSTM32 = computed({
 	set: (v) => store.setShowCommunityBoards(v)
 });
 
-// Pre-compute the static Duet board groups (never change at runtime)
+// Pre-compute the static Duet board groups (never change at runtime). Duet 2 and Duet Maestro
+// boards are excluded — they can't be used in conjunction with the STM32/community boards.
 const duetBoardGroups: Record<string, Array<string | SelectOption>> = {};
 const otherBoards: Array<BoardType | UnsupportedBoardType> = [];
 for (const board of Object.values(BoardType)) {
+	if (/^Duet 2|Maestro/.test(board)) continue;	// drop Duet 2 (incl. SBC mod) + Maestro
 	const match = /^(Duet \d+)/.exec(board);
 	if (match) {
 		const groupTitle = `${match[1]} series`;
@@ -159,16 +171,12 @@ for (const board of Object.values(BoardType)) {
 if (otherBoards.length > 0) {
 	duetBoardGroups["Other Duet boards"] = otherBoards;
 }
-if (Object.values(UnsupportedBoardType).length > 0) {
-	duetBoardGroups["Unsupported boards"] = Object.values(UnsupportedBoardType).map(b => ({
-		disabled: true, text: b, value: b
-	} as SelectOption));
-}
 
-// Reactive board options — STM32 groups are only included when the checkbox is ticked
-// (or when an STM32 board is already selected, so a loaded config still shows correctly)
+// Reactive board options — STM32 groups are listed first (this is the STM32/RRF community tool),
+// then the Duet boards. STM32 groups are only included when the checkbox is ticked (or when an
+// STM32 board is already selected, so a loaded config still shows correctly).
 const boardOptions = computed(() => {
-	const options: Record<string, Array<string | SelectOption>> = { ...duetBoardGroups };
+	const options: Record<string, Array<string | SelectOption>> = {};
 
 	const currentIsSTM32 = store.data.boardType !== null && isSTM32BoardType(store.data.boardType);
 	if (showSTM32.value || currentIsSTM32) {
@@ -181,6 +189,11 @@ const boardOptions = computed(() => {
 		}
 	}
 
+	// Duet boards after the STM32 groups
+	for (const [groupTitle, boards] of Object.entries(duetBoardGroups)) {
+		options[groupTitle] = boards;
+	}
+
 	return options;
 });
 
@@ -190,6 +203,15 @@ const board = computed({
 	set(value: string) { store.data.boardType = value as (BoardType | STM32BoardType); }
 });
 const boardPreset = computed(() => store.preset.boardType as string);
+
+// Board-specific setup notes/warnings (STM32 boards only)
+const boardNotes = computed<string[]>(() => {
+	const bt = store.data.boardType;
+	if (bt !== null && isSTM32BoardType(bt)) {
+		return STM32Boards[bt]?.notes ?? [];
+	}
+	return [];
+});
 
 // Misc
 const supportsSbcMode = computed(() => !!store.data.boardDefinition?.objectModelBoard.iapFileNameSBC);
