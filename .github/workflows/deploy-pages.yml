@@ -45,8 +45,13 @@ jobs:
         env:
           CONFIGTOOL_ASSET_BASE: ${{ vars.CONFIGTOOL_ASSET_BASE }}
 
+      # GitHub Pages project sites are served from /<repo>/ — build with that as the base
+      # path so absolute asset/template URLs resolve. (A user/org root site, or a custom
+      # domain, can override CONFIGTOOL_BASE to "/".)
       - name: Build ConfigTool
         run: npm run build
+        env:
+          CONFIGTOOL_BASE: ${{ vars.CONFIGTOOL_BASE != '' && vars.CONFIGTOOL_BASE || github.event.repository.name }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

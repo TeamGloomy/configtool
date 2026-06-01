@@ -68,7 +68,7 @@ import CheckInput from "@/components/inputs/CheckInput.vue";
 import { useStore } from "@/store";
 import { render, renderToNewTab, getOutputFilename } from "@/store/render";
 import { getSectionTemplates } from "@/store/sections";
-import { isSTM32BoardType, getSTM32FirmwareFile, getSTM32WifiFile, STM32_FIRMWARE_REPO, STM32_FIRMWARE_BRANCH, type STM32BoardDescriptor } from "@/store/STM32Boards";
+import { isSTM32BoardType, getSTM32FirmwareFile, getSTM32WifiFile, getSTM32IapFile, STM32_FIRMWARE_REPO, STM32_FIRMWARE_BRANCH, type STM32BoardDescriptor } from "@/store/STM32Boards";
 import ProgressIcon, { ProgressState } from "@/components/ProgressIcon.vue";
 
 const store = useStore();
@@ -129,7 +129,7 @@ async function downloadRRF(): Promise<Array<File>> {
 		for (const board of store.data.boards) {
 			// Download firmware file
 			if (board.firmwareFileName !== null) {
-				const response = await fetch(`/assets/RepRapFirmware/${board.firmwareFileName}`);
+				const response = await fetch(`${import.meta.env.BASE_URL}assets/RepRapFirmware/${board.firmwareFileName}`);
 				if (!response.ok) {
 					throw new Error(`Failed to download ${board.firmwareFileName}: ${response.status} ${response.statusText}`);
 				}
@@ -140,7 +140,7 @@ async function downloadRRF(): Promise<Array<File>> {
 
 			// Download IAP file only for the mainboard
 			if (!board.canAddress && board.iapFileNameSD !== null) {
-				const response = await fetch(`/assets/RepRapFirmware/${board.iapFileNameSD}`);
+				const response = await fetch(`${import.meta.env.BASE_URL}assets/RepRapFirmware/${board.iapFileNameSD}`);
 				if (!response.ok) {
 					throw new Error(`Failed to download ${board.iapFileNameSD}: ${response.status} ${response.statusText}`);
 				}
@@ -214,6 +214,8 @@ async function downloadSTM32Firmware(): Promise<Array<STM32FirmwareFile>> {
 			return r.blob();
 		};
 
+		const isSbc = store.data.sbc !== null;
+
 		// 3. Mainboard + every CAN-connected community board
 		for (const board of store.data.boards) {
 			const fw = getSTM32FirmwareFile(board.shortName);
@@ -236,10 +238,18 @@ async function downloadSTM32Firmware(): Promise<Array<STM32FirmwareFile>> {
 			}
 		}
 
-		// 4. WiFi server firmware — only for an STM32 mainboard with a WiFi module, in standalone mode
-		if (isSTM32Board() && store.data.sbc === null) {
+		// 4. STM32 mainboard extras
+		if (isSTM32Board()) {
 			const mainDef = store.data.boardDefinition as STM32BoardDescriptor | null;
-			if (mainDef?.wifiConfig) {
+			if (isSbc) {
+				// SBC mode: the MCU-specific IAP file is needed to flash firmware from the SBC.
+				// No WiFi module is involved.
+				const iapName = getSTM32IapFile(store.data.boards[0]?.shortName);
+				if (iapName) {
+					result.push({ zipPath: `firmware/${iapName}`, blob: await fetchBin(iapName) });
+				}
+			} else if (mainDef?.wifiConfig) {
+				// Standalone mode: WiFi server firmware for the selected module type
 				const wifiName = getSTM32WifiFile(store.data.configTool.stm32WifiModuleType);
 				result.push({ zipPath: `firmware/${wifiName}`, blob: await fetchBin(wifiName) });
 			}
@@ -259,7 +269,7 @@ async function downloadDWC(): Promise<Array<File>> {
 	dwcState.value = ProgressState.busy;
 	try {
 		// Download DWC bundle
-		const response = await fetch(`/assets/DuetWebControl.zip`);
+		const response = await fetch(`${import.meta.env.BASE_URL}assets/DuetWebControl.zip`);
 		const content = await response.blob();
 
 		// Unpack it
@@ -281,11 +291,16 @@ async function downloadDWC(): Promise<Array<File>> {
 async function generateBundle() {
 	generating.value = true;
 	try {
-		// Start downloading RRF and DWC. Duet firmware comes from /assets; STM32 + community
-		// firmware comes from the gloomyandy/RRFBuild repo tree. Run the two RRF sources in
-		// sequence so they don't race the shared progress indicator.
-		const rrfPromise = (!store.data.sbcMode && includeRRF.value)
-			? (async () => ({ duet: await downloadRRF(), stm32: await downloadSTM32Firmware() }))()
+		// Start downloading firmware and DWC. Duet firmware + DWC come from /assets and are only
+		// needed for standalone (non-SBC) configs — in SBC mode firmware is delivered by DSF.
+		// STM32/community firmware comes from the gloomyandy/RRFBuild repo tree and IS needed in
+		// SBC mode too (the MCU IAP file), so it runs regardless of sbcMode. The two RRF sources
+		// run in sequence so they don't race the shared progress indicator.
+		const rrfPromise = includeRRF.value
+			? (async () => ({
+				duet: store.data.sbcMode ? [] as Array<File> : await downloadRRF(),
+				stm32: await downloadSTM32Firmware(),
+			}))()
 			: Promise.resolve({ duet: [] as Array<File>, stm32: [] as Array<STM32FirmwareFile> });
 		const dwcPromise = (!store.data.sbcMode && includeDWC.value) ? downloadDWC() : Promise.resolve([] as Array<File>);
 

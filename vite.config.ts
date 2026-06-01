@@ -5,13 +5,19 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 
 // Prerelease builds (alpha/beta/rc in package.json version) deploy under /beta so the
-// stable build at / stays untouched while the prerelease is reachable in parallel
+// stable build at the deploy root stays untouched while the prerelease is reachable in parallel.
 const configtoolVersion = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")).version as string;
 const isPrerelease = /-(?:alpha|beta|rc)\b/i.test(configtoolVersion);
 
+// Deploy root. Defaults to "/" (Duet's pkg.duet3d.com layout). For GitHub Pages project
+// sites the app is served from a subpath (e.g. "/Configurator/"); set CONFIGTOOL_BASE to that.
+// Always normalised to start and end with a single "/".
+const deployRoot = `/${(process.env.CONFIGTOOL_BASE ?? "/").replace(/^\/+|\/+$/g, "")}/`.replace(/\/{2,}/g, "/");
+const baseUrl = isPrerelease ? `${deployRoot}beta/` : deployRoot;
+
 // https://vitejs.dev/config/
 export default defineConfig({
-	base: isPrerelease ? "/beta/" : "/",
+	base: baseUrl,
 	build: {
 		chunkSizeWarningLimit: 5000000,
 		rollupOptions: {

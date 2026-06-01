@@ -1425,3 +1425,20 @@ export function getSTM32FirmwareFile(shortName: string | null | undefined): Firm
 export function getSTM32WifiFile(moduleType: string | null | undefined): string {
     return (moduleType === "esp32eth") ? "WiFiModule_esp32eth.bin" : "WiFiModule_esp32.bin";
 }
+
+/**
+ * IAP (in-application programming) bootstrap filename for an STM32 mainboard, used when
+ * running in SBC mode. The IAP is MCU-specific, not board-specific: H723, H743 or F4.
+ * Returns null for non-STM32 boards or boards with no IAP.
+ */
+export function getSTM32IapFile(shortName: string | null | undefined): string | null {
+    if (!shortName || getSTM32BoardDefinition(shortName) === null) {
+        return null;
+    }
+    // All currently-supported STM32 mainboards are H723 or H743; the Fly C5 shortName
+    // ("c5_1_0") omits the suffix but is an H723 board.
+    if (shortName.endsWith("_h743")) return "stm32h743_iap_SBC.bin";
+    if (shortName.endsWith("_h723")) return "stm32h723_iap_SBC.bin";
+    if (shortName === "c5_1_0")      return "stm32h723_iap_SBC.bin";
+    return "stm32f4_iap_SBC.bin";
+}
