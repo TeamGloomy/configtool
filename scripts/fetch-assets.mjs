@@ -20,9 +20,9 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
 
-// Base URL of an existing deployment that already serves the assets. Override with
-// CONFIGTOOL_ASSET_BASE if Duet ever moves them.
-const ASSET_BASE = (process.env.CONFIGTOOL_ASSET_BASE || "https://configtool.reprapfirmware.org/assets").replace(/\/$/, "");
+// Base URL of the official Duet config tool deployment, which already serves these assets.
+// Override with CONFIGTOOL_ASSET_BASE if Duet ever moves them.
+const ASSET_BASE = (process.env.CONFIGTOOL_ASSET_BASE || "https://configtool.duet3d.com/assets").replace(/\/$/, "");
 
 const RRF_DIR = join(repoRoot, "public", "assets", "RepRapFirmware");
 const ASSETS_DIR = join(repoRoot, "public", "assets");
