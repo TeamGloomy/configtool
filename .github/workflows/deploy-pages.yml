@@ -38,20 +38,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Fetch the Duet firmware / IAP / DuetWebControl assets into public/assets/.
-      # CONFIGTOOL_ASSET_BASE may override the source host (defaults to the live Duet tool).
-      - name: Fetch firmware and web interface assets
-        run: npm run fetch-assets
-        env:
-          CONFIGTOOL_ASSET_BASE: ${{ vars.CONFIGTOOL_ASSET_BASE }}
-
-      # GitHub Pages project sites are served from /<repo>/ — build with that as the base
-      # path so absolute asset/template URLs resolve. (A user/org root site, or a custom
-      # domain, can override CONFIGTOOL_BASE to "/".)
+      # Build also runs the prebuild hook (scripts/fetch-assets.mjs), which pulls the Duet
+      # firmware / IAP / DuetWebControl binaries into public/assets/. GitHub Pages project
+      # sites are served from /<repo>/, so build with that as the base path; a user/org root
+      # site or custom domain can override CONFIGTOOL_BASE to "/". CONFIGTOOL_ASSET_BASE can
+      # override where the assets are fetched from (defaults to the official Duet tool).
       - name: Build ConfigTool
         run: npm run build
         env:
           CONFIGTOOL_BASE: ${{ vars.CONFIGTOOL_BASE != '' && vars.CONFIGTOOL_BASE || github.event.repository.name }}
+          CONFIGTOOL_ASSET_BASE: ${{ vars.CONFIGTOOL_ASSET_BASE }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

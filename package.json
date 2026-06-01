@@ -2,7 +2,9 @@
   "name": "configtool",
   "version": "3.6.12",
   "scripts": {
+    "predev": "node scripts/fetch-assets.mjs",
     "dev": "vite",
+    "prebuild": "node scripts/fetch-assets.mjs",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview --port 5050",
     "build-only": "vite build",

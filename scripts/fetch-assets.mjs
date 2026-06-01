@@ -68,25 +68,35 @@ async function main() {
 		})),
 	];
 
-	let ok = 0, missingRequired = 0, missingOptional = [], bytes = 0;
+	// Skip files already present so re-runs (and the predev/prebuild hooks) are cheap.
+	// Pass --force to re-download everything.
+	const force = process.argv.includes("--force");
+
+	let ok = 0, skipped = 0, missingRequired = 0, missingOptional = [], bytes = 0;
 	for (const job of jobs) {
+		const label = job.url.replace(ASSET_BASE + "/", "");
+		if (!force && existsSync(job.dest)) {
+			skipped++;
+			continue;
+		}
 		try {
 			const size = await download(job.url, job.dest);
 			bytes += size;
 			ok++;
-			console.log(`  ✓ ${job.url.replace(ASSET_BASE + "/", "")} (${(size / 1024).toFixed(0)} KB)`);
+			console.log(`  ✓ ${label} (${(size / 1024).toFixed(0)} KB)`);
 		} catch (e) {
 			if (job.required) {
 				missingRequired++;
-				console.error(`  ✗ REQUIRED ${job.url} — ${e.message}`);
+				console.error(`  ✗ REQUIRED ${label} — ${e.message}`);
 			} else {
-				missingOptional.push(job.url.replace(ASSET_BASE + "/", ""));
-				console.warn(`  ⚠ optional ${job.url.replace(ASSET_BASE + "/", "")} — ${e.message}`);
+				missingOptional.push(label);
+				console.warn(`  ⚠ optional ${label} — ${e.message}`);
 			}
 		}
 	}
 
-	console.log(`\nFetched ${ok}/${jobs.length} assets (${(bytes / 1024 / 1024).toFixed(1)} MB total)`);
+	const skipNote = skipped > 0 ? ` (${skipped} already present, skipped — use --force to refresh)` : "";
+	console.log(`\nFetched ${ok} asset(s), ${(bytes / 1024 / 1024).toFixed(1)} MB${skipNote}`);
 	if (missingOptional.length > 0) {
 		console.warn(`Skipped ${missingOptional.length} unavailable firmware file(s): ${missingOptional.join(", ")}`);
 	}
