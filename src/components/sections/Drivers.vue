@@ -361,13 +361,16 @@ const showDriverTypeColumn = computed(() =>
 
 // Warn about the DIAG-pin / endstop conflict when sensorless homing (StallGuard threshold set)
 // is enabled on a mainboard driver of an STM32 board that wires sensorless via diag pins.
+// Only UART drivers (TMC2208/2209/2225/2226) use the DIAG pin; TMC2240/5160 use SPI and don't,
+// so their endstop input stays usable and they don't trigger the warning.
 const sensorlessEndstopWarning = computed(() => {
 	const def = stm32Def.value;
 	if (!def || !def.diagPins || def.diagPins.length === 0) {
 		return null;
 	}
+	const isSpiDriver = (t: string) => t === "tmc5160" || t === "external5160" || t === "tmc2240";
 	const drivers = store.data.configTool.drivers
-		.filter(d => !d.id.board && d.sgThreshold !== 0)
+		.filter(d => !d.id.board && d.sgThreshold !== 0 && !isSpiDriver(getDriverType(d.id.driver)))
 		.map(d => `driver ${d.id.driver}`);
 	if (drivers.length === 0) {
 		return null;

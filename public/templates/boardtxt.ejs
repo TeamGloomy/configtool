@@ -118,16 +118,22 @@ heat.spiTempSensorChannel=<%- ct.stm32SpiTempChannel %>
 heat.spiTempSensorCSPins={<%- _csPins.join(',') %>}
 <% }
 
-// Sensorless homing DIAG pins (TMC2209/2226). Emit stepper.TmcDiagPins listing the diag pin
-// for each mainboard driver that has sensorless enabled (StallGuard threshold set), NoPin for
-// the rest. The diag pin shares the endstop connector, so a configured driver's endstop input
-// is unavailable. TMC5160 boards (no diagPins) are handled by RRF without this line.
+// Sensorless homing DIAG pins. Only UART drivers (TMC2208/2209/2225/2226) use the DIAG pin —
+// TMC2240/5160 do stall detection over SPI and need no diag pin. Emit stepper.TmcDiagPins
+// listing the diag pin for each mainboard driver that (a) has sensorless enabled (StallGuard
+// threshold set) AND (b) is a UART driver type, NoPin for the rest. The diag pin shares the
+// endstop connector, so a configured driver's endstop input is unavailable.
 const _diagPins = model.boardDefinition?.diagPins;
 if (_diagPins && _diagPins.length > 0) {
-    // Which mainboard (board 0) drivers have sensorless enabled?
+    // Per-slot driver type (empty / "tmcauto" = auto-detect, treated as a possible UART driver).
+    const _types = ct.stm32DriverTypes ? ct.stm32DriverTypes.split(',') : [];
+    const _spiDriver = (t) => t === 'tmc5160' || t === 'external5160' || t === 'tmc2240';
+    // Which mainboard (board 0) drivers have sensorless enabled on a non-SPI (UART) driver?
     const _sensorless = new Set();
     for (const d of model.configTool.drivers) {
-        if (!d.id.board && d.sgThreshold !== 0) _sensorless.add(d.id.driver);
+        if (!d.id.board && d.sgThreshold !== 0 && !_spiDriver(_types[d.id.driver])) {
+            _sensorless.add(d.id.driver);
+        }
     }
     if (_sensorless.size > 0) {
         const _list = _diagPins.map((pin, i) => _sensorless.has(i) ? pin : "NoPin").join(",");
