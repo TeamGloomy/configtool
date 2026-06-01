@@ -39,15 +39,16 @@ jobs:
         run: npm ci
 
       # Build also runs the prebuild hook (scripts/fetch-assets.mjs), which pulls the Duet
-      # firmware / IAP / DuetWebControl binaries into public/assets/. GitHub Pages project
-      # sites are served from /<repo>/, so build with that as the base path; a user/org root
-      # site or custom domain can override CONFIGTOOL_BASE to "/". CONFIGTOOL_ASSET_BASE can
-      # override where the assets are fetched from (defaults to the official Duet tool).
+      # firmware / IAP / DuetWebControl binaries from the Duet3D GitHub releases into
+      # public/assets/. GITHUB_TOKEN authenticates those API calls (raises the rate limit,
+      # avoiding 403s on shared runner IPs). GitHub Pages project sites are served from
+      # /<repo>/, so build with that as the base path; a user/org root site or custom domain
+      # can override CONFIGTOOL_BASE to "/".
       - name: Build ConfigTool
         run: npm run build
         env:
           CONFIGTOOL_BASE: ${{ vars.CONFIGTOOL_BASE != '' && vars.CONFIGTOOL_BASE || github.event.repository.name }}
-          CONFIGTOOL_ASSET_BASE: ${{ vars.CONFIGTOOL_ASSET_BASE }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

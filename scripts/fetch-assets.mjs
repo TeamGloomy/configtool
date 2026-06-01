@@ -27,7 +27,15 @@ const DWC_REPO = process.env.CONFIGTOOL_DWC_REPO || "Duet3D/DuetWebControl";
 const RRF_DIR = join(repoRoot, "public", "assets", "RepRapFirmware");
 const ASSETS_DIR = join(repoRoot, "public", "assets");
 
-const UA = { "User-Agent": "configtool-fetch-assets" };
+// Authenticate GitHub API calls when a token is available (CI passes GITHUB_TOKEN). This
+// raises the rate limit from 60 to 1000+/hour — important on shared Actions runner IPs where
+// the unauthenticated 60/hr can already be exhausted by other jobs, causing 403/rate-limit
+// failures. Harmless (and unauthenticated) when no token is set, e.g. local dev.
+const GH_TOKEN = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
+const UA = {
+	"User-Agent": "configtool-fetch-assets",
+	...(GH_TOKEN ? { Authorization: `Bearer ${GH_TOKEN}` } : {}),
+};
 const force = process.argv.includes("--force");
 
 /** Pull every firmware/IAP filename referenced by the Duet board definitions. */
