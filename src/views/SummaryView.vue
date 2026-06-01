@@ -127,8 +127,15 @@ async function downloadRRF(): Promise<Array<File>> {
 	rrfState.value = ProgressState.busy;
 	try {
 		for (const board of store.data.boards) {
-			// Download firmware file
-			if (board.firmwareFileName !== null) {
+			// STM32 / community boards get their firmware from downloadSTM32Firmware() (GitHub),
+			// not from the Duet /assets store — skip them here. Their firmwareFileName is "".
+			if (getSTM32FirmwareFile(board.shortName) !== null) {
+				continue;
+			}
+
+			// Download firmware file (firmwareFileName defaults to "" in the object model, so
+			// guard against empty as well as null — an empty name would 404 on /assets/.../)
+			if (board.firmwareFileName) {
 				const response = await fetch(`${import.meta.env.BASE_URL}assets/RepRapFirmware/${board.firmwareFileName}`);
 				if (!response.ok) {
 					throw new Error(`Failed to download ${board.firmwareFileName}: ${response.status} ${response.statusText}`);
@@ -139,7 +146,7 @@ async function downloadRRF(): Promise<Array<File>> {
 			}
 
 			// Download IAP file only for the mainboard
-			if (!board.canAddress && board.iapFileNameSD !== null) {
+			if (!board.canAddress && board.iapFileNameSD) {
 				const response = await fetch(`${import.meta.env.BASE_URL}assets/RepRapFirmware/${board.iapFileNameSD}`);
 				if (!response.ok) {
 					throw new Error(`Failed to download ${board.iapFileNameSD}: ${response.status} ${response.statusText}`);
