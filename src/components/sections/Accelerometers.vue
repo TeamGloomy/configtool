@@ -5,8 +5,43 @@
 </style>
 
 <template>
-    <config-section :type="ConfigSectionType.Accelerometers" title="Accelerometers" url-title="Connecting an accelerometer"
+    <config-section board-txt :type="ConfigSectionType.Accelerometers" title="Accelerometers" url-title="Connecting an accelerometer"
                     url="https://docs.duet3d.com/en/User_manual/Connecting_hardware/Sensors_Accelerometer">
+        <!-- STM32 mainboard accelerometer (SPI channel assigned in the SPI Configuration section) -->
+        <div v-if="isStm32" class="row g-3">
+            <template v-if="stm32AccelChannel < 0">
+                <div class="col-12">
+                    <div class="alert alert-warning mb-0 py-2 small">
+                        <i class="bi-exclamation-triangle me-1"></i>
+                        To configure an accelerometer, set a SPI channel's <strong>Role</strong> to
+                        "Accelerometer" in the <a href="#spiConfig">SPI Configuration</a> section above.
+                        <template v-if="stm32AccelPreset"> Suggested channel for this board: SPI{{ stm32AccelPreset.spiChannel }}.</template>
+                    </div>
+                </div>
+            </template>
+            <template v-else>
+                <div class="col-12 small text-muted">
+                    Accelerometer on <strong>SPI channel {{ stm32AccelChannel }}</strong> (assigned in
+                    <a href="#spiConfig">SPI Configuration</a>). Supported types are auto-detected: LIS3DH, LIS3DSH, LIS2DW12.
+                </div>
+                <div class="col-auto">
+                    <text-input label="SPI CS Pin" title="Chip-select pin connected to the accelerometer"
+                                v-model="store.data.configTool.stm32AccelCsPin"
+                                :preset="stm32AccelPreset?.csPin ?? ''" :max-length="8" placeholder="e.g. D.14" />
+                </div>
+                <div class="col-auto">
+                    <text-input label="INT1 Pin" title="Interrupt pin (optional but recommended for best performance)"
+                                v-model="store.data.configTool.stm32AccelIntPin"
+                                :preset="stm32AccelPreset?.intPin ?? ''" :max-length="8" :required="false" placeholder="e.g. G.3" />
+                </div>
+                <div class="col">
+                    <select-input label="Orientation" title="Accelerometer orientation (M955 I parameter)"
+                                  :options="OrientationOptions"
+                                  v-model="store.data.configTool.stm32AccelOrientation" :preset="20" />
+                </div>
+            </template>
+        </div>
+
         <template #append>
             <table v-if="accelerometerBoards.length > 0" class="table table-striped table-accelerometer-boards mt-n1 mb-0">
                 <colgroup>
@@ -64,7 +99,7 @@
                 </tbody>
             </table>
 
-            <div v-else class="alert alert-info mb-0">
+            <div v-else-if="!isStm32" class="alert alert-info mb-0">
                 <i class="bi-info-circle"></i>
                 No boards with accelerometer support
             </div>
@@ -82,7 +117,7 @@
 import type { SelectOption } from "@/components/inputs/SelectInput.vue";
 import { ExpansionBoardType } from "@/store/ExpansionBoards";
 
-const OrientationOptions: Array<SelectOption> = [
+export const OrientationOptions: Array<SelectOption> = [
     {
         text: "+X to +Y / +Z to +X (I01)",
         value: 1
@@ -190,14 +225,27 @@ import { computed } from "vue";
 import ConfigSection from "@/components/ConfigSection.vue";
 import SelectInput from "@/components/inputs/SelectInput.vue";
 import PortInput from "@/components/inputs/PortInput.vue";
+import TextInput from "@/components/inputs/TextInput.vue";
 
 import { useStore } from "@/store";
 import { ConfigSectionType } from "@/store/sections";
 import { getBoardDefinition } from "@/store/Boards";
 import { getExpansionBoardDefinition, getExpansionBoardType } from "@/store/ExpansionBoards";
+import { isSTM32BoardType, type STM32BoardDescriptor } from "@/store/STM32Boards";
 import { ConfigPortFunction } from "@/store/model/ConfigPort";
 
 const store = useStore();
+
+// STM32 mainboard accelerometer — the SPI channel is assigned in the SPI Configuration
+// section (Role = Accelerometer); the wiring + orientation are configured here.
+const isStm32 = computed(() => {
+    const bt = store.data.boardType;
+    return bt !== null && isSTM32BoardType(bt);
+});
+const stm32AccelPreset = computed(() =>
+    isStm32.value ? ((store.data.boardDefinition as STM32BoardDescriptor | null)?.accelPreset ?? null) : null
+);
+const stm32AccelChannel = computed(() => store.data.configTool.stm32AccelSpiChannel);
 
 const accelerometerBoards = computed(() => {
     const result: Array<Board> = [];

@@ -1,5 +1,5 @@
 <template>
-	<config-section id="network" :type="ConfigSectionType.Network" title="Network" url-title="Network Configuration"
+	<config-section id="network" board-txt :type="ConfigSectionType.Network" title="Network" url-title="Network Configuration"
 					url="https://docs.duet3d.com/en/User_manual/Machine_configuration/Networking">
 		<div class="row">
 			<!-- Ethernet -->
@@ -134,7 +134,7 @@
 							 :preset="isPresetProtocolEnabled(NetworkProtocol.SFTP)" />
 			</div>
 			<div class="col d-flex flex-column justify-content-end">
-				<check-input label="Enable Telnet" title="Enable Telnet access using Duet Web Control"
+				<check-input v-if="!isSTM32Board" label="Enable Telnet" title="Enable Telnet access using Duet Web Control"
 							 :model-value="isProtocolEnabled(NetworkProtocol.Telnet)"
 							 @update:model-value="setProtocolEnabled(NetworkProtocol.Telnet, $event)"
 							 :preset="isPresetProtocolEnabled(NetworkProtocol.Telnet)" />
@@ -142,6 +142,56 @@
 							 :model-value="isProtocolEnabled(NetworkProtocol.SSH)"
 							 @update:model-value="setProtocolEnabled(NetworkProtocol.SSH, $event)"
 							 :preset="isPresetProtocolEnabled(NetworkProtocol.SSH)" />
+			</div>
+		</div>
+		<!-- WiFi module type — shown for all STM32 WiFi boards (slot is fixed but module can be swapped).
+			 Hidden in SBC mode, where networking is handled by the SBC and no WiFi module is needed. -->
+		<div v-if="stm32WifiDef && wifiInterface && store.data.sbc === null" class="row mt-3">
+			<div class="col-auto">
+				<select-input label="WiFi Module Type"
+							  title="Select the WiFi module type installed in this board's WiFi slot"
+							  :options="wifiModuleTypeOptions"
+							  v-model="store.data.configTool.stm32WifiModuleType"
+							  :preset="stm32WifiDef.moduleType" />
+			</div>
+		</div>
+		<!-- ESP32 pin overrides — only for non-dedicated boards where the module may be wired differently -->
+		<div v-if="stm32WifiDef && wifiInterface && !stm32WifiDef.dedicated && store.data.sbc === null" class="row mt-3">
+			<div class="col-12 mb-1">
+				<strong>ESP32 Module Pins</strong>
+				<span class="text-muted small ms-2">
+					Override board defaults only if you have a non-standard wiring. Changes are written to board.txt.
+				</span>
+			</div>
+			<div class="col-auto">
+				<text-input label="espDataReadyPin"
+							title="GPIO on the STM32 that the ESP32 asserts when it has data to send"
+							v-model="store.data.configTool.stm32WifiEspDataReadyPin"
+							:preset="stm32WifiDef.espDataReadyPin" :max-length="8" />
+			</div>
+			<div class="col-auto">
+				<text-input label="TfrReadyPin"
+							title="GPIO used for transfer-ready handshaking between STM32 and ESP32"
+							v-model="store.data.configTool.stm32WifiTfrReadyPin"
+							:preset="stm32WifiDef.tfrReadyPin" :max-length="8" />
+			</div>
+			<div class="col-auto">
+				<text-input label="espResetPin"
+							title="GPIO used to hardware-reset the ESP32"
+							v-model="store.data.configTool.stm32WifiEspResetPin"
+							:preset="stm32WifiDef.espResetPin" :max-length="8" />
+			</div>
+			<div class="col-auto">
+				<text-input label="Serial RX pin"
+							title="STM32 UART RX pin connected to the ESP32 TX"
+							v-model="store.data.configTool.stm32WifiSerialRxPin"
+							:preset="stm32WifiDef.serialRxPin" :max-length="8" />
+			</div>
+			<div class="col-auto">
+				<text-input label="Serial TX pin"
+							title="STM32 UART TX pin connected to the ESP32 RX"
+							v-model="store.data.configTool.stm32WifiSerialTxPin"
+							:preset="stm32WifiDef.serialTxPin" :max-length="8" />
 			</div>
 		</div>
 	</config-section>
@@ -153,13 +203,33 @@ import { computed } from "vue";
 
 import ConfigSection from "@/components/ConfigSection.vue";
 import CheckInput from "@/components/inputs/CheckInput.vue";
+import SelectInput from "@/components/inputs/SelectInput.vue";
 import TextInput from "@/components/inputs/TextInput.vue";
 import IpInput from "@/components/inputs/IpInput.vue";
 
 import { useStore } from "@/store";
+import { isSTM32BoardType, type STM32BoardDescriptor } from "@/store/STM32Boards";
 import { ConfigSectionType } from "@/store/sections";
 
 const store = useStore();
+
+const wifiModuleTypeOptions = [
+	{ text: "esp32",    value: "esp32"    },
+	{ text: "esp32eth", value: "esp32eth" },
+];
+
+// STM32 WiFi board detection
+const stm32WifiDef = computed(() => {
+	const bt = store.data.boardType;
+	if (bt !== null && isSTM32BoardType(bt)) {
+		return (store.data.boardDefinition as STM32BoardDescriptor | null)?.wifiConfig ?? null;
+	}
+	return null;
+});
+const isSTM32Board = computed(() => {
+	const bt = store.data.boardType;
+	return bt !== null && isSTM32BoardType(bt);
+});
 
 // Ethernet
 const lanInterface = computed(() => store.data.network.interfaces.find(iface => iface.type === NetworkInterfaceType.ethernet));

@@ -1,5 +1,5 @@
 <template>
-	<config-section :type="ConfigSectionType.Sensors" title="Temperature Sensors">
+	<config-section board-txt :type="ConfigSectionType.Sensors" title="Temperature Sensors">
 		<template #append-title>
 			<button class="btn btn-sm btn-primary" :disabled="!canAddSensor" @click.prevent="addSensor">
 				<i class="bi-plus-circle"></i>
@@ -7,6 +7,17 @@
 			</button>
 		</template>
 		<template #body>
+			<div v-if="hasStm32SpiSensor && effectiveSpiTempChannel < 0" class="alert alert-warning m-2 py-2 small">
+				<i class="bi-exclamation-triangle me-1"></i>
+				A BME280 or MAX31865 sensor is configured but no SPI channel is assigned for temperature sensors.
+				Set a channel's <strong>Role</strong> to "Temperature Sensors" in the
+				<a href="#spiConfig">SPI Configuration</a> section above.
+			</div>
+			<div v-else-if="hasStm32SpiSensor" class="alert alert-info m-2 py-2 small">
+				<i class="bi-info-circle me-1"></i>
+				SPI temperature sensors use <strong>SPI channel {{ effectiveSpiTempChannel }}</strong>.
+				Configure that channel's pins in the <a href="#spiConfig">SPI Configuration</a> section.
+			</div>
 			<template v-for="(sensor, index) in store.data.sensors.analog">
 				<div v-if="sensor" class="card m-2">
 					<div class="card-header d-flex justify-content-between align-items-center">
@@ -43,6 +54,13 @@
 											  @update:model-value="setConfigSensorValue(index, 'baseSensor', $event)"
 											  :preset="getPresetConfigSensorValue(index, 'baseSensor')"
 											  :options="getBaseSensorOptions(sensor.type, index)" />
+								<text-input v-else-if="usesStm32Pin(sensor.type)"
+											:label="isDhtType(sensor.type) ? 'Signal Pin' : 'CS Pin'"
+											:title="isDhtType(sensor.type) ? 'Interrupt-capable signal pin, e.g. A.1' : 'SPI chip-select pin, e.g. D.13'"
+											:model-value="getConfigSensorValue(index, 'stm32Pin')"
+											@update:model-value="setConfigSensorValue(index, 'stm32Pin', $event)"
+											:max-length="8" :required="false"
+											:placeholder="isDhtType(sensor.type) ? 'e.g. A.1' : 'e.g. D.13'" />
 								<port-input v-else-if="![AnalogSensorType.mcuTemp, AnalogSensorType.drivers, AnalogSensorType.driversDuex].includes(sensor.type)"
 											label="Input Port" title="Input port for this sensor"
 											:function="[AnalogSensorType.thermistor, AnalogSensorType.pt1000, AnalogSensorType.linearAnalog].includes(sensor.type) ? ConfigPortFunction.thermistor : ConfigPortFunction.sensorSpiCs"
@@ -249,10 +267,45 @@ import { useStore } from "@/store";
 import { ConfigPortFunction } from "@/store/model/ConfigPort";
 import { ConfigTempSensor } from "@/store/model/ConfigTempSensor";
 import { ExpansionBoardType } from "@/store/ExpansionBoards";
+import { isSTM32BoardType } from "@/store/STM32Boards";
 import { PortType } from "@/store/BaseBoard";
 import { ConfigSectionType } from "@/store/sections";
 
 const store = useStore();
+
+// ── STM32-specific sensor handling ───────────────────────────────────────────
+// SPI daughter boards and DHT sensors are wired via free-form pin names on STM32
+// boards (which don't expose named SPI-CS ports like Duet boards do).
+const STM32_SPI_SENSOR_TYPES = [
+	AnalogSensorType.bme280, AnalogSensorType.max31855,
+	AnalogSensorType.max31856, AnalogSensorType.max31865
+];
+const STM32_DHT_TYPES = [AnalogSensorType.dht21, AnalogSensorType.dht22];
+
+const isStm32 = computed(() => {
+	const bt = store.data.boardType;
+	return bt !== null && isSTM32BoardType(bt);
+});
+
+function isDhtType(type: AnalogSensorType) {
+	return STM32_DHT_TYPES.includes(type);
+}
+function usesStm32Pin(type: AnalogSensorType) {
+	return isStm32.value && (STM32_SPI_SENSOR_TYPES.includes(type) || STM32_DHT_TYPES.includes(type));
+}
+
+// Effective SPI channel for temperature sensors: board default, else the one
+// assigned via the "Temperature Sensors" role in the SPI Configuration section.
+const effectiveSpiTempChannel = computed(() => {
+	const content = (store.data.boardDefinition as { boardTxtContent?: string } | null)?.boardTxtContent ?? "";
+	const m = content.match(/^heat\.spiTempSensorChannel=(\d+)/m);
+	if (m) return parseInt(m[1]);
+	return store.data.configTool.stm32SpiTempChannel;
+});
+
+const hasStm32SpiSensor = computed(() =>
+	isStm32.value && store.data.sensors.analog.some(s => s !== null && STM32_SPI_SENSOR_TYPES.includes(s.type))
+);
 
 // Sensor management
 const canAddSensor = computed(() => store.data.sensors.analog.length < store.data.limits.sensors!);
@@ -363,8 +416,8 @@ function getSensorTypes(index: number) {
 		result["Built-In Sensors"] = builtInTypes;
 	}
 
-	// DHT + SPI
-	if (store.data.configTool.ports.some(port => port.capabilities.has(PortType.spiCs))) {
+	// DHT + SPI (STM32 boards connect these via free-form pins; Duet boards need a spiCs-capable port)
+	if (isStm32.value || store.data.configTool.ports.some(port => port.capabilities.has(PortType.spiCs))) {
 		result["DHT Sensors"] = [
 			{
 				text: "DHT21",

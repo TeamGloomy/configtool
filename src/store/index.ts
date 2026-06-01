@@ -240,7 +240,8 @@ export const useStore = defineStore("model", {
 			showSavePrompt: false,
 
 			darkTheme: (localStorage.getItem("theme") ?? "auto" === "auto") ? window.matchMedia("(prefers-color-scheme: dark)").matches : (localStorage.getItem("theme") === "dark"),
-			theme: "auto" as "dark" | "light" | "auto"
+			theme: "auto" as "dark" | "light" | "auto",
+			showCommunityBoards: localStorage.getItem("showSTM32Boards") === "true"
 		};
     },
     actions: {
@@ -258,6 +259,10 @@ export const useStore = defineStore("model", {
 			this.data.update(newModel);
 			this.data.validate();
 			this.dataModified = this.showSavePrompt = false;
+		},
+		setShowCommunityBoards(value: boolean) {
+			this.showCommunityBoards = value;
+			try { localStorage.setItem("showSTM32Boards", String(value)); } catch { /* ignore */ }
 		},
 		setTheme(theme: "dark" | "light" | "auto") {
 			// Apply new theme value

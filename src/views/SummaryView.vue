@@ -18,7 +18,7 @@
 						<ul class="mb-0">
 							<li v-for="template in templates">
 								<a href="javascript:void(0)" @click="showFile(template)">
-									{{ template.name }}.g
+									{{ getOutputFilename(template.name) }}
 								</a>
 								<progress-icon :model-value="template.state" />
 							</li>
@@ -66,8 +66,9 @@ import { onMounted, ref } from "vue";
 import CheckInput from "@/components/inputs/CheckInput.vue";
 
 import { useStore } from "@/store";
-import { render, renderToNewTab } from "@/store/render";
+import { render, renderToNewTab, getOutputFilename } from "@/store/render";
 import { getSectionTemplates } from "@/store/sections";
+import { isSTM32BoardType, getSTM32FirmwareFile, getSTM32WifiFile, STM32_FIRMWARE_REPO, STM32_FIRMWARE_BRANCH, type STM32BoardDescriptor } from "@/store/STM32Boards";
 import ProgressIcon, { ProgressState } from "@/components/ProgressIcon.vue";
 
 const store = useStore();
@@ -81,12 +82,23 @@ interface TemplateItem {
 
 const templates = ref<Array<TemplateItem>>([]);
 
+function isSTM32Board(): boolean {
+	const bt = store.data.boardType;
+	return bt !== null && isSTM32BoardType(bt);
+}
+
 onMounted(() => {
-	templates.value = getSectionTemplates().map(item => ({
+	const items: Array<TemplateItem> = [];
+	// Add board.txt first for STM32 boards
+	if (isSTM32Board()) {
+		items.push({ name: "boardtxt", data: null, state: null });
+	}
+	items.push(...getSectionTemplates().map(item => ({
 		name: item.template,
 		data: item.data,
 		state: null
-	}));
+	})));
+	templates.value = items;
 });
 
 async function showFile(item: TemplateItem) {
@@ -98,7 +110,7 @@ async function showFile(item: TemplateItem) {
 		await renderToNewTab(item.name, item.data ?? undefined);
 	} catch (e) {
 		console.error("Failed to generate template", item.name, item.data, e);
-		alert(`Failed to generate template ${item.name}.g: ${e}`);
+		alert(`Failed to generate template ${getOutputFilename(item.name)}: ${e}`);
 	}
 
 	if (!generating.value) {
@@ -145,6 +157,102 @@ async function downloadRRF(): Promise<Array<File>> {
 	}
 }
 
+// STM32 / community firmware lives as individual files in the gloomyandy/RRFBuild repo tree
+// under releases/<version>/{mainboard/<oem>,expansion,wifi}/ (the repo's release *assets*
+// are only whole-bundle zips). Pick the latest stable version, map every firmware file by
+// basename, then download the mainboard firmware, WiFi build, and any community expansion firmware.
+interface STM32FirmwareFile { zipPath: string; blob: Blob }
+async function downloadSTM32Firmware(): Promise<Array<STM32FirmwareFile>> {
+	const result: Array<STM32FirmwareFile> = [];
+
+	// Only fetch firmware if this config actually needs community firmware
+	const needsFirmware = store.data.boards.some(board => getSTM32FirmwareFile(board.shortName) !== null);
+	if (!needsFirmware) {
+		return result;
+	}
+
+	rrfState.value = ProgressState.busy;
+	try {
+		const apiBase = `https://api.github.com/repos/${STM32_FIRMWARE_REPO}`;
+		const rawBase = `https://raw.githubusercontent.com/${STM32_FIRMWARE_REPO}/${STM32_FIRMWARE_BRANCH}`;
+
+		// 1. List the release version directories and pick the latest stable one (no -beta/-rc)
+		const relResp = await fetch(`${apiBase}/contents/releases?ref=${STM32_FIRMWARE_BRANCH}`);
+		if (!relResp.ok) {
+			throw new Error(`Failed to list firmware releases: ${relResp.status} ${relResp.statusText}`);
+		}
+		const relEntries: Array<any> = await relResp.json();
+		const versionDirs = relEntries.filter(e => e.type === "dir" && /^\d+\.\d+\.\d+$/.test(e.name));
+		if (versionDirs.length === 0) {
+			throw new Error("No stable firmware release directory found");
+		}
+		versionDirs.sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
+		const versionDir = versionDirs[0];
+
+		// 2. Build a basename -> repo path map for every firmware file under releases/<version>
+		const treeResp = await fetch(`${apiBase}/git/trees/${versionDir.sha}?recursive=1`);
+		if (!treeResp.ok) {
+			throw new Error(`Failed to read firmware file tree: ${treeResp.status} ${treeResp.statusText}`);
+		}
+		const tree: Array<any> = (await treeResp.json()).tree ?? [];
+		const fileMap = new Map<string, string>();		// basename -> full repo path
+		for (const t of tree) {
+			if (t.type === "blob" && typeof t.path === "string" && (t.path.endsWith(".bin") || t.path.endsWith(".uf2"))) {
+				fileMap.set(t.path.split("/").pop()!, `releases/${versionDir.name}/${t.path}`);
+			}
+		}
+
+		const fetchBin = async (basename: string): Promise<Blob> => {
+			const path = fileMap.get(basename);
+			if (!path) {
+				throw new Error(`Firmware file "${basename}" not found in release ${versionDir.name}`);
+			}
+			const r = await fetch(`${rawBase}/${path}`);
+			if (!r.ok) {
+				throw new Error(`Failed to download ${basename}: ${r.status} ${r.statusText}`);
+			}
+			return r.blob();
+		};
+
+		// 3. Mainboard + every CAN-connected community board
+		for (const board of store.data.boards) {
+			const fw = getSTM32FirmwareFile(board.shortName);
+			if (!fw) {
+				continue;
+			}
+			const blob = await fetchBin(fw.fileName);
+
+			if (!board.canAddress) {
+				// Mainboard firmware is renamed to firmware.bin and placed at the SD card root
+				result.push({ zipPath: "firmware.bin", blob });
+			} else {
+				// Expansion firmware goes in firmware/ with the Duet3Firmware_ naming RRF expects
+				// for CAN board updates. RP2040 .uf2 files are already Duet3Firmware_-prefixed;
+				// STM32-expansion firmware_<board>.bin is renamed to Duet3Firmware_<board>.bin.
+				const name = fw.isUf2
+					? fw.fileName
+					: `Duet3Firmware_${fw.fileName.replace(/^firmware_/, "")}`;
+				result.push({ zipPath: `firmware/${name}`, blob });
+			}
+		}
+
+		// 4. WiFi server firmware — only for an STM32 mainboard with a WiFi module, in standalone mode
+		if (isSTM32Board() && store.data.sbc === null) {
+			const mainDef = store.data.boardDefinition as STM32BoardDescriptor | null;
+			if (mainDef?.wifiConfig) {
+				const wifiName = getSTM32WifiFile(store.data.configTool.stm32WifiModuleType);
+				result.push({ zipPath: `firmware/${wifiName}`, blob: await fetchBin(wifiName) });
+			}
+		}
+
+		rrfState.value = ProgressState.ready;
+		return result;
+	} catch (e) {
+		rrfState.value = ProgressState.error;
+		throw e;
+	}
+}
+
 const includeDWC = ref(true), dwcState = ref<ProgressState | null>(null);
 async function downloadDWC(): Promise<Array<File>> {
 	const result: Array<File> = [];
@@ -173,8 +281,12 @@ async function downloadDWC(): Promise<Array<File>> {
 async function generateBundle() {
 	generating.value = true;
 	try {
-		// Start downloading RRF and DWC
-		const rrfPromise = (!store.data.sbcMode && includeRRF.value) ? downloadRRF() : Promise.resolve([] as Array<File>);
+		// Start downloading RRF and DWC. Duet firmware comes from /assets; STM32 + community
+		// firmware comes from the gloomyandy/RRFBuild repo tree. Run the two RRF sources in
+		// sequence so they don't race the shared progress indicator.
+		const rrfPromise = (!store.data.sbcMode && includeRRF.value)
+			? (async () => ({ duet: await downloadRRF(), stm32: await downloadSTM32Firmware() }))()
+			: Promise.resolve({ duet: [] as Array<File>, stm32: [] as Array<STM32FirmwareFile> });
 		const dwcPromise = (!store.data.sbcMode && includeDWC.value) ? downloadDWC() : Promise.resolve([] as Array<File>);
 
 		// Reset states
@@ -190,21 +302,30 @@ async function generateBundle() {
 			item.state = ProgressState.busy;
 			try {
 				const content = await render(item.name, { ...(item.data ?? {}), preview: false });
-				zip.file(`sys/${item.name}.g`, content);
+				const outputFile = getOutputFilename(item.name);
+				// board.txt goes to SD card root; everything else to sys/
+				const zipPath = (item.name === "boardtxt") ? outputFile : `sys/${outputFile}`;
+				zip.file(zipPath, content);
 				item.state = ProgressState.ready;
 			} catch (e) {
 				item.state = ProgressState.error;
-				console.error(`Failed to generate template ${item.name}.g:`, item.data, e);
-				alert(`Failed to generate template ${item.name}.g: ${e}`);
+				const outputFile = getOutputFilename(item.name);
+				console.error(`Failed to generate template ${outputFile}:`, item.data, e);
+				alert(`Failed to generate template ${outputFile}: ${e}`);
 			}
 		}
 
 		// Include RRF/DWC
 		try {
 			// Add RRF files to the bundle
-			const rrfFiles = await rrfPromise;
+			const { duet: rrfFiles, stm32: stm32Files } = await rrfPromise;
 			for (const file of rrfFiles) {
 				zip.file(`firmware/${file.name}`, file);
+			}
+			// STM32/community firmware carries its own destination path (firmware.bin at root,
+			// WiFi + expansion firmware under firmware/)
+			for (const item of stm32Files) {
+				zip.file(item.zipPath, item.blob);
 			}
 
 			// Add DWC files to the bundle

@@ -1,5 +1,5 @@
 <template>
-	<config-section :type="ConfigSectionType.Accessories" title="Accessories" url-title="Duet3D Accessories"
+	<config-section board-txt :type="ConfigSectionType.Accessories" title="Accessories" url-title="Duet3D Accessories"
 					url="https://docs.duet3d.com/en/Duet3D_hardware/Accessories">
 		<div class="row">
 			<!-- Direct Display -->
@@ -46,6 +46,28 @@
 					</div>
 				</div>
 			</div>
+			<!-- STM32 Serial Port Configuration -->
+			<template v-if="hasSTM32SerialOptions">
+				<div class="col-12 mt-3">
+					<strong>STM32 Serial Ports</strong>
+					<div class="text-muted small mb-2">
+						Configures <code>serial.aux.rxTxPins</code> / <code>serial.aux2.rxTxPins</code> in board.txt.
+						Select the physical header you are using for each serial port.
+					</div>
+					<div class="row">
+						<div class="col-auto">
+							<select-input label="AUX Serial (serial.aux)"
+										  title="Physical connector to use for the primary auxiliary serial port (e.g. PanelDue)"
+										  v-model="stm32AuxSerial" :options="stm32AuxOptions" :preset="stm32AuxPreset" />
+						</div>
+						<div class="col-auto">
+							<select-input label="AUX2 Serial (serial.aux2)"
+										  title="Physical connector to use for the secondary auxiliary serial port"
+										  v-model="stm32Aux2Serial" :options="stm32Aux2Options" :preset="stm32Aux2Preset" />
+						</div>
+					</div>
+				</div>
+			</template>
 			<!-- PanelDue -->
 			<div class="col-auto">
 				<check-input v-if="panelDueChannels.length > 0" class="mt-1" label="Enable PanelDue"
@@ -161,6 +183,7 @@ import CheckInput from "@/components/inputs/CheckInput.vue";
 import SelectInput from "@/components/inputs/SelectInput.vue";
 import NumberInput from "@/components/inputs/NumberInput.vue";
 
+import { isSTM32BoardType, getBoardTxtDefault, type STM32BoardDescriptor } from "@/store/STM32Boards";
 import { useStore } from "@/store";
 
 const store = useStore();
@@ -202,9 +225,75 @@ const directDisplayController = computed({
 	}
 });
 
+// STM32 Serial Ports
+const stm32BoardDef = computed(() => {
+	const bt = store.data.boardType;
+	if (bt !== null && isSTM32BoardType(bt)) {
+		return store.data.boardDefinition as STM32BoardDescriptor | null;
+	}
+	return null;
+});
+
+// True when the board has at least one UART option in the pool
+const hasSTM32SerialOptions = computed(() => (stm32BoardDef.value?.serialOptions.length ?? 0) > 0);
+
+const stm32AuxSerial = computed({
+	get() { return store.data.configTool.stm32AuxSerial; },
+	set(v: string) { store.data.configTool.stm32AuxSerial = v; }
+});
+const stm32Aux2Serial = computed({
+	get() { return store.data.configTool.stm32Aux2Serial; },
+	set(v: string) { store.data.configTool.stm32Aux2Serial = v; }
+});
+
+// Build dropdown options from the shared pool, excluding whatever is already
+// selected for the *other* port so the same UART can't be used twice.
+function buildPool(pool: STM32BoardDescriptor["serialOptions"], exclude: string): Array<SelectOption> {
+	const result: Array<SelectOption> = [{ text: "None (disabled)", value: "" }];
+	for (const opt of pool) {
+		const val = `${opt.rx},${opt.tx}`;
+		if (val !== exclude) {
+			result.push({ text: opt.label, value: val });
+		}
+	}
+	return result;
+}
+
+const stm32AuxOptions  = computed(() =>
+	stm32BoardDef.value ? buildPool(stm32BoardDef.value.serialOptions, stm32Aux2Serial.value) : []
+);
+const stm32Aux2Options = computed(() =>
+	stm32BoardDef.value ? buildPool(stm32BoardDef.value.serialOptions, stm32AuxSerial.value)  : []
+);
+
+// Presets reflect the board's actual defaults (rrfboot value, else firmware default A.10,A.9 for aux)
+const stm32AuxPreset = computed(() => {
+	if (!stm32BoardDef.value) return "";
+	const def = getBoardTxtDefault(stm32BoardDef.value.boardTxtContent, "serial.aux.rxTxPins") ?? "A.10,A.9";
+	return /nopin/i.test(def) ? "" : def;
+});
+const stm32Aux2Preset = computed(() => {
+	if (!stm32BoardDef.value) return "";
+	const def = getBoardTxtDefault(stm32BoardDef.value.boardTxtContent, "serial.aux2.rxTxPins");
+	return (def && !/nopin/i.test(def)) ? def : "";
+});
+
 // PanelDue
 const panelDueChannels = computed(() => {
 	const result: Array<SelectOption> = [];
+
+	// For STM32 boards, build channel list from whichever serial ports are configured
+	if (stm32BoardDef.value !== null) {
+		if (store.data.configTool.stm32AuxSerial) {
+			result.push({ text: "Channel 0 (serial.aux)", value: 0 });
+		}
+		if (store.data.configTool.stm32Aux2Serial) {
+			result.push({ text: "Channel 1 (serial.aux2)", value: 1 });
+		}
+		return result;
+	}
+
+	// Duet boards — existing behaviour
 	if (store.data.boardDefinition !== null) {
 		for (let i = 0; i < store.data.boardDefinition.ports.uart.length; i++) {
 			if (store.data.boardDefinition.ports.uart[i] !== "usb") {

@@ -12,6 +12,7 @@ import { isDefaultCoreKinematics } from "./defaults";
 import { ExpansionBoards, getExpansionBoardDefinition } from "./ExpansionBoards";
 import { useStore } from ".";
 import { getBoardDefinition } from "./Boards";
+import { isSTM32BoardType } from "./STM32Boards";
 
 /**
  * Indent comments in a G-code file
@@ -198,6 +199,7 @@ const renderOptions = {
     ExpansionBoards,
     getBoardDefinition,
     getExpansionBoardDefinition,
+    isSTM32BoardType,
 
     // Config
     ConfigDriverClosedLoopEncoderType,
@@ -239,7 +241,20 @@ function getRenderFilename(template: string) {
     } else if (/home'?[a-zA-Z]$/.test(template)) {
         template = "homeaxis";                          // homex => homeaxis, home'a => homeaxis
     }
+    // boardtxt template maps to boardtxt.ejs but outputs board.txt
     return `${import.meta.env.BASE_URL}templates/${template}.ejs`;
+}
+
+/**
+ * Get the output filename for a given template name
+ * @param template Template name
+ * @returns Output filename (e.g. "config.g", "board.txt")
+ */
+export function getOutputFilename(template: string): string {
+    if (template === "boardtxt") {
+        return "board.txt";
+    }
+    return template.split('/')[0] + ".g";
 }
 
 /**
@@ -258,7 +273,7 @@ export async function render(template: string, args: Record<string, any> = {}): 
 
     // Prepare args
     const renderArgs: Record<string, any> = { ...renderOptions, ...args };
-    renderArgs.filename = template.split('/')[0] + ".g";
+    renderArgs.filename = getOutputFilename(template);
     renderArgs.model = useStore().data;
     renderArgs.preview ??= true;
     renderArgs.render = (file: string, subArgs: Record<string, any> = {}) => render(file, { ...renderArgs, ...subArgs });
@@ -288,7 +303,7 @@ export async function renderToNewTab(template: string, args: Record<string, any>
         alert("Could not open a new tab!\n\nPlease allow pop-ups for this page and try again.");
     } else {
         tab.document.write(output);
-        tab.document.title = baseTemplate + ".g";
+        tab.document.title = getOutputFilename(baseTemplate);
         (tab.document.body as HTMLBodyElement).style.fontFamily = "monospace";
         tab.document.close();
     }

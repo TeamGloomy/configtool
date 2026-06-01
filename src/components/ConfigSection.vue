@@ -2,7 +2,8 @@
 	<section :id="type" class="pt-3">
 		<card v-bind="$attrs" :title="props.title" :keep-alive="keepAlive"
 			  :preview-templates="previewTemplates.map(item => item.template)"
-			  :preview-options="previewTemplates.map(item => item.data)" :url="props.url" :url-title="props.urlTitle">
+			  :preview-options="previewTemplates.map(item => item.data)" :url="props.url" :url-title="props.urlTitle"
+			  :board-txt="props.boardTxt">
 			<template #title>
 				<slot name="title" />
 			</template>
@@ -32,7 +33,8 @@ const props = defineProps<{
 	title?: string,
 	keepAlive?: boolean,
 	url?: string
-	urlTitle?: string
+	urlTitle?: string,
+	boardTxt?: boolean
 }>();
 
 const previewTemplates = computed(() => getSectionTemplates(props.type));

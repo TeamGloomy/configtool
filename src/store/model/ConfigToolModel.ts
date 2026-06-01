@@ -131,6 +131,45 @@ export class ConfigToolModel extends ModelObject {
 	readonly sensors: ModelCollection<ConfigTempSensor | null> = new ModelCollection(ConfigTempSensor);
 	waitForToolTemperatures: boolean = true;
 	readonly wifi: ConfigWiFi = new ConfigWiFi();
+	/** Selected pins for serial.aux in board.txt, e.g. "A.10,A.9" (RX,TX). Empty = not configured. */
+	stm32AuxSerial: string = "";
+	/** Selected pins for serial.aux2 in board.txt, e.g. "D.9,D.8" (RX,TX). Empty = not configured. */
+	stm32Aux2Serial: string = "";
+	/** PanelDue channel for STM32 boards: 0 = serial.aux, 1 = serial.aux2, -1 = disabled. */
+	stm32PanelDueChannel: number = -1;
+	// ESP32 WiFi module pins — empty strings mean "use board default" (already in static board.txt content)
+	stm32WifiEspDataReadyPin: string = "";
+	stm32WifiTfrReadyPin:     string = "";
+	stm32WifiEspResetPin:     string = "";
+	stm32WifiSerialRxPin:     string = "";
+	stm32WifiSerialTxPin:     string = "";
+	/** WiFi module type; empty means use board default */
+	stm32WifiModuleType:      string = "";
+
+	// SPI channel pin overrides — "SCK,MISO,MOSI" or "" (no override from rrfboot default)
+	stm32SpiCh0: string = "";
+	stm32SpiCh1: string = "";
+	stm32SpiCh2: string = "";
+	stm32SpiCh3: string = "";
+	stm32SpiCh4: string = "";
+	stm32SpiCh5: string = "";
+	stm32SpiCh6: string = "";
+	stm32SpiCh7: string = "";
+	stm32SpiCh8: string = "";
+
+	/** SPI channel for heat.spiTempSensorChannel override (set via SPI Configuration role); -1 = use rrfboot default */
+	stm32SpiTempChannel:   number = -1;
+
+	// Per-driver type overrides for STM32 boards (comma-separated, "" per slot = tmcauto)
+	stm32DriverTypes:  string = "";
+	/** Comma-separated sense resistor values for External 5160 drivers (e.g. "0.075"), "" = none */
+	stm32DriverRsense: string = "";
+
+	// External accelerometer configuration (-1 = not configured)
+	stm32AccelSpiChannel:  number = -1;
+	stm32AccelCsPin:       string = "";
+	stm32AccelIntPin:      string = "";
+	stm32AccelOrientation: number = 20;
 
 	assignPort(port: string, fn: ConfigPortFunction | null, index: number, frequency?: number): ConfigPort {
 		for (const item of this.ports) {

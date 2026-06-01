@@ -113,7 +113,7 @@ function getSensorName(index: number) {
 	return `Sensor #${index}`;
 }
 
-const numObservableSensors = computed(() => [BoardType.Duet3MB6HC, BoardType.Duet3MB6XD, BoardType.Duet3Mini5PlusEthernet, BoardType.Duet3Mini5PlusWiFi].includes(store.data.boardType!) ? 64 : 32);
+const numObservableSensors = computed(() => [BoardType.Duet3MB6HC, BoardType.Duet3MB6XD, BoardType.Duet3Mini5PlusEthernet, BoardType.Duet3Mini5PlusWiFi].includes(store.data.boardType as BoardType) ? 64 : 32);
 const availableSensors = computed(() => {
 	const sensorList: Array<number> = [];
 	for (let i = 0; i < Math.min(store.data.sensors.analog.length, numObservableSensors.value); i++) {

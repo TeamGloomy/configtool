@@ -31,6 +31,20 @@ export enum ExpansionBoardType {
 	// Discontinued boards
 	DueX2 = "DueX 2 (discontinued)",                                                // virtual
 	Duet2Maestro2Plus = "Duet 2 Maestro Dual Stepper Expansion (discontinued)",     // virtual
+
+	// Community RP2040 toolboards (TeamGloomy / STM32/RRF ecosystem) — matches wiki supported_boards
+	FLY36RRF        = "Fly 36 RRF",
+	SB2040MAX3      = "Fly SB2040 v3.0",
+	SB2040PROMAX3   = "Fly SB2040 PRO v3.0",
+	SHT36MAX3       = "Fly SHT36 MAX v3",
+	PITBV2_0        = "PITB v2.0",
+	STRIDEMAXV2_0   = "StrideMax v2.0",
+
+	// Community STM32H7 boards running in CAN expansion mode
+	d8_pro_h723     = "Fly D8 Pro H723",
+	mmu_h723        = "Fly MMU H723",
+	afclite1_h723   = "LDO AFC Lite H723",
+	longboi1_h723   = "LDO Longboi H723",
 }
 
 /**
@@ -39,6 +53,8 @@ export enum ExpansionBoardType {
 export interface ExpansionBoardDescriptor extends BaseBoardDescriptor {
 	closedLoopConfig: ConfigDriverClosedLoop | null;
 	hasBuiltInAccelerometer: boolean;
+	/** True for community/TeamGloomy boards — hidden unless showCommunityBoards is enabled */
+	community?: boolean;
 }
 
 /**
@@ -647,6 +663,410 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: [],
 			[PortType.uart]: []
+		},
+		supportsAccelerometer: false,
+		hasBuiltInAccelerometer: false
+	},
+
+	// ── Community RP2040 Toolboards ────────────────────────────────────────
+
+	[ExpansionBoardType.FLY36RRF]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 1200,
+		motorMaxCurrent: 1600,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 1,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(Board, {
+			canAddress: 121,
+			maxHeaters: 1,
+			maxMotors: 1,
+			shortName: "FLY36RRF"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["temp0", "temp1"],
+			[PortType.fan]:           ["out1", "out2"],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpOut]:         ["io0.out"],
+			[PortType.heater]:        ["out0"],
+			[PortType.pwm]:           ["io0.out"],
+			[PortType.scanning]:      [],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["temp0", "temp1"],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: true,
+		hasBuiltInAccelerometer: true
+	},
+
+	[ExpansionBoardType.SB2040MAX3]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 1200,
+		motorMaxCurrent: 1600,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 1,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(Board, {
+			canAddress: 121,
+			maxHeaters: 1,
+			maxMotors: 1,
+			shortName: "SB2040MAX3"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["temp0", "temp1"],
+			[PortType.fan]:           ["out1", "out2", "out3"],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpOut]:         ["rgbled"],
+			[PortType.heater]:        ["out0"],
+			[PortType.pwm]:           [],
+			[PortType.scanning]:      ["i2c.ldc1612"],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["temp0", "temp1"],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: true,
+		hasBuiltInAccelerometer: true
+	},
+
+	[ExpansionBoardType.SB2040PROMAX3]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 2000,
+		motorMaxCurrent: 3000,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 1,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128, 256],
+		objectModelBoard: initObject(Board, {
+			canAddress: 121,
+			maxHeaters: 1,
+			maxMotors: 1,
+			shortName: "SB2040PROMAX3"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["temp0", "temp1"],
+			[PortType.fan]:           ["out1", "out2", "out3"],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpOut]:         ["rgbled"],
+			[PortType.heater]:        ["out0"],
+			[PortType.pwm]:           [],
+			[PortType.scanning]:      ["i2c.ldc1612"],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["temp0", "temp1"],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: true,
+		hasBuiltInAccelerometer: true
+	},
+
+	[ExpansionBoardType.SHT36MAX3]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 1200,
+		motorMaxCurrent: 1600,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 1,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(Board, {
+			canAddress: 121,
+			maxHeaters: 1,
+			maxMotors: 1,
+			shortName: "SHT36MAX3"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["temp0", "temp1"],
+			[PortType.fan]:           ["out1", "out2"],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in"],
+			[PortType.gpOut]:         ["io0.out", "rgbled"],
+			[PortType.heater]:        ["out0"],
+			[PortType.pwm]:           ["io0.out"],
+			[PortType.scanning]:      ["i2c.ldc1612"],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["temp0", "temp1"],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: true,
+		hasBuiltInAccelerometer: true
+	},
+
+	[ExpansionBoardType.PITBV2_0]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 2000,
+		motorMaxCurrent: 3000,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 2,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128, 256],
+		objectModelBoard: initObject(Board, {
+			canAddress: 121,
+			maxHeaters: 0,
+			maxMotors: 2,
+			shortName: "PITBV2_0"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["temp0", "temp1", "temp2"],
+			[PortType.fan]:           ["out0", "out1"],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["io0.in", "io1.in"],
+			[PortType.gpInInterrupt]: ["io0.in", "io1.in"],
+			[PortType.gpOut]:         ["rgbled"],
+			[PortType.heater]:        [],
+			[PortType.pwm]:           [],
+			[PortType.scanning]:      [],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["temp0", "temp1", "temp2"],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: false,
+		hasBuiltInAccelerometer: false
+	},
+
+	[ExpansionBoardType.STRIDEMAXV2_0]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 2000,
+		motorMaxCurrent: 3000,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 2,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128, 256],
+		objectModelBoard: initObject(Board, {
+			canAddress: 121,
+			maxHeaters: 0,
+			maxMotors: 2,
+			shortName: "STRIDEMAXV2_0"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["temp0", "temp1", "temp2"],
+			[PortType.fan]:           ["out0", "out1"],
+			[PortType.fanTacho]:      ["io3.in", "io4.in"],
+			[PortType.gpIn]:          ["io0.in", "io1.in", "io3.in", "io4.in"],
+			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io3.in", "io4.in"],
+			[PortType.gpOut]:         ["rgbled"],
+			[PortType.heater]:        [],
+			[PortType.pwm]:           [],
+			[PortType.scanning]:      [],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["temp0", "temp1", "temp2"],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: false,
+		hasBuiltInAccelerometer: false
+	},
+
+	// ── Community STM32H7 Boards in CAN Expansion Mode ────────────────────
+
+	[ExpansionBoardType.d8_pro_h723]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 1600,
+		motorMaxCurrent: 2000,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 8,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(Board, {
+			canAddress: 119,
+			maxHeaters: 4,
+			maxMotors: 8,
+			shortName: "d8_pro_h723"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["bedtemp", "e0temp", "e1temp", "e2temp"],
+			[PortType.fan]:           ["fan0", "fan1", "fan2", "fan3", "fan4", "fan5"],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["xstop", "ystop", "zstop", "e0stop", "e1stop", "e2stop", "probe"],
+			[PortType.gpInInterrupt]: ["xstop", "ystop", "zstop", "e0stop", "e1stop", "e2stop", "probe"],
+			[PortType.gpOut]:         ["neopixel", "neopixel1"],
+			[PortType.heater]:        ["bed", "e0heat", "e1heat", "e2heat"],
+			[PortType.pwm]:           ["servo", "servo0"],
+			[PortType.scanning]:      [],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["bedtemp", "e0temp", "e1temp", "e2temp"],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: false,
+		hasBuiltInAccelerometer: false
+	},
+
+	[ExpansionBoardType.mmu_h723]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 1600,
+		motorMaxCurrent: 2000,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 4,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(Board, {
+			canAddress: 119,
+			maxHeaters: 0,
+			maxMotors: 4,
+			shortName: "mmu_h723"
+		}),
+		ports: {
+			[PortType.analogIn]:      [],
+			[PortType.fan]:           [],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["endstop0", "endstop1", "endstop2", "endstop3", "endstop4", "endstop5", "endstop6", "endstop7", "endstop8", "endstop9", "endstop10"],
+			[PortType.gpInInterrupt]: ["endstop0", "endstop1", "endstop2", "endstop3", "endstop4", "endstop5", "endstop6", "endstop7", "endstop8", "endstop9", "endstop10"],
+			[PortType.gpOut]:         ["servo0", "servo1", "servo2", "servo3", "neopixel"],
+			[PortType.heater]:        [],
+			[PortType.pwm]:           ["servo0", "servo1", "servo2", "servo3"],
+			[PortType.scanning]:      [],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    [],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: false,
+		hasBuiltInAccelerometer: false
+	},
+
+	[ExpansionBoardType.afclite1_h723]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 1600,
+		motorMaxCurrent: 2000,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 4,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(Board, {
+			canAddress: 119,
+			maxHeaters: 0,
+			maxMotors: 4,
+			shortName: "afclite1_h723"
+		}),
+		ports: {
+			[PortType.analogIn]:      [],
+			[PortType.fan]:           [],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["sw1", "sw2", "sw3", "sw4", "sw5", "sw6", "sw7", "sw8", "sw9", "sw10", "sw11", "sw12"],
+			[PortType.gpInInterrupt]: ["sw1", "sw2", "sw3", "sw4", "sw5", "sw6", "sw7", "sw8", "sw9", "sw10", "sw11", "sw12"],
+			[PortType.gpOut]:         ["neopixel1", "neopixel2", "neopixel3", "neopixel4"],
+			[PortType.heater]:        [],
+			[PortType.pwm]:           [],
+			[PortType.scanning]:      [],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    [],
+			[PortType.uart]:          []
+		},
+		supportsAccelerometer: false,
+		hasBuiltInAccelerometer: false
+	},
+
+	[ExpansionBoardType.longboi1_h723]: {
+		community: true,
+		hasADCAutoCalibration: false,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 1600,
+		motorMaxCurrent: 2000,
+		minVoltage: 12,
+		maxVoltage: 28,
+		numDrivers: 4,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(Board, {
+			canAddress: 119,
+			maxHeaters: 1,
+			maxMotors: 4,
+			shortName: "longboi1_h723"
+		}),
+		ports: {
+			[PortType.analogIn]:      ["th0"],
+			[PortType.fan]:           ["out2", "out3"],
+			[PortType.fanTacho]:      [],
+			[PortType.gpIn]:          ["sw1", "sw2", "sw3", "sw4", "sw5", "sw6", "sw7", "sw8", "sw9", "sw10", "sw11", "sw12", "sw13", "sw14", "sw15", "sw16"],
+			[PortType.gpInInterrupt]: ["sw1", "sw2", "sw3", "sw4", "sw5", "sw6", "sw7", "sw8", "sw9", "sw10", "sw11", "sw12", "sw13", "sw14", "sw15", "sw16"],
+			[PortType.gpOut]:         ["neopixel1", "neopixel2", "neopixel3", "neopixel4", "neopixel5"],
+			[PortType.heater]:        ["out1"],
+			[PortType.pwm]:           [],
+			[PortType.scanning]:      [],
+			[PortType.spiCs]:         [],
+			[PortType.thermistor]:    ["th0"],
+			[PortType.uart]:          []
 		},
 		supportsAccelerometer: false,
 		hasBuiltInAccelerometer: false

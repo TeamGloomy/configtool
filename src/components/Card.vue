@@ -18,9 +18,14 @@
 				{{ props.title }}
 			</slot>
 
-			<a v-if="previewTemplates && previewTemplates.length > 0" href="javascript:void(0)" @click="previewVisible = !previewVisible">
+			<a v-if="previewTemplates && previewTemplates.length > 0" href="javascript:void(0)" @click="toggleGcodePreview">
 				<i class="bi" :class="previewVisible ? 'bi-code-slash' : 'bi-code'"></i>
 				{{ previewVisible? "Hide G-code preview": "Show G-code preview" }}
+			</a>
+
+			<a v-if="showBoardTxtPreview" href="javascript:void(0)" @click="toggleBoardTxtPreview">
+				<i class="bi" :class="boardTxtVisible ? 'bi-file-earmark-text-fill' : 'bi-file-earmark-text'"></i>
+				{{ boardTxtVisible ? "Hide board.txt preview" : "Show board.txt preview" }}
 			</a>
 
 			<a v-if="props.url && props.urlTitle" :href="props.url" target="_blank">
@@ -47,6 +52,18 @@
 			</ul>
 			<g-code-output v-show="previewVisible" class="output" :value="generatedCode" readonly />
 		</template>
+		<template v-else-if="boardTxtVisible">
+			<ul class="nav nav-tabs">
+				<li class="nav-item">
+					<a class="nav-link active" href="javascript:void(0)">board.txt</a>
+				</li>
+				<a class="align-self-center ms-auto me-3 text-decoration-none" href="javascript:void(0)" @click.prevent="showBoardTxtFile">
+					<i :class="boardTxtFileRendering ? 'bi-hourglass' : 'bi-box-arrow-in-up-right'"></i>
+					{{ boardTxtFileRendering ? "rendering..." : "view full file" }}
+				</a>
+			</ul>
+			<g-code-output class="output" :value="boardTxtCode" readonly />
+		</template>
 		<template v-else-if="!keepAlive">
 			<slot name="body" />
 			<div v-if="hasSlotContent($slots.default)" class="card-body">
@@ -54,7 +71,7 @@
 			</div>
 			<slot name="append" />
 		</template>
-		<div v-if="keepAlive" v-show="!previewVisible">
+		<div v-if="keepAlive" v-show="!previewVisible && !boardTxtVisible">
 			<slot name="body" />
 			<div v-if="hasSlotContent($slots.default)" class="card-body">
 				<slot />
@@ -68,6 +85,8 @@
 import { Comment, computed, defineAsyncComponent, ref, watch, type Slot, type VNode } from "vue";
 
 import { indent, render, renderToNewTab } from "@/store/render";
+import { useStore } from "@/store";
+import { isSTM32BoardType } from "@/store/STM32Boards";
 
 const GCodeOutput = defineAsyncComponent(() => import("./monaco/GCodeOutput.vue"));
 
@@ -77,8 +96,17 @@ const props = defineProps<{
 	previewTemplates?: Array<string> | null,
 	previewOptions?: Record<string, any> | Array<Record<string, any> | null> | null,
 	url?: string
-	urlTitle?: string
+	urlTitle?: string,
+	/** Opt this card in to a board.txt preview link (only shown for STM32 boards) */
+	boardTxt?: boolean
 }>();
+
+const store = useStore();
+
+// board.txt only exists for STM32 boards; the link is opt-in per section via the boardTxt prop
+const showBoardTxtPreview = computed(() =>
+	!!props.boardTxt && store.data.boardType !== null && isSTM32BoardType(store.data.boardType as string)
+);
 
 // Credits go to https://github.com/vuejs/core/issues/4733#issuecomment-1024816095
 function hasSlotContent(slot: Slot | undefined, slotProps = {}): boolean {
@@ -98,7 +126,22 @@ function hasSlotContent(slot: Slot | undefined, slotProps = {}): boolean {
 
 // Preview
 const previewVisible = ref(false);
+const boardTxtVisible = ref(false);
 const selectedTemplate = ref<string>((props.previewTemplates && props.previewTemplates.length > 0) ? props.previewTemplates[0] : "");
+
+// The two previews are mutually exclusive so only one output is shown at a time
+function toggleGcodePreview() {
+	previewVisible.value = !previewVisible.value;
+	if (previewVisible.value) {
+		boardTxtVisible.value = false;
+	}
+}
+function toggleBoardTxtPreview() {
+	boardTxtVisible.value = !boardTxtVisible.value;
+	if (boardTxtVisible.value) {
+		previewVisible.value = false;
+	}
+}
 
 // Partial preview
 const generatedCode = ref(""), previewRendering = ref(false);
@@ -160,5 +203,40 @@ async function showFile() {
 		alert(`Failed to generate file:\n\n${e}`);
 	}
 	fileRendering.value = false;
+}
+
+// board.txt preview
+const boardTxtCode = ref(""), boardTxtRendering = ref(false), boardTxtFileRendering = ref(false);
+
+watch(boardTxtVisible, async () => {
+	if (boardTxtVisible.value) {
+		if (boardTxtRendering.value) {
+			return;
+		}
+		boardTxtRendering.value = true;
+
+		boardTxtCode.value = "rendering...";
+		try {
+			boardTxtCode.value = await render("boardtxt", { preview: true });
+		} catch (e) {
+			console.warn(e);
+			boardTxtCode.value = "failed to render board.txt:\n" + e;
+		}
+		boardTxtRendering.value = false;
+	}
+});
+
+async function showBoardTxtFile() {
+	if (boardTxtFileRendering.value) {
+		return;
+	}
+	boardTxtFileRendering.value = true;
+
+	try {
+		await renderToNewTab("boardtxt", { preview: true });
+	} catch (e) {
+		alert(`Failed to generate file:\n\n${e}`);
+	}
+	boardTxtFileRendering.value = false;
 }
 </script>

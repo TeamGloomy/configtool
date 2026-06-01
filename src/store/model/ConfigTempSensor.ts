@@ -19,4 +19,6 @@ export class ConfigTempSensor extends ModelObject {                     // TODO 
 	rref: number | null = null;											// only used by MAX31865
 
 	baseSensor: number | null = null;									// referenced sensor, e.g. by DHT humidity
+
+	stm32Pin: string = "";												// STM32 free-form pin: signal pin (DHT) or CS pin (BME280/MAX317xx)
 }

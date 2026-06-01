@@ -128,6 +128,8 @@ function getSectionTitle(section: ConfigSectionType) {
 		return "Filament Monitors";
 	} else if (section === ConfigSectionType.LedStrips) {
 		return "LED Strips";
+	} else if (section === ConfigSectionType.SpiConfig) {
+		return "SPI Configuration";
 	}
 	return section[0].toUpperCase() + section.substring(1);
 }

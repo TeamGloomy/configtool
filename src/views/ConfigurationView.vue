@@ -34,6 +34,7 @@ import Accessories from "@/components/sections/Accessories.vue";
 import Network from "@/components/sections/Network.vue";
 import LedStrips from "@/components/sections/LedStrips.vue";
 import Expansion from "@/components/sections/Expansion.vue";
+import SpiConfig from "@/components/sections/SpiConfig.vue";
 import Accelerometers from "@/components/sections/Accelerometers.vue";
 import Kinematics from "@/components/sections/Kinematics.vue";
 import Drivers from "@/components/sections/Drivers.vue";
@@ -72,6 +73,9 @@ const sectionComponents = computed(() => {
 				break;
 			case ConfigSectionType.Expansion:
 				components.push(Expansion);
+				break;
+			case ConfigSectionType.SpiConfig:
+				components.push(SpiConfig);
 				break;
 			case ConfigSectionType.Accelerometers:
 				components.push(Accelerometers);

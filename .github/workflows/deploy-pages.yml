@@ -1,0 +1,65 @@
+name: Build and deploy to GitHub Pages
+
+# Builds the config tool and publishes it to GitHub Pages. Before building, the Duet
+# firmware / IAP / DuetWebControl binaries are fetched into public/assets/ (they are not
+# committed to the repo) so they ship same-origin under /assets/ — GitHub release assets
+# can't be fetched cross-origin from the browser, so they must be served from our own site.
+# STM32 / community firmware is fetched live from raw.githubusercontent.com at runtime and
+# is not bundled here.
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Allow one concurrent deployment; let an in-progress run finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Fetch the Duet firmware / IAP / DuetWebControl assets into public/assets/.
+      # CONFIGTOOL_ASSET_BASE may override the source host (defaults to the live Duet tool).
+      - name: Fetch firmware and web interface assets
+        run: npm run fetch-assets
+        env:
+          CONFIGTOOL_ASSET_BASE: ${{ vars.CONFIGTOOL_ASSET_BASE }}
+
+      - name: Build ConfigTool
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

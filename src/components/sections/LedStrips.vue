@@ -44,7 +44,7 @@
 						</td>
 						<td>
 							<select-input title="Type of this LED strip" v-model="strip.type"
-										  :preset="getPresetLedStripValue(index, 'type')" :options="LedStripTypes" />
+										  :preset="getPresetLedStripValue(index, 'type')" :options="filteredLedStripTypes" />
 						</td>
 						<td>
 							<port-input title="Output port for this LED strip" :function="ConfigPortFunction.ledStrip"
@@ -95,10 +95,20 @@ import PortInput from "@/components/inputs/PortInput.vue";
 import SelectInput from "@/components/inputs/SelectInput.vue";
 
 import { useStore } from "@/store";
+import { isSTM32BoardType } from "@/store/STM32Boards";
 import { ConfigPortFunction } from "@/store/model/ConfigPort";
 import { ConfigSectionType } from "@/store/sections";
 
 const store = useStore();
+
+// Filter out DotStar for STM32 boards — only single-wire NeoPixel is supported
+const filteredLedStripTypes = computed(() => {
+	const bt = store.data.boardType;
+	if (bt !== null && isSTM32BoardType(bt)) {
+		return LedStripTypes.filter(t => t.value !== LedStripType.DotStar);
+	}
+	return LedStripTypes;
+});
 
 // LED strip management
 const canAddLedStrip = computed(() => store.data.ledStrips.length < store.data.limits.ledStrips!);

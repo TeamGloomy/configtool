@@ -8,22 +8,18 @@
 	<section id="drivers" class="pt-3">
 		<!-- Smart Drivers -->
 		<card v-if="smartDrivers.length > 0" title="Smart Drivers" :preview-templates="['config/drivers/smart']"
+			  board-txt
 			  url-title="Tuning Stepper Motor Drivers"
 			  url="https://docs.duet3d.com/en/User_manual/Connecting_hardware/Motors_tuning">
 			<template #append>
 				<table class="table table-striped table-smart-drivers mb-0">
-					<colgroup>
-						<col style="width: auto;">
-						<col style="width: 20%;">
-						<col style="width: 20%;">
-						<col style="width: 20%;">
-						<col style="width: 20%;">
-						<col style="width: 20%;">
-					</colgroup>
 					<thead>
 						<tr>
-							<th class="text-center">
+							<th class="text-center text-nowrap">
 								Driver
+							</th>
+							<th v-if="showDriverTypeColumn">
+								Driver Type
 							</th>
 							<th>
 								Direction
@@ -46,6 +42,23 @@
 						<tr v-for="driver in smartDrivers">
 							<td class="text-center align-middle">
 								{{ driver.id }}
+							</td>
+							<td v-if="showDriverTypeColumn">
+								<template v-if="!driver.id.board">
+									<select-input title="Driver type installed in this slot (written to board.txt)"
+												  :options="driverTypeOptions"
+												  :model-value="getDriverType(driver.id.driver)"
+												  @update:model-value="setDriverType(driver.id.driver, $event)"
+												  :required="false" />
+									<number-input v-if="getDriverType(driver.id.driver) === 'external5160'"
+												  class="mt-1"
+												  title="Sense resistor value (Ω) of this external TMC5160 module"
+												  label="Rsense (Ω)"
+												  :model-value="getDriverRsense(driver.id.driver)"
+												  @update:model-value="setDriverRsense(driver.id.driver, $event)"
+												  :min="0.001" :max="1.0" :step="0.001"
+												  :preset="0.075" />
+								</template>
 							</td>
 							<td>
 								<select-input title="Movement direction of this driver" :required="false"
@@ -230,6 +243,7 @@ import NumberInput from "@/components/inputs/NumberInput.vue";
 import { useStore } from "@/store";
 import { ConfigDriver, ConfigDriverClosedLoopEncoderType, ConfigDriverMode } from "@/store/model/ConfigDriver";
 import { ExpansionBoards, getExpansionBoardDefinition, type ExpansionBoardDescriptor } from "@/store/ExpansionBoards";
+import { isSTM32BoardType, type STM32BoardDescriptor } from "@/store/STM32Boards";
 
 const store = useStore();
 
@@ -310,6 +324,60 @@ function hasMotorsMapped(driver: ConfigDriver) {
 
 function getMaxCurrent(driver: ConfigDriver) {
 	return store.data.getBoardDefinition(driver.id.board)?.motorMaxCurrent;
+}
+
+// ── STM32 driver type selection ──────────────────────────────────────────────
+
+const driverTypeOptions: Array<SelectOption> = [
+	{ text: "Auto detect (tmcauto)", value: "" },
+	{ text: "TMC2208", value: "tmc2208" },
+	{ text: "TMC2209", value: "tmc2209" },
+	{ text: "TMC2225", value: "tmc2225" },
+	{ text: "TMC2226", value: "tmc2226" },
+	{ text: "TMC5160", value: "tmc5160" },
+	{ text: "External TMC5160", value: "external5160" },
+];
+
+const stm32Def = computed(() => {
+	const bt = store.data.boardType;
+	if (bt !== null && isSTM32BoardType(bt)) {
+		return store.data.boardDefinition as STM32BoardDescriptor | null;
+	}
+	return null;
+});
+
+const showDriverTypeColumn = computed(() =>
+	stm32Def.value !== null && !stm32Def.value.builtInDrivers
+);
+
+function getDriverType(driverIndex: number): string {
+	const raw = store.data.configTool.stm32DriverTypes;
+	if (!raw) return "";
+	return raw.split(",")[driverIndex] ?? "";
+}
+
+function setDriverType(driverIndex: number, value: string) {
+	const parts = store.data.configTool.stm32DriverTypes.split(",");
+	parts[driverIndex] = value;
+	store.data.configTool.stm32DriverTypes = parts.join(",");
+	if (value !== "external5160") {
+		const rParts = store.data.configTool.stm32DriverRsense.split(",");
+		rParts[driverIndex] = "";
+		store.data.configTool.stm32DriverRsense = rParts.join(",");
+	}
+}
+
+function getDriverRsense(driverIndex: number): number {
+	const raw = store.data.configTool.stm32DriverRsense;
+	if (!raw) return 0.075;
+	const val = raw.split(",")[driverIndex];
+	return val ? parseFloat(val) : 0.075;
+}
+
+function setDriverRsense(driverIndex: number, value: number) {
+	const parts = store.data.configTool.stm32DriverRsense.split(",");
+	parts[driverIndex] = value.toString();
+	store.data.configTool.stm32DriverRsense = parts.join(",");
 }
 
 function getCurrent(driver: ConfigDriver) {

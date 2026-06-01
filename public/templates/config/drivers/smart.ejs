@@ -1,3 +1,23 @@
+<%
+// M569.9 sense-resistor setup for STM32 boards
+// 1. Boards with factory-configured non-standard resistors (e.g. BTT Kraken)
+if (isSTM32BoardType(model.boardType) && model.boardDefinition && model.boardDefinition.m569DriverSetup) {
+    const _setup = model.boardDefinition.m569DriverSetup;
+    for (let _i = 0; _i < _setup.driverCount; _i++) { -%>
+M569.9 P0.<%- _i %> R<%- _setup.rsense %> S<%- _setup.scale %> ; driver <%- _i %> sense resistor
+<%  }
+}
+// 2. User-selected External TMC5160 drivers
+if (isSTM32BoardType(model.boardType) && model.configTool.stm32DriverTypes) {
+    const _types = model.configTool.stm32DriverTypes.split(',');
+    const _rsense = model.configTool.stm32DriverRsense ? model.configTool.stm32DriverRsense.split(',') : [];
+    for (let _i = 0; _i < _types.length; _i++) {
+        if (_types[_i] === 'external5160' && _rsense[_i]) { -%>
+M569.9 P0.<%- _i %> R<%- _rsense[_i] %> ; external TMC5160 sense resistor for driver <%- _i %>
+<%      }
+    }
+}
+%>
 <%  // Get the list of smart drivers first
     const smartDrivers = [];
     for (const driver of model.configTool.drivers) {

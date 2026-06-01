@@ -1,6 +1,7 @@
 import { AxisLetter, CoreKinematics, KinematicsName, MachineMode, NetworkInterfaceState, NetworkInterfaceType, ProbeType } from "@duet3d/objectmodel";
 
 import { useStore } from ".";
+import { isSTM32BoardType } from "./STM32Boards";
 
 /**
  * Types of configuration sections
@@ -11,6 +12,7 @@ export enum ConfigSectionType {
     LedStrips = "ledStrips",
     Network = "network",
     Expansion = "expansion",
+    SpiConfig = "spiConfig",
     Accelerometers = "accelerometers",
     Drivers = "drivers",
     Kinematics = "kinematics",
@@ -43,6 +45,7 @@ export function getSections() {
         (store.data.limits.ledStrips ?? 0 > 0) ? ConfigSectionType.LedStrips : null,
         (store.data.network.interfaces.length > 0) ? ConfigSectionType.Network : null,
         ConfigSectionType.Expansion,
+        isSTM32BoardType(store.data.boardType as string) ? ConfigSectionType.SpiConfig : null,
         ConfigSectionType.Accelerometers,
         ConfigSectionType.Drivers,
         ConfigSectionType.Axes,
@@ -149,6 +152,9 @@ export function getSectionTemplates(section?: ConfigSectionType) {
             break;
         case ConfigSectionType.Expansion:
             // no templates
+            break;
+        case ConfigSectionType.SpiConfig:
+            // SPI configuration only affects board.txt, no config.g template
             break;
         case ConfigSectionType.Accelerometers:
             result.push({ template: "config/accelerometers", data: null });

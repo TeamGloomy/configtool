@@ -179,7 +179,9 @@ const canExpansionBoards = computed(() => {
 	const result: Array<SelectOption> = [], boardDefinition = store.data.boardDefinition;
 	if (boardDefinition) {
 		for (let expansionBoard of Object.values(ExpansionBoardType)) {
-			if (ExpansionBoards[expansionBoard].objectModelBoard.canAddress !== null) {
+			const descriptor = ExpansionBoards[expansionBoard];
+			if (descriptor.objectModelBoard.canAddress !== null) {
+				if (descriptor.community && !store.showCommunityBoards) continue;
 				result.push({
 					text: expansionBoard,
 					value: expansionBoard

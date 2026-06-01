@@ -7,4 +7,8 @@ M955 <%- params({
     I: board.accelerometer.orientation
 }) %> ; configure accelerometer on board #<%- board.canAddress ?? 0 %>
 <%      }
-    } %>
+    }
+    // STM32 mainboard external accelerometer
+    if (isSTM32BoardType(model.boardType) && model.configTool.stm32AccelSpiChannel >= 0 && model.configTool.stm32AccelCsPin) { -%>
+M955 P0 C"<%- model.configTool.stm32AccelCsPin %><%- model.configTool.stm32AccelIntPin ? '+' + model.configTool.stm32AccelIntPin : '' %>" I<%- model.configTool.stm32AccelOrientation %> ; configure external accelerometer on STM32 mainboard
+<%  } %>

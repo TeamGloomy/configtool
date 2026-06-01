@@ -5,6 +5,11 @@
 			<div class="col">
 				<select-input label="Board" title="Mainboard of your setup" v-model="board" :options="boardOptions"
 							  :preset="boardPreset" />
+				<div class="mt-1">
+					<check-input label="Show STM32/RRF community boards (H7 series)"
+								 title="Show boards supported by the TeamGloomy STM32H7 port of RepRapFirmware"
+								 v-model="showSTM32" :preset="false" />
+				</div>
 			</div>
 			<div v-if="supportsSbcMode" class="col">
 				<select-input label="Operation Mode"
@@ -127,62 +132,62 @@ import SelectInput from "@/components/inputs/SelectInput.vue";
 import TextInput from "@/components/inputs/TextInput.vue";
 
 import { BoardType, UnsupportedBoardType } from "@/store/Boards";
+import { STM32BoardType, STM32Boards, isSTM32BoardType } from "@/store/STM32Boards";
 import { ConfigSectionType } from "@/store/sections";
 import { useStore } from "@/store";
 
 const store = useStore();
 
-// Board options
-let boardOptions: Record<string, Array<string | SelectOption>> | Array<string | SelectOption> = {};
-const otherBoards: Array<BoardType | UnsupportedBoardType> = [];
+const showSTM32 = computed({
+	get: () => store.showCommunityBoards,
+	set: (v) => store.setShowCommunityBoards(v)
+});
 
-for (let board of Object.values(BoardType)) {
+// Pre-compute the static Duet board groups (never change at runtime)
+const duetBoardGroups: Record<string, Array<string | SelectOption>> = {};
+const otherBoards: Array<BoardType | UnsupportedBoardType> = [];
+for (const board of Object.values(BoardType)) {
 	const match = /^(Duet \d+)/.exec(board);
 	if (match) {
 		const groupTitle = `${match[1]} series`;
-		if (!boardOptions[groupTitle]) {
-			boardOptions[groupTitle] = [];
-		}
-		boardOptions[groupTitle].push(board);
+		if (!duetBoardGroups[groupTitle]) duetBoardGroups[groupTitle] = [];
+		duetBoardGroups[groupTitle].push(board);
 	} else {
 		otherBoards.push(board);
 	}
 }
-
-if (Object.keys(boardOptions).length !== 0) {
-	if (otherBoards.length !== 0) {
-		boardOptions["Other boards"] = otherBoards;
-	}
-} else {
-	boardOptions = otherBoards;
+if (otherBoards.length > 0) {
+	duetBoardGroups["Other Duet boards"] = otherBoards;
+}
+if (Object.values(UnsupportedBoardType).length > 0) {
+	duetBoardGroups["Unsupported boards"] = Object.values(UnsupportedBoardType).map(b => ({
+		disabled: true, text: b, value: b
+	} as SelectOption));
 }
 
-if (Object.keys(UnsupportedBoardType).length !== 0) {
-	if (boardOptions instanceof Array) {
-		for (let unsupportedBoard of Object.values(UnsupportedBoardType)) {
-			boardOptions.push({
-				disabled: true,
-				text: unsupportedBoard,
-				value: unsupportedBoard
-			});
+// Reactive board options — STM32 groups are only included when the checkbox is ticked
+// (or when an STM32 board is already selected, so a loaded config still shows correctly)
+const boardOptions = computed(() => {
+	const options: Record<string, Array<string | SelectOption>> = { ...duetBoardGroups };
+
+	const currentIsSTM32 = store.data.boardType !== null && isSTM32BoardType(store.data.boardType);
+	if (showSTM32.value || currentIsSTM32) {
+		for (const [boardType, descriptor] of Object.entries(STM32Boards)) {
+			// Always show a hidden board if it's the currently-selected one (loaded from saved config)
+			if (descriptor.hidden && boardType !== store.data.boardType) continue;
+			const groupTitle = `${descriptor.manufacturer} (STM32/RRF)`;
+			if (!options[groupTitle]) options[groupTitle] = [];
+			options[groupTitle].push(boardType as STM32BoardType);
 		}
-	} else {
-		const unsupportedBoardGroup = [];
-		for (let unsupportedBoard of Object.values(UnsupportedBoardType)) {
-			unsupportedBoardGroup.push({
-				disabled: true,
-				text: unsupportedBoard,
-				value: unsupportedBoard
-			});
-		}
-		boardOptions["Unsupported boards"] = unsupportedBoardGroup;
 	}
-}
+
+	return options;
+});
 
 // Board selection
 const board = computed({
 	get() { return store.data.boardType as string; },
-	set(value: string) { store.data.boardType = value as BoardType; }
+	set(value: string) { store.data.boardType = value as (BoardType | STM32BoardType); }
 });
 const boardPreset = computed(() => store.preset.boardType as string);
 

@@ -5,6 +5,7 @@ import { ConfigDriver, ConfigDriverMode } from "@/store/model/ConfigDriver";
 import { ConfigToolModel } from "@/store/model/ConfigToolModel";
 import { PortType, type BaseBoardDescriptor } from "@/store/BaseBoard";
 import { type BoardDescriptor, Boards, BoardType, getBoardDefinition, getBoardType } from "@/store/Boards";
+import { STM32Boards, STM32BoardType, isSTM32BoardType, getSTM32BoardType, getSTM32BoardDefinition, getBoardTxtDefault } from "@/store/STM32Boards";
 import { ExpansionBoards, ExpansionBoardType, getExpansionBoardDefinition } from "@/store/ExpansionBoards";
 
 import { preconfigureNetworkInterface } from "../defaults";
@@ -42,9 +43,13 @@ export default class ConfigModel extends ObjectModel {
 	}
 
 	/**
-	 * Get the board definition exclusively for the mainboard
+	 * Get the board definition exclusively for the mainboard (covers both Duet and STM32 boards)
 	 */
 	get boardDefinition(): BoardDescriptor | null {
+		if (this.boards.length > 0) {
+			const stm32 = getSTM32BoardDefinition(this.boards[0].shortName);
+			if (stm32) return stm32;
+		}
 		return getBoardDefinition(this);
 	}
 
@@ -99,6 +104,11 @@ export default class ConfigModel extends ObjectModel {
 	 */
 	getBoardDefinition(canAddress: number | null = null): BaseBoardDescriptor | null {
 		if (!canAddress) {
+			// Check STM32 boards first, then fall back to Duet boards
+			if (this.boards.length > 0) {
+				const stm32 = getSTM32BoardDefinition(this.boards[0].shortName);
+				if (stm32) return stm32;
+			}
 			return getBoardDefinition(this);
 		}
 
@@ -107,9 +117,13 @@ export default class ConfigModel extends ObjectModel {
 	}
 
 	/**
-	 * Getter for the current main board type
+	 * Getter for the current main board type (covers Duet and STM32 boards)
 	 */
-	get boardType(): BoardType | null {
+	get boardType(): BoardType | STM32BoardType | null {
+		if (this.boards.length > 0) {
+			const stm32Type = getSTM32BoardType(this.boards[0].shortName);
+			if (stm32Type) return stm32Type;
+		}
 		return getBoardType(this);
 	}
 
@@ -117,12 +131,14 @@ export default class ConfigModel extends ObjectModel {
 	 * Setter for the current main board type
 	 * @param value New board type
 	 */
-	set boardType(value: BoardType | null) {
+	set boardType(value: BoardType | STM32BoardType | null) {
 		if (value === null) {
 			throw new Error("Board type cannot be null");
 		}
 
-		const boardDefinition = Boards[value];
+		const boardDefinition: BoardDescriptor | undefined = isSTM32BoardType(value)
+			? STM32Boards[value]
+			: Boards[value as BoardType];
 		if (!boardDefinition) {
 			throw new Error(`Invalid board type ${value}`);
 		}
@@ -175,6 +191,63 @@ export default class ConfigModel extends ObjectModel {
 				this.network.interfaces.push(newNetworkInterface);
 			}
 			this.network.interfaces.splice(boardDefinition.objectModelNetworkInterfaces.length);
+		}
+
+		// Initialise STM32-specific defaults for the new board
+		if (isSTM32BoardType(value)) {
+			const stm32Def = STM32Boards[value];
+
+			// Serial ports — initialise to the board's actual defaults so an untouched config
+			// produces no board.txt override. The firmware hardcodes serial.aux to A.10,A.9
+			// unless the board's rrfboot.txt overrides it; serial.aux2 defaults to unset.
+			const auxDef  = getBoardTxtDefault(stm32Def.boardTxtContent, "serial.aux.rxTxPins") ?? "A.10,A.9";
+			const aux2Def = getBoardTxtDefault(stm32Def.boardTxtContent, "serial.aux2.rxTxPins");
+			this.configTool.stm32AuxSerial  = /nopin/i.test(auxDef) ? "" : auxDef;
+			this.configTool.stm32Aux2Serial = (aux2Def && !/nopin/i.test(aux2Def)) ? aux2Def : "";
+
+			// WiFi module pins — initialise to board defaults so UI shows real values;
+			// the template only writes overrides that differ from those defaults
+			const wifi = stm32Def.wifiConfig;
+			this.configTool.stm32WifiEspDataReadyPin = wifi?.espDataReadyPin ?? "";
+			this.configTool.stm32WifiTfrReadyPin     = wifi?.tfrReadyPin     ?? "";
+			this.configTool.stm32WifiEspResetPin     = wifi?.espResetPin     ?? "";
+			this.configTool.stm32WifiSerialRxPin     = wifi?.serialRxPin     ?? "";
+			this.configTool.stm32WifiSerialTxPin     = wifi?.serialTxPin     ?? "";
+			this.configTool.stm32WifiModuleType      = wifi?.moduleType      ?? "esp32";
+			this.configTool.stm32SpiCh0 = ""; this.configTool.stm32SpiCh1 = "";
+			this.configTool.stm32SpiCh2 = ""; this.configTool.stm32SpiCh3 = "";
+			this.configTool.stm32SpiCh4 = ""; this.configTool.stm32SpiCh5 = "";
+			this.configTool.stm32SpiCh6 = ""; this.configTool.stm32SpiCh7 = "";
+			this.configTool.stm32SpiCh8 = "";
+			this.configTool.stm32AccelSpiChannel  = -1;
+			this.configTool.stm32AccelCsPin       = "";
+			this.configTool.stm32AccelIntPin      = "";
+			this.configTool.stm32AccelOrientation = 20;
+			const nd = stm32Def.numDrivers;
+			this.configTool.stm32DriverTypes  = Array(nd).fill("").join(",");
+			this.configTool.stm32DriverRsense = Array(nd).fill("").join(",");
+			this.configTool.stm32SpiTempChannel = -1;
+		} else {
+			this.configTool.stm32AuxSerial           = "";
+			this.configTool.stm32Aux2Serial          = "";
+			this.configTool.stm32WifiEspDataReadyPin = "";
+			this.configTool.stm32WifiTfrReadyPin     = "";
+			this.configTool.stm32WifiEspResetPin     = "";
+			this.configTool.stm32WifiSerialRxPin     = "";
+			this.configTool.stm32WifiSerialTxPin     = "";
+			this.configTool.stm32WifiModuleType      = "";
+			this.configTool.stm32SpiCh0 = ""; this.configTool.stm32SpiCh1 = "";
+			this.configTool.stm32SpiCh2 = ""; this.configTool.stm32SpiCh3 = "";
+			this.configTool.stm32SpiCh4 = ""; this.configTool.stm32SpiCh5 = "";
+			this.configTool.stm32SpiCh6 = ""; this.configTool.stm32SpiCh7 = "";
+			this.configTool.stm32SpiCh8 = "";
+			this.configTool.stm32AccelSpiChannel  = -1;
+			this.configTool.stm32AccelCsPin       = "";
+			this.configTool.stm32AccelIntPin      = "";
+			this.configTool.stm32AccelOrientation = 20;
+			this.configTool.stm32DriverTypes      = "";
+			this.configTool.stm32DriverRsense     = "";
+			this.configTool.stm32SpiTempChannel   = -1;
 		}
 
 		this.validate();
@@ -554,7 +627,15 @@ export default class ConfigModel extends ObjectModel {
 	 * Fix the virtual expansion boards of a given config model object
 	 */
 	private fixExpansionBoards(): void {
-		switch (this.boardType) {
+		const boardType = this.boardType;
+
+		// STM32 boards don't support expansion boards
+		if (boardType === null || isSTM32BoardType(boardType)) {
+			this.configTool.expansionBoard = null;
+			return;
+		}
+
+		switch (boardType) {
 			case BoardType.Duet3Mini5PlusEthernet:
 			case BoardType.Duet3Mini5PlusWiFi:
 				if (this.move.axes.some(axis => axis.drivers.some(driver => driver?.board === 0 && driver?.driver >= 5)) ||
@@ -614,12 +695,8 @@ export default class ConfigModel extends ObjectModel {
 				}
 				break;
 
-			case null:
-				// Should never get here...
-				break;
-
 			default:
-				const _exhaustiveCheck: never = this.boardType;
+				const _exhaustiveCheck: never = boardType;
 				break;
 		}
 	}
@@ -707,18 +784,27 @@ export default class ConfigModel extends ObjectModel {
 	}
 	
 	/**
-	 * Get the configured PanelDue channel. If no PanelDue is configured, -1 is returned
+	 * Get the configured PanelDue channel. If no PanelDue is configured, -1 is returned.
+	 * For STM32 boards: 0 = serial.aux, 1 = serial.aux2.
+	 * Returns -1 if the chosen port is not currently configured (serial pin is "None").
 	 */
 	get panelDueChannel() {
+		if (this.boardType !== null && isSTM32BoardType(this.boardType)) {
+			const ch = this.configTool.stm32PanelDueChannel;
+			if (ch === 0 && !this.configTool.stm32AuxSerial)  return -1;
+			if (ch === 1 && !this.configTool.stm32Aux2Serial) return -1;
+			return ch;
+		}
+
 		if (this.boardDefinition !== null) {
 			for (let channel = 0; channel < this.boardDefinition.ports.uart.length; channel++) {
 				const uartPorts = this.boardDefinition.ports.uart[channel];
-	
+
 				// USB isn't a valid choice
 				if (uartPorts === "usb") {
 					continue;
 				}
-	
+
 				// Check if the given UART ports are all assigned to function UART
 				let isAssignedToUart = true;
 				for (const uartPort of uartPorts.split("+")) {
@@ -730,7 +816,7 @@ export default class ConfigModel extends ObjectModel {
 							break;
 						}
 					}
-	
+
 					if (!isAssignedToUart) {
 						break;
 					}
@@ -744,9 +830,15 @@ export default class ConfigModel extends ObjectModel {
 	}
 
 	/**
-	 * Set the configured PanelDue channel. If no PanelDue is supposed to be configured, -1 may be used
+	 * Set the configured PanelDue channel. If no PanelDue is supposed to be configured, -1 may be used.
+	 * For STM32 boards: 0 = serial.aux, 1 = serial.aux2.
 	 */
 	set panelDueChannel(value: number) {
+		if (this.boardType !== null && isSTM32BoardType(this.boardType)) {
+			this.configTool.stm32PanelDueChannel = value;
+			return;
+		}
+
 		if (this.boardDefinition !== null) {
 			for (let channel = 0; channel < this.boardDefinition.ports.uart.length; channel++) {
 				const uartPorts = this.boardDefinition.ports.uart[channel];
