@@ -34,6 +34,80 @@ export interface AccelPreset {
 }
 
 /**
+ * Supported 12864 direct-display types. The pin aliases (encoder/CS/DC) and the config.g
+ * command are constant across boards for a given display type — only the SPI channel varies,
+ * so boards declare which types they support and on which channel (see `displays`).
+ */
+export type DisplayType = "reprapdiscount" | "ender3" | "fysetc12864";
+
+export interface DisplayTypeDef {
+    /** Human label for the UI dropdown */
+    label: string;
+    /** lcd.* board.txt keys (excluding spiChannel, which is board-specific) */
+    encoderPinA: string;
+    encoderPinB: string;
+    encoderPinSw: string;
+    lcdCSPin: string;
+    lcdDCPin?: string;
+    lcdBeepPin?: string;
+    /** config.g line. For the RGB Fysetc panel this is replaced by M98 P"screen.g". */
+    m918: string;
+    /** When set, a screen.g macro is generated and config.g calls it via M98 instead of M918. */
+    screenG?: string;
+}
+
+/** Constant per-type display definitions (pin aliases + config.g), shared across all boards. */
+export const DISPLAY_TYPES: Record<DisplayType, DisplayTypeDef> = {
+    reprapdiscount: {
+        label: "RepRapDiscount Full Graphic Smart Controller",
+        encoderPinA: "BTN_EN2", encoderPinB: "BTN_EN1", encoderPinSw: "BTN_ENC",
+        lcdCSPin: "LCD_RS",
+        m918: "M918 P1 E4 F100000",
+    },
+    ender3: {
+        label: "Ender 3 stock display",
+        encoderPinA: "LCD_D4", encoderPinB: "LCD_EN", encoderPinSw: "BTN_ENC",
+        lcdCSPin: "LCD_D6", lcdBeepPin: "BEEP",
+        m918: "M918 P1 E4 F1000000",
+    },
+    fysetc12864: {
+        label: "Fysetc Mini12864 v2.1 (RGB)",
+        encoderPinA: "BTN_EN1", encoderPinB: "BTN_EN2", encoderPinSw: "BTN_ENC",
+        lcdCSPin: "LCD_EN", lcdDCPin: "LCD_RS",
+        m918: "M918 P2 C30 F1000000 E4",
+        // RGB panel needs a screen.g for the neopixel backlight + reset sequence; config.g calls it.
+        screenG: `; ST7567 Init for Fysetc Mini12864 v2.1 Panel
+; Configure Neopixel
+M950 E0 C"LCD_D5"
+; Turn off backlight
+M150 K0 R0 U0 B0 S3 F0
+; Configure reset pin
+M950 P1 C"LCD_D4"
+; hardware reset of LCD
+M42 P1 S0
+G4 P500
+M42 P1 S1
+; Turn display on
+M918 P2 C30 F1000000 E4
+; Fade in backlight
+while iterations < 256
+    M150 K0 R255 U255 B255 P{iterations} S1 F0
+    G4 P20
+; flash button 3 times
+while iterations < 3
+    M150 K0 R255 U255 B255 P255 S1 F1
+    M150 K0 R0 U255 B0 P255 S2 F0
+    G4 P250
+    M150 K0 R255 U255 B255 P255 S1 F1
+    M150 K0 R0 U255 B0 P0 S2 F0
+    G4 P250
+; Display "ready" button state
+M150 K0 R255 U255 B255 P255 S1 F1
+M150 K0 R255 U0 B0 P255 S2 F0`,
+    },
+};
+
+/**
  * Parsed state of a single SPI channel derived from boardTxtContent.
  */
 export interface ParsedSpiChannel {
@@ -156,11 +230,11 @@ export interface STM32BoardDescriptor extends BoardDescriptor {
     /** Board-specific setup notes/warnings shown on the General page (from the TeamGloomy wiki). */
     notes?: string[];
     /**
-     * True when the board supports a RepRapDiscount Full Graphic 12864 display on its EXP3
-     * header. On these boards SPI channel 5 is the dedicated display channel (already wired in
-     * rrfboot), and the lcd.* config is identical, so enabling it just emits the lcd.* keys.
+     * Supported 12864 direct-display types mapped to the SPI channel each uses on this board.
+     * The pin aliases + config.g are constant per type (see DISPLAY_TYPES); only the channel
+     * varies by board. Omit/empty for boards with no 12864 support (serial-screen-only boards).
      */
-    supports12864?: boolean;
+    displays?: Partial<Record<DisplayType, number>>;
 }
 
 /**
@@ -242,8 +316,8 @@ interface MakeBoardParams {
     diagPins?: string[];
     /** Board-specific setup notes/warnings shown on the General page */
     notes?: string[];
-    /** Board supports a RepRapDiscount Full Graphic 12864 display on EXP3 (SPI channel 5) */
-    supports12864?: boolean;
+    /** Supported 12864 display types mapped to the SPI channel each uses on this board */
+    displays?: Partial<Record<DisplayType, number>>;
 }
 
 function makeLimits(numDrivers: number): Limits {
@@ -346,7 +420,7 @@ function makeBoard(p: MakeBoardParams): STM32BoardDescriptor {
         m569DriverSetup:  p.m569DriverSetup,
         diagPins:         p.diagPins,
         notes:            p.notes,
-        supports12864:    p.supports12864,
+        displays:         p.displays,
     };
 }
 
@@ -502,7 +576,7 @@ heat.spiTempSensorCSPins={C.9,A.8}`,
 
     [STM32BoardType.BTT_OctopusPro_v1_1_H723]: makeBoard({
         shortName: "octopuspro1_1_h723", longName: "BTT Octopus Pro V1.1 STM32H723", manufacturer: "BTT",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 0 },
         diagPins: ["G.6", "G.9", "G.10", "G.11", "G.12", "G.13", "G.14", "G.15"],
         notes: [
             "Requires RepRapFirmware 3.5.0-rc.2 or later.",
@@ -567,7 +641,7 @@ can.readPin=D.0`,
 
     [STM32BoardType.BTT_SKR3_H723]: makeBoard({
         shortName: "skr3_h723", longName: "BTT SKR3 STM32H723", manufacturer: "BTT",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 0 },
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -626,7 +700,7 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3_H743]: makeBoard({
         shortName: "skr3_h743", longName: "BTT SKR3 STM32H743", manufacturer: "BTT",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 0 },
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -685,7 +759,7 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3EZ_H723]: makeBoard({
         shortName: "skr3ez_h723", longName: "BTT SKR3 EZ STM32H723", manufacturer: "BTT",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 0 },
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 EZ H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -744,7 +818,7 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3EZ_H743]: makeBoard({
         shortName: "skr3ez_h743", longName: "BTT SKR3 EZ STM32H743", manufacturer: "BTT",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 0 },
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 EZ H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -982,7 +1056,7 @@ heat.tempSensePins={C.5,C.2,C.3,C.4}`,
 
     [STM32BoardType.Fly_E3Ultra]: makeBoard({
         shortName: "e3ultra_h723", longName: "Fly E3 Ultra STM32H723", manufacturer: "Fly",
-        supports12864: true,
+        displays: { reprapdiscount: 5, ender3: 4, fysetc12864: 2 },
         diagPins: ["D.12", "B.10", "C.4"],
         notes: [
             "Thermistor inputs use a 2.2k pull-up (not 4.7k); this is pre-configured in RRF 3.5.0+.",
@@ -1046,7 +1120,7 @@ heat.spiTempSensorCSPins={D.13,C.7}`,
 
     [STM32BoardType.Fly_Super5]: makeBoard({
         shortName: "super5_h723", longName: "Fly Super5 STM32H723", manufacturer: "Fly",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 2 },
         diagPins: ["B.7", "C.12", "C.7", "C.14", "C.6"],
         notes: [
             "Thermistor inputs use a 2.2k pull-up — add R2200 to every M308 thermistor command.",
@@ -1105,7 +1179,7 @@ heat.thermistorSeriesResistor = 2200`,
 
     [STM32BoardType.Fly_Super8Pro_H723]: makeBoard({
         shortName: "super8pro_h723", longName: "Fly Super8 Pro STM32H723", manufacturer: "Fly",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 0 },
         diagPins: ["G.12", "G.11", "G.10", "G.9", "D.7", "D.6", "A.8", "F.3"],
         notes: [
             "Ships WITHOUT fuses fitted, and they differ from the AliExpress listing — fit them as pictured in the docs before powering on.",
@@ -1165,7 +1239,7 @@ heat.tempSensePins={F.4,F.5,F.9,F.10,C.0,C.1}`,
 
     [STM32BoardType.Fly_Super8Pro_H743]: makeBoard({
         shortName: "super8pro_h743", longName: "Fly Super8 Pro STM32H743", manufacturer: "Fly",
-        supports12864: true,
+        displays: { reprapdiscount: 5, fysetc12864: 0 },
         diagPins: ["G.12", "G.11", "G.10", "G.9", "D.7", "D.6", "A.8", "F.3"],
         notes: [
             "Ships WITHOUT the RRF bootloader — the bootloader must be flashed before the firmware.",

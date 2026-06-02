@@ -12,7 +12,7 @@ import { isDefaultCoreKinematics } from "./defaults";
 import { ExpansionBoards, getExpansionBoardDefinition } from "./ExpansionBoards";
 import { useStore } from ".";
 import { getBoardDefinition } from "./Boards";
-import { isSTM32BoardType } from "./STM32Boards";
+import { isSTM32BoardType, DISPLAY_TYPES } from "./STM32Boards";
 
 /**
  * Indent comments in a G-code file
@@ -200,6 +200,7 @@ const renderOptions = {
     getBoardDefinition,
     getExpansionBoardDefinition,
     isSTM32BoardType,
+    DISPLAY_TYPES,
 
     // Config
     ConfigDriverClosedLoopEncoderType,

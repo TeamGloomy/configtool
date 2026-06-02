@@ -171,8 +171,8 @@ export class ConfigToolModel extends ModelObject {
 	stm32AccelIntPin:      string = "";
 	stm32AccelOrientation: number = 20;
 
-	/** RepRapDiscount Full Graphic 12864 display enabled (STM32 boards with EXP3, on SPI channel 5) */
-	stm32Display12864: boolean = false;
+	/** Selected 12864 direct-display type for STM32 boards ("" = none). One of DISPLAY_TYPES keys. */
+	stm32DisplayType: string = "";
 
 	assignPort(port: string, fn: ConfigPortFunction | null, index: number, frequency?: number): ConfigPort {
 		for (const item of this.ports) {

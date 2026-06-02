@@ -1,7 +1,7 @@
 import { AxisLetter, CoreKinematics, KinematicsName, MachineMode, NetworkInterfaceState, NetworkInterfaceType, ProbeType } from "@duet3d/objectmodel";
 
 import { useStore } from ".";
-import { isSTM32BoardType } from "./STM32Boards";
+import { isSTM32BoardType, DISPLAY_TYPES, type DisplayType } from "./STM32Boards";
 
 /**
  * Types of configuration sections
@@ -127,12 +127,19 @@ export function getSectionTemplates(section?: ConfigSectionType) {
                 result.push({ template: "runonce", data: null });
             }
             break;
-        case ConfigSectionType.Accessories:
+        case ConfigSectionType.Accessories: {
+            const displayType = store.data.configTool.stm32DisplayType as DisplayType;
+            const displaySelected = !!displayType && !!DISPLAY_TYPES[displayType];
             if (store.data.boards.some(board => !board.canAddress && board.directDisplay !== null) || store.data.panelDueChannel >= 0 ||
-                store.data.configTool.stm32Display12864) {
+                displaySelected) {
                 result.push({ template: "config/accessories", data: null });
             }
+            // RGB display types ship a screen.g macro for the backlight init
+            if (displaySelected && DISPLAY_TYPES[displayType].screenG) {
+                result.push({ template: "screen", data: null });
+            }
             break;
+        }
         case ConfigSectionType.LedStrips:
             if (store.data.ledStrips.length > 0) {
                 result.push({ template: "config/ledStrips", data: null });
@@ -244,6 +251,13 @@ export function getSectionTemplates(section?: ConfigSectionType) {
             result.push({ template: "bed", data: null });
             addHomingTemplates();
             addToolChangeMacros();
+            // RGB 12864 display needs its screen.g backlight-init macro
+            {
+                const dt = store.data.configTool.stm32DisplayType as DisplayType;
+                if (dt && DISPLAY_TYPES[dt]?.screenG) {
+                    result.push({ template: "screen", data: null });
+                }
+            }
             break;
 
         default:

@@ -1,0 +1,9 @@
+<%
+// screen.g — only generated for STM32 12864 display types that need an init macro (the
+// Fysetc Mini12864 RGB panel: neopixel backlight + hardware reset sequence). The exact
+// macro text is defined per display type in DISPLAY_TYPES.
+const _dispType = model.configTool.stm32DisplayType;
+if (isSTM32BoardType(model.boardType) && _dispType && DISPLAY_TYPES[_dispType] && DISPLAY_TYPES[_dispType].screenG) {
+-%>
+<%- DISPLAY_TYPES[_dispType].screenG %>
+<% } -%>

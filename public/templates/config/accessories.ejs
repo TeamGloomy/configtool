@@ -23,11 +23,17 @@ M918 <%- params({
 <%      }
     }
 
-    // STM32 12864 display (RepRapDiscount Full Graphic). Pin config lives in board.txt;
-    // config.g just initialises it. M918 P1 = ST7920-type 12864 on the lcd.* SPI channel.
-    if (isSTM32BoardType(model.boardType) && model.configTool.stm32Display12864) { -%>
-M918 P1 E4 F100000 ; configure 12864 display
-<%  }
+    // STM32 12864 display. Pin config lives in board.txt; config.g just initialises it.
+    // RGB panels (with a screen.g macro) are started via M98 P"screen.g"; others via M918.
+    const _dispType = model.configTool.stm32DisplayType;
+    if (isSTM32BoardType(model.boardType) && _dispType && DISPLAY_TYPES[_dispType]) {
+        const _d = DISPLAY_TYPES[_dispType];
+        if (_d.screenG) { -%>
+M98 P"screen.g" ; initialise 12864 display (RGB backlight set up in screen.g)
+<%      } else { -%>
+<%- _d.m918 %> ; configure 12864 display
+<%      }
+    }
 
     // Configure PanelDue if applicable
     if (model.panelDueChannel >= 0) { -%>

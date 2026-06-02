@@ -10,16 +10,21 @@
 							 v-model="configureDirectDisplay"
 							 :preset="(store.preset.boards.length > 0) && (store.preset.boards[0].directDisplay !== null)" />
 			</div>
-			<!-- STM32 12864 display (RepRapDiscount Full Graphic on EXP3 / SPI channel 5) -->
-			<div v-if="supports12864" class="col-12">
-				<check-input label="Enable 12864 display (RepRapDiscount Full Graphic)"
-							 title="Check this if you have a RepRapDiscount Full Graphic Smart Controller connected to the EXP1/EXP3 headers. Uses SPI channel 5."
-							 v-model="store.data.configTool.stm32Display12864" :preset="false" />
-				<div v-if="store.data.configTool.stm32Display12864" class="alert alert-info mb-0 mt-2 py-2 small">
+			<!-- STM32 12864 direct display (EXP1/EXP3 headers) -->
+			<div v-if="displayOptions.length > 1" class="col-12">
+				<div class="col-6">
+					<select-input label="12864 Display"
+								  title="Type of 12864 display connected to the EXP1/EXP3 headers"
+								  v-model="store.data.configTool.stm32DisplayType" :options="displayOptions" :preset="''" />
+				</div>
+				<div v-if="selectedDisplay" class="alert alert-info mb-0 mt-2 py-2 small">
 					<i class="bi-info-circle me-1"></i>
-					Connects via the EXP1/EXP3 headers on <strong>SPI channel 5</strong> (reserved for the display
-					in the <a href="#spiConfig">SPI Configuration</a> section). The encoder, button and CS pins are
-					fixed on these headers, so no pin selection is needed.
+					Uses <strong>SPI channel {{ selectedDisplayChannel }}</strong> (reserved for the display in the
+					<a href="#spiConfig">SPI Configuration</a> section). The encoder, button and CS pins are fixed on
+					the EXP headers, so no pin selection is needed.
+					<template v-if="selectedDisplay.screenG">
+						This RGB panel also generates a <code>screen.g</code> macro for the backlight.
+					</template>
 				</div>
 			</div>
 			<div class="col-12">
@@ -195,7 +200,7 @@ import CheckInput from "@/components/inputs/CheckInput.vue";
 import SelectInput from "@/components/inputs/SelectInput.vue";
 import NumberInput from "@/components/inputs/NumberInput.vue";
 
-import { isSTM32BoardType, getBoardTxtDefault, type STM32BoardDescriptor } from "@/store/STM32Boards";
+import { isSTM32BoardType, getBoardTxtDefault, DISPLAY_TYPES, type DisplayType, type STM32BoardDescriptor } from "@/store/STM32Boards";
 import { useStore } from "@/store";
 
 const store = useStore();
@@ -250,7 +255,25 @@ const stm32BoardDef = computed(() => {
 const hasSTM32SerialOptions = computed(() => (stm32BoardDef.value?.serialOptions.length ?? 0) > 0);
 
 // True when the board supports a RepRapDiscount Full Graphic 12864 display (EXP3 / SPI channel 5)
-const supports12864 = computed(() => stm32BoardDef.value?.supports12864 ?? false);
+// 12864 display options for the dropdown: "None" + each display type the board supports.
+const displayOptions = computed<Array<SelectOption>>(() => {
+	const opts: Array<SelectOption> = [{ text: "None", value: "" }];
+	const displays = stm32BoardDef.value?.displays;
+	if (displays) {
+		for (const type of Object.keys(displays) as DisplayType[]) {
+			opts.push({ text: DISPLAY_TYPES[type].label, value: type });
+		}
+	}
+	return opts;
+});
+const selectedDisplay = computed(() => {
+	const t = store.data.configTool.stm32DisplayType as DisplayType;
+	return (t && DISPLAY_TYPES[t]) ? DISPLAY_TYPES[t] : null;
+});
+const selectedDisplayChannel = computed(() => {
+	const t = store.data.configTool.stm32DisplayType as DisplayType;
+	return stm32BoardDef.value?.displays?.[t] ?? -1;
+});
 
 const stm32AuxSerial = computed({
 	get() { return store.data.configTool.stm32AuxSerial; },

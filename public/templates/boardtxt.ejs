@@ -142,13 +142,19 @@ stepper.TmcDiagPins={<%- _list %>}
 <%  }
 }
 
-// 12864 display (RepRapDiscount Full Graphic) on EXP3 / SPI channel 5. Pins are fixed named
-// aliases on the EXP headers and identical across boards, so the lcd.* config is constant.
-if (model.boardDefinition?.supports12864 && ct.stm32Display12864) {
+// 12864 direct display on the EXP headers. Pin aliases are constant per display type
+// (DISPLAY_TYPES); only the SPI channel varies per board (boardDefinition.displays[type]).
+const _dispType = ct.stm32DisplayType;
+const _displays = model.boardDefinition?.displays;
+if (_dispType && _displays && _dispType in _displays && DISPLAY_TYPES[_dispType]) {
+    const _d = DISPLAY_TYPES[_dispType];
+    const _ch = _displays[_dispType];
 %>
-lcd.encoderPinA=BTN_EN2
-lcd.encoderPinB=BTN_EN1
-lcd.encoderPinSw=BTN_ENC
-lcd.lcdCSPin=LCD_RS
-lcd.spiChannel=5
+lcd.encoderPinA=<%- _d.encoderPinA %>
+lcd.encoderPinB=<%- _d.encoderPinB %>
+lcd.encoderPinSw=<%- _d.encoderPinSw %>
+lcd.lcdCSPin=<%- _d.lcdCSPin %>
+<% if (_d.lcdDCPin) { %>lcd.lcdDCPin=<%- _d.lcdDCPin %>
+<% } %><% if (_d.lcdBeepPin) { %>lcd.lcdBeepPin=<%- _d.lcdBeepPin %>
+<% } %>lcd.spiChannel=<%- _ch %>
 <% } %>
