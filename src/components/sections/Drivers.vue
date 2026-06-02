@@ -343,6 +343,7 @@ const driverTypeOptions: Array<SelectOption> = [
 	{ text: "TMC2209", value: "tmc2209" },
 	{ text: "TMC2225", value: "tmc2225" },
 	{ text: "TMC2226", value: "tmc2226" },
+	{ text: "TMC2240", value: "tmc2240" },
 	{ text: "TMC5160", value: "tmc5160" },
 	{ text: "External TMC5160", value: "external5160" },
 ];
