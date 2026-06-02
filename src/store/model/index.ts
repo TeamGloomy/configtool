@@ -227,6 +227,7 @@ export default class ConfigModel extends ObjectModel {
 			this.configTool.stm32DriverTypes  = Array(nd).fill("").join(",");
 			this.configTool.stm32DriverRsense = Array(nd).fill("").join(",");
 			this.configTool.stm32SpiTempChannel = -1;
+			this.configTool.stm32Display12864 = false;
 		} else {
 			this.configTool.stm32AuxSerial           = "";
 			this.configTool.stm32Aux2Serial          = "";
@@ -248,6 +249,7 @@ export default class ConfigModel extends ObjectModel {
 			this.configTool.stm32DriverTypes      = "";
 			this.configTool.stm32DriverRsense     = "";
 			this.configTool.stm32SpiTempChannel   = -1;
+			this.configTool.stm32Display12864     = false;
 		}
 
 		this.validate();

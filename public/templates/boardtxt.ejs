@@ -140,4 +140,15 @@ if (_diagPins && _diagPins.length > 0) {
 %>
 stepper.TmcDiagPins={<%- _list %>}
 <%  }
-} %>
+}
+
+// 12864 display (RepRapDiscount Full Graphic) on EXP3 / SPI channel 5. Pins are fixed named
+// aliases on the EXP headers and identical across boards, so the lcd.* config is constant.
+if (model.boardDefinition?.supports12864 && ct.stm32Display12864) {
+%>
+lcd.encoderPinA=BTN_EN2
+lcd.encoderPinB=BTN_EN1
+lcd.encoderPinSw=BTN_ENC
+lcd.lcdCSPin=LCD_RS
+lcd.spiChannel=5
+<% } %>

@@ -155,6 +155,12 @@ export interface STM32BoardDescriptor extends BoardDescriptor {
     diagPins?: string[];
     /** Board-specific setup notes/warnings shown on the General page (from the TeamGloomy wiki). */
     notes?: string[];
+    /**
+     * True when the board supports a RepRapDiscount Full Graphic 12864 display on its EXP3
+     * header. On these boards SPI channel 5 is the dedicated display channel (already wired in
+     * rrfboot), and the lcd.* config is identical, so enabling it just emits the lcd.* keys.
+     */
+    supports12864?: boolean;
 }
 
 /**
@@ -236,6 +242,8 @@ interface MakeBoardParams {
     diagPins?: string[];
     /** Board-specific setup notes/warnings shown on the General page */
     notes?: string[];
+    /** Board supports a RepRapDiscount Full Graphic 12864 display on EXP3 (SPI channel 5) */
+    supports12864?: boolean;
 }
 
 function makeLimits(numDrivers: number): Limits {
@@ -338,6 +346,7 @@ function makeBoard(p: MakeBoardParams): STM32BoardDescriptor {
         m569DriverSetup:  p.m569DriverSetup,
         diagPins:         p.diagPins,
         notes:            p.notes,
+        supports12864:    p.supports12864,
     };
 }
 
@@ -493,6 +502,7 @@ heat.spiTempSensorCSPins={C.9,A.8}`,
 
     [STM32BoardType.BTT_OctopusPro_v1_1_H723]: makeBoard({
         shortName: "octopuspro1_1_h723", longName: "BTT Octopus Pro V1.1 STM32H723", manufacturer: "BTT",
+        supports12864: true,
         diagPins: ["G.6", "G.9", "G.10", "G.11", "G.12", "G.13", "G.14", "G.15"],
         notes: [
             "Requires RepRapFirmware 3.5.0-rc.2 or later.",
@@ -557,6 +567,7 @@ can.readPin=D.0`,
 
     [STM32BoardType.BTT_SKR3_H723]: makeBoard({
         shortName: "skr3_h723", longName: "BTT SKR3 STM32H723", manufacturer: "BTT",
+        supports12864: true,
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -615,6 +626,7 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3_H743]: makeBoard({
         shortName: "skr3_h743", longName: "BTT SKR3 STM32H743", manufacturer: "BTT",
+        supports12864: true,
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -673,6 +685,7 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3EZ_H723]: makeBoard({
         shortName: "skr3ez_h723", longName: "BTT SKR3 EZ STM32H723", manufacturer: "BTT",
+        supports12864: true,
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 EZ H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -731,6 +744,7 @@ heat.tempSensePins={A.1,A.2,A.3}`,
 
     [STM32BoardType.BTT_SKR3EZ_H743]: makeBoard({
         shortName: "skr3ez_h743", longName: "BTT SKR3 EZ STM32H743", manufacturer: "BTT",
+        supports12864: true,
         diagPins: ["C.1", "C.3", "C.0", "C.2", "A.0"],
         notes: [
             "The SKR3 EZ H723 and H743 are physically different boards — check the MCU marking and pick the matching one.",
@@ -968,6 +982,7 @@ heat.tempSensePins={C.5,C.2,C.3,C.4}`,
 
     [STM32BoardType.Fly_E3Ultra]: makeBoard({
         shortName: "e3ultra_h723", longName: "Fly E3 Ultra STM32H723", manufacturer: "Fly",
+        supports12864: true,
         diagPins: ["D.12", "B.10", "C.4"],
         notes: [
             "Thermistor inputs use a 2.2k pull-up (not 4.7k); this is pre-configured in RRF 3.5.0+.",
@@ -1031,6 +1046,7 @@ heat.spiTempSensorCSPins={D.13,C.7}`,
 
     [STM32BoardType.Fly_Super5]: makeBoard({
         shortName: "super5_h723", longName: "Fly Super5 STM32H723", manufacturer: "Fly",
+        supports12864: true,
         diagPins: ["B.7", "C.12", "C.7", "C.14", "C.6"],
         notes: [
             "Thermistor inputs use a 2.2k pull-up — add R2200 to every M308 thermistor command.",
@@ -1089,6 +1105,7 @@ heat.thermistorSeriesResistor = 2200`,
 
     [STM32BoardType.Fly_Super8Pro_H723]: makeBoard({
         shortName: "super8pro_h723", longName: "Fly Super8 Pro STM32H723", manufacturer: "Fly",
+        supports12864: true,
         diagPins: ["G.12", "G.11", "G.10", "G.9", "D.7", "D.6", "A.8", "F.3"],
         notes: [
             "Ships WITHOUT fuses fitted, and they differ from the AliExpress listing — fit them as pictured in the docs before powering on.",
@@ -1148,6 +1165,7 @@ heat.tempSensePins={F.4,F.5,F.9,F.10,C.0,C.1}`,
 
     [STM32BoardType.Fly_Super8Pro_H743]: makeBoard({
         shortName: "super8pro_h743", longName: "Fly Super8 Pro STM32H743", manufacturer: "Fly",
+        supports12864: true,
         diagPins: ["G.12", "G.11", "G.10", "G.9", "D.7", "D.6", "A.8", "F.3"],
         notes: [
             "Ships WITHOUT the RRF bootloader — the bootloader must be flashed before the firmware.",

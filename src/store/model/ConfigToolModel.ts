@@ -171,6 +171,9 @@ export class ConfigToolModel extends ModelObject {
 	stm32AccelIntPin:      string = "";
 	stm32AccelOrientation: number = 20;
 
+	/** RepRapDiscount Full Graphic 12864 display enabled (STM32 boards with EXP3, on SPI channel 5) */
+	stm32Display12864: boolean = false;
+
 	assignPort(port: string, fn: ConfigPortFunction | null, index: number, frequency?: number): ConfigPort {
 		for (const item of this.ports) {
 			if (item.equals(port)) {

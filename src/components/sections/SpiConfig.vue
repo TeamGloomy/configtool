@@ -140,6 +140,10 @@ const channels = computed(() => {
 			if (!parsed[idx].lockedFor) parsed[idx].lockedFor = reason;
 		}
 	}
+	// When a 12864 display is enabled it occupies SPI channel 5 — lock it so it can't be reused.
+	if (def.supports12864 && store.data.configTool.stm32Display12864) {
+		parsed[5].lockedFor = "12864 display";
+	}
 	return parsed;
 });
 

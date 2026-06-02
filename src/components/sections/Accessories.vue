@@ -10,6 +10,18 @@
 							 v-model="configureDirectDisplay"
 							 :preset="(store.preset.boards.length > 0) && (store.preset.boards[0].directDisplay !== null)" />
 			</div>
+			<!-- STM32 12864 display (RepRapDiscount Full Graphic on EXP3 / SPI channel 5) -->
+			<div v-if="supports12864" class="col-12">
+				<check-input label="Enable 12864 display (RepRapDiscount Full Graphic)"
+							 title="Check this if you have a RepRapDiscount Full Graphic Smart Controller connected to the EXP1/EXP3 headers. Uses SPI channel 5."
+							 v-model="store.data.configTool.stm32Display12864" :preset="false" />
+				<div v-if="store.data.configTool.stm32Display12864" class="alert alert-info mb-0 mt-2 py-2 small">
+					<i class="bi-info-circle me-1"></i>
+					Connects via the EXP1/EXP3 headers on <strong>SPI channel 5</strong> (reserved for the display
+					in the <a href="#spiConfig">SPI Configuration</a> section). The encoder, button and CS pins are
+					fixed on these headers, so no pin selection is needed.
+				</div>
+			</div>
 			<div class="col-12">
 				<div v-if="configureDirectDisplay" class="row ms-3 my-2">
 					<div class="col-6">
@@ -236,6 +248,9 @@ const stm32BoardDef = computed(() => {
 
 // True when the board has at least one UART option in the pool
 const hasSTM32SerialOptions = computed(() => (stm32BoardDef.value?.serialOptions.length ?? 0) > 0);
+
+// True when the board supports a RepRapDiscount Full Graphic 12864 display (EXP3 / SPI channel 5)
+const supports12864 = computed(() => stm32BoardDef.value?.supports12864 ?? false);
 
 const stm32AuxSerial = computed({
 	get() { return store.data.configTool.stm32AuxSerial; },

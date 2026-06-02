@@ -23,6 +23,12 @@ M918 <%- params({
 <%      }
     }
 
+    // STM32 12864 display (RepRapDiscount Full Graphic). Pin config lives in board.txt;
+    // config.g just initialises it. M918 P1 = ST7920-type 12864 on the lcd.* SPI channel.
+    if (isSTM32BoardType(model.boardType) && model.configTool.stm32Display12864) { -%>
+M918 P1 E4 F100000 ; configure 12864 display
+<%  }
+
     // Configure PanelDue if applicable
     if (model.panelDueChannel >= 0) { -%>
 M575 <%- params({
