@@ -190,8 +190,17 @@ function getEndstopTypeOptions(axis: Axis): Array<SelectOption> {
 		}
 	}
 
-	// SG support depends on the corresponding expansion/main board
-	if (!axis.drivers.some(driver => !store.data.getBoardDefinition(driver.board)?.hasSmartDrivers)) {
+	// SG support depends on the corresponding expansion/main board, and — on STM32 boards —
+	// on the configured driver type: TMC2208/2225 have no StallGuard, so an axis driven by one
+	// can't use motor load detection.
+	const hasNonStallDriver = axis.drivers.some(driver => {
+		if (driver.board) {
+			return false;	// only the mainboard exposes per-slot driver type config here
+		}
+		const type = (store.data.configTool.stm32DriverTypes ?? "").split(",")[driver.driver] ?? "";
+		return type === "tmc2208" || type === "tmc2225";
+	});
+	if (!hasNonStallDriver && !axis.drivers.some(driver => !store.data.getBoardDefinition(driver.board)?.hasSmartDrivers)) {
 		options.push({
 			text: "Single Motor Load Detection",
 			value: EndstopType.motorStallAny
