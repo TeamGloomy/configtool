@@ -1,5 +1,5 @@
 <template>
-	<config-section :type="ConfigSectionType.Endstops" title="Endstops" url-title="Connecting Endstops"
+	<config-section board-txt :type="ConfigSectionType.Endstops" title="Endstops" url-title="Connecting Endstops"
 					url="https://docs.duet3d.com/en/User_manual/Connecting_hardware/Sensors_endstops">
 		<template #body>
 			<table class="table table-striped mb-0">

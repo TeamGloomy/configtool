@@ -120,18 +120,32 @@ heat.spiTempSensorCSPins={<%- _csPins.join(',') %>}
 
 // Sensorless homing DIAG pins. Only UART drivers (TMC2208/2209/2225/2226) use the DIAG pin —
 // TMC2240/5160 do stall detection over SPI and need no diag pin. Emit stepper.TmcDiagPins
-// listing the diag pin for each mainboard driver that (a) has sensorless enabled (StallGuard
-// threshold set) AND (b) is a UART driver type, NoPin for the rest. The diag pin shares the
-// endstop connector, so a configured driver's endstop input is unavailable.
+// listing the diag pin for each mainboard driver that is using sensorless on a UART driver,
+// NoPin for the rest. A driver counts as "using sensorless" if its StallGuard threshold is set
+// (Drivers section) OR an axis it drives uses a motor-stall endstop (Endstops section, M574 S3/S4).
+// The diag pin shares the endstop connector, so a configured driver's endstop input is unavailable.
 const _diagPins = model.boardDefinition?.diagPins;
 if (_diagPins && _diagPins.length > 0) {
     // Per-slot driver type (empty / "tmcauto" = auto-detect, treated as a possible UART driver).
     const _types = ct.stm32DriverTypes ? ct.stm32DriverTypes.split(',') : [];
     const _spiDriver = (t) => t === 'tmc5160' || t === 'external5160' || t === 'tmc2240';
-    // Which mainboard (board 0) drivers have sensorless enabled on a non-SPI (UART) driver?
+
+    // Mainboard drivers that drive an axis configured with a motor-stall endstop type.
+    const _stallDrivers = new Set();
+    for (let _ai = 0; _ai < model.move.axes.length; _ai++) {
+        const _es = model.sensors.endstops[_ai];
+        if (_es && (_es.type === EndstopType.motorStallAny || _es.type === EndstopType.motorStallIndividual)) {
+            for (const _drv of model.move.axes[_ai].drivers) {
+                if (!_drv.board) _stallDrivers.add(_drv.driver);
+            }
+        }
+    }
+
+    // Which mainboard (board 0) UART drivers are using sensorless (threshold set or stall endstop)?
     const _sensorless = new Set();
     for (const d of model.configTool.drivers) {
-        if (!d.id.board && d.sgThreshold !== 0 && !_spiDriver(_types[d.id.driver])) {
+        if (d.id.board || _spiDriver(_types[d.id.driver])) continue;
+        if (d.sgThreshold !== 0 || _stallDrivers.has(d.id.driver)) {
             _sensorless.add(d.id.driver);
         }
     }
