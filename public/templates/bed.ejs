@@ -25,6 +25,32 @@ G30 <%- params({
 <%		} -%>
 ; Use S-1 for measurements only, without calculations. Use S4 for endstop heights and Z-height only. Use S6 for full 6 factors
 ; If your Z probe has significantly different trigger heights depending on XY position, adjust the H parameters in the G30 commands accordingly. The value of each H parameter should be (trigger height at that XY position) - (trigger height at centre of bed)
-<%  } else { -%>
+<%  } else {
+        const _pts = model.configTool.bedProbePoints;
+        // Generate the multi-Z levelling routine only once every probe point has been set
+        // (the default 0,0 is treated as "not set"); otherwise fall back to mesh compensation.
+        const _useLeadscrews = _pts.length >= 2 && _pts.every(p => p.x !== 0 || p.y !== 0);
+        if (_useLeadscrews) {
+            const _acc = model.configTool.bedLevelingAccuracy;
+            const _max = model.configTool.bedLevelingMaxAttempts; -%>
+M561 ; clear any existing bed transform
+M400 ; flush the move queue
+; Home first if the printer is not already homed
+if !move.axes[0].homed || !move.axes[1].homed || !move.axes[2].homed
+    G28
+; Probe near each leadscrew and adjust the Z motors, repeating until the readings agree
+; to within <%- _acc %>mm or <%- _max %> passes have been attempted
+while true
+    if iterations >= <%- _max %>
+        abort "Bed levelling failed to converge to <%- _acc %>mm after <%- _max %> passes"
+<%          for (let i = 0; i < _pts.length; i++) { -%>
+    G30 P<%- i %> X<%- _pts[i].x %> Y<%- _pts[i].y %> Z-99999<%- (i === _pts.length - 1) ? (" S" + _pts.length) : "" %>
+<%          } -%>
+    if move.calibration.initial.deviation <= <%- _acc %>
+        echo "Bed levelled to " ^ move.calibration.initial.deviation ^ "mm after " ^ (iterations + 1) ^ " pass(es)"
+        break
+    echo "Bed deviation " ^ move.calibration.initial.deviation ^ "mm - running pass " ^ (iterations + 2)
+<%      } else { -%>
 G29 ; call mesh bed compensation
-<%  } -%>
+<%      }
+    } -%>

@@ -25,6 +25,12 @@ export class ConfigDeltaProbePoint extends ModelObject {
 	heightCorrection: number = 0;
 }
 
+/** A simple X/Y coordinate, used for M671 leadscrew positions and bed.g probe points. */
+export class ConfigCoordinate extends ModelObject {
+	x: number = 0;
+	y: number = 0;
+}
+
 export class ConfigDeltaProperties extends ModelObject {
 	peripheralPoints: number = 3;
 	halfwayPoints: number = 3;
@@ -173,6 +179,27 @@ export class ConfigToolModel extends ModelObject {
 
 	/** Selected 12864 direct-display type for STM32 boards ("" = none). One of DISPLAY_TYPES keys. */
 	stm32DisplayType: string = "";
+
+	// Bed levelling using multiple independent Z motors (M671 in config.g + G32/bed.g).
+	// Both collections hold one entry per Z motor; their order must match the Z drivers in M584.
+	/** M671 leadscrew/pivot X/Y positions (one per Z motor). */
+	readonly leadscrews: ModelCollection<ConfigCoordinate> = new ModelCollection(ConfigCoordinate);
+	/** M671 S parameter — maximum correction allowed per leadscrew (mm). */
+	leadscrewMaxCorrection: number = 1.0;
+	/** bed.g G30 probe-point X/Y positions (one per Z motor). */
+	readonly bedProbePoints: ModelCollection<ConfigCoordinate> = new ModelCollection(ConfigCoordinate);
+	/** bed.g convergence: required deviation between probe points (mm) before the loop stops. */
+	bedLevelingAccuracy: number = 0.02;
+	/** bed.g convergence: maximum number of levelling passes before giving up. */
+	bedLevelingMaxAttempts: number = 5;
+
+	// Custom user content for tool change macros, keyed by tool number (as a string).
+	/** Extra commands appended to tpre<n>.g (before tool selection). */
+	readonly toolPreCommands: ModelDictionary<string> = new ModelDictionary<string>(true);
+	/** Extra commands appended to tpost<n>.g (after tool selection). */
+	readonly toolPostCommands: ModelDictionary<string> = new ModelDictionary<string>(true);
+	/** Extra commands appended to tfree<n>.g (when tool is freed). */
+	readonly toolFreeCommands: ModelDictionary<string> = new ModelDictionary<string>(true);
 
 	assignPort(port: string, fn: ConfigPortFunction | null, index: number, frequency?: number): ConfigPort {
 		for (const item of this.ports) {

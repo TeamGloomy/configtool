@@ -1,0 +1,10 @@
+<%  const _ls = model.configTool.leadscrews;
+    // Emit M671 only for a non-delta machine with 2+ Z motors, and only once every leadscrew
+    // position has been entered (the default 0,0 is treated as "not set").
+    if (!model.isDelta && _ls.length >= 2 && _ls.every(p => p.x !== 0 || p.y !== 0)) { -%>
+M671 <%- params({
+    X: _ls.map(p => p.x),
+    Y: _ls.map(p => p.y),
+    S: model.configTool.leadscrewMaxCorrection
+}) %> ; leadscrew positions - order must match the Z motors in M584
+<%  } -%>

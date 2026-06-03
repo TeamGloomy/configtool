@@ -1,6 +1,6 @@
 <template>
 	<div ref="dialogElement" class="modal fade">
-		<div class="modal-dialog">
+		<div class="modal-dialog" :class="dialogClass">
 			<div class="modal-content">
 				<div class="modal-header">
 					<h5 class="modal-title" id="exampleModalLabel">
@@ -27,15 +27,23 @@
 
 <script setup lang="ts">
 import { Modal } from "bootstrap";
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 const props = withDefaults(defineProps<{
 	modelValue: boolean,
 	title: string,
-	contentIsBody?: boolean
+	contentIsBody?: boolean,
+	size?: "lg" | "xl",
+	scrollable?: boolean
 }>(), {
-	contentIsBody: false
+	contentIsBody: false,
+	scrollable: false
 });
+
+const dialogClass = computed(() => [
+	props.size ? `modal-${props.size}` : "",
+	props.scrollable ? "modal-dialog-scrollable" : ""
+]);
 const emit = defineEmits<{
 	(e: "update:modelValue", value: boolean): void
 }>();

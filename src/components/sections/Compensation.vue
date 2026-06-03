@@ -83,6 +83,109 @@
 			</template>
 		</card>
 
+		<!-- Bed Levelling with Multiple Z Motors (M671) -->
+		<card v-if="showLeadscrews" class="mb-3" :preview-templates="['config/compensation/leadscrews']"
+			  title="Bed Levelling with Multiple Z Motors (M671)"
+			  url-title="Bed levelling using multiple independent Z motors"
+			  url="https://docs.duet3d.com/en/User_manual/Connecting_hardware/Z_probe_auto_levelling">
+			<div class="alert alert-info">
+				<i class="bi-info-circle"></i>
+				Your Z axis has {{ numZMotors }} motors. Enter the X/Y position of each leadscrew (or Z bearing) below.
+				<strong>The order of these coordinates must match the order of the Z motors in M584</strong>
+				(set in the Axes / Drivers mapping) &mdash; the first row corresponds to the first Z driver, the second
+				row to the second, and so on.
+			</div>
+			<table class="table table-striped mb-3">
+				<thead>
+					<tr>
+						<th>Z Motor</th>
+						<th>X Coordinate</th>
+						<th>Y Coordinate</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="(point, index) in store.data.configTool.leadscrews">
+						<td class="align-middle">
+							Motor {{ index + 1 }}<span class="text-muted">{{ zDriverLabel(index) }}</span>
+						</td>
+						<td>
+							<number-input title="X position of this leadscrew" :step="0.1" small lazy
+										  v-model="point.x" unit="mm" />
+						</td>
+						<td>
+							<number-input title="Y position of this leadscrew" :step="0.1" small lazy
+										  v-model="point.y" unit="mm" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="row">
+				<div class="col-3">
+					<number-input label="Maximum Correction"
+								  title="M671 S parameter: maximum correction allowed at each leadscrew"
+								  :min="0.1" :step="0.1" unit="mm" v-model="store.data.configTool.leadscrewMaxCorrection"
+								  :preset="store.preset.configTool.leadscrewMaxCorrection" />
+				</div>
+			</div>
+		</card>
+
+		<!-- Automatic Bed Levelling Routine (bed.g) -->
+		<card v-if="showLeadscrews" class="mb-3" :preview-templates="['bed']"
+			  title="Automatic Bed Levelling Routine (bed.g)" url-title="G32 / true bed levelling"
+			  url="https://docs.duet3d.com/en/User_manual/Connecting_hardware/Z_probe_auto_levelling">
+			<div class="alert alert-info">
+				<i class="bi-info-circle"></i>
+				bed.g probes one point near each leadscrew and repeats until the probed heights agree to within the
+				accuracy below. Enter where the probe should touch down for each Z motor (in the same order as above).
+				Leave the coordinates at 0 to omit probing &mdash; if no points are set, bed.g is generated without any
+				probe points.
+			</div>
+			<table class="table table-striped mb-3">
+				<thead>
+					<tr>
+						<th>Probe Point</th>
+						<th>X Coordinate</th>
+						<th>Y Coordinate</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="(point, index) in store.data.configTool.bedProbePoints">
+						<td class="align-middle">
+							Point {{ index + 1 }}<span class="text-muted">{{ zDriverLabel(index) }}</span>
+						</td>
+						<td>
+							<number-input title="X position to probe for this Z motor" :step="0.1" small lazy
+										  v-model="point.x" unit="mm" />
+						</td>
+						<td>
+							<number-input title="Y position to probe for this Z motor" :step="0.1" small lazy
+										  v-model="point.y" unit="mm" />
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="row align-items-end g-3">
+				<div class="col-auto">
+					<button class="btn btn-outline-secondary btn-sm" @click.prevent="copyProbeFromLeadscrews">
+						<i class="bi-clipboard"></i>
+						Copy coordinates from M671
+					</button>
+				</div>
+				<div class="col-3">
+					<number-input label="Required Accuracy"
+								  title="Maximum deviation between probe points before the levelling loop stops"
+								  :min="0.001" :step="0.001" unit="mm" v-model="store.data.configTool.bedLevelingAccuracy"
+								  :preset="store.preset.configTool.bedLevelingAccuracy" />
+				</div>
+				<div class="col-3">
+					<number-input label="Maximum Passes"
+								  title="Maximum number of levelling passes before bed.g aborts"
+								  :min="1" :max="20" :step="1" v-model="store.data.configTool.bedLevelingMaxAttempts"
+								  :preset="store.preset.configTool.bedLevelingMaxAttempts" />
+				</div>
+			</div>
+		</card>
+
 		<!-- Mesh Bed Compensation -->
 		<card v-if="store.data.sensors.probes.length > 0" class="mb-3" title="Mesh Bed Compensation"
 			  :preview-templates="meshBedCompensation ? ['config/compensation/mesh'] : null" url-title="Further Information"
@@ -252,7 +355,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 
 import Card from "@/components/Card.vue";
 import CheckInput from "@/components/inputs/CheckInput.vue";
@@ -260,10 +363,50 @@ import NumberInput from "@/components/inputs/NumberInput.vue";
 import SelectInput, { type SelectOption } from "@/components/inputs/SelectInput.vue";
 
 import { useStore } from "@/store";
-import { DeltaKinematics, ProbeGrid } from "@duet3d/objectmodel";
+import { AxisLetter, DeltaKinematics, ModelCollection, ProbeGrid } from "@duet3d/objectmodel";
+import { ConfigCoordinate } from "@/store/model/ConfigToolModel";
 import { precise } from "@/utils";
 
 const store = useStore();
+
+// Bed levelling with multiple independent Z motors (M671 + bed.g).
+// Only relevant for non-delta machines whose Z axis is driven by 2 or more motors.
+const zAxis = computed(() => store.data.move.axes.find(axis => axis.letter === AxisLetter.Z) ?? null);
+const numZMotors = computed(() => zAxis.value ? zAxis.value.drivers.length : 0);
+const showLeadscrews = computed(() => !store.data.isDelta && numZMotors.value >= 2);
+
+function zDriverLabel(index: number): string {
+	const z = zAxis.value;
+	if (z && index < z.drivers.length) {
+		const driver = z.drivers[index];
+		return ` (driver ${driver.board ?? 0}.${driver.driver})`;
+	}
+	return "";
+}
+
+// Keep the leadscrew / probe-point tables sized to the number of Z motors. When there are fewer
+// than two (no multi-Z levelling), clear them so single-Z configs don't carry stray coordinates.
+function syncCoordinates(collection: ModelCollection<ConfigCoordinate>, length: number) {
+	while (collection.length < length) {
+		collection.push(new ConfigCoordinate());
+	}
+	while (collection.length > length) {
+		collection.pop();
+	}
+}
+watch(numZMotors, (n) => {
+	const target = (!store.data.isDelta && n >= 2) ? n : 0;
+	syncCoordinates(store.data.configTool.leadscrews, target);
+	syncCoordinates(store.data.configTool.bedProbePoints, target);
+}, { immediate: true });
+
+function copyProbeFromLeadscrews() {
+	const leadscrews = store.data.configTool.leadscrews, probePoints = store.data.configTool.bedProbePoints;
+	for (let i = 0; i < probePoints.length && i < leadscrews.length; i++) {
+		probePoints[i].x = leadscrews[i].x;
+		probePoints[i].y = leadscrews[i].y;
+	}
+}
 
 // Delta Calibration
 const showDeltaOptions = computed(() => (store.data.sensors.probes.length > 0) && (store.data.move.kinematics instanceof DeltaKinematics));
