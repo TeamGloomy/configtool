@@ -61,6 +61,16 @@
 			</a>
 		</div>
 
+		<div class="text-center mb-4">
+			<div class="alert alert-info d-inline-block mb-0">
+				<i class="bi bi-info-circle"></i>
+				Configuring an <strong>STM32F4</strong> or <strong>LPC</strong> based board? This tool is for
+				STM32H7 boards only &mdash; use the
+				<a href="https://teamgloomy.github.io/Configurator" target="_blank" rel="noopener">STM32F4 / LPC Configurator</a>
+				instead.
+			</div>
+		</div>
+
 		<div class="text-center">
 			Version {{ packageInfo.version }}
 		</div>
