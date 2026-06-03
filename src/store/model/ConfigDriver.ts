@@ -28,6 +28,18 @@ export enum ConfigDriverMode {
 	closedLoop = 4
 }
 
+/**
+ * Driver mode required for sensorless homing (motor load detection) given the configured
+ * STM32 driver type. StallGuard4 drivers (TMC2209/2226, and auto-detect which assumes a
+ * 2209-class driver) require StealthChop; StallGuard2 drivers (TMC2240/5160) require SpreadCycle.
+ * @param driverType STM32 driver type string (e.g. "tmc2209", "tmc5160", "" for auto-detect)
+ */
+export function requiredStallChopMode(driverType: string): ConfigDriverMode {
+	return (driverType === "tmc2240" || driverType === "tmc5160" || driverType === "external5160")
+		? ConfigDriverMode.spreadCycle
+		: ConfigDriverMode.stealthChop;
+}
+
 export class ConfigDriver extends ModelObject {
 	readonly closedLoop: ConfigDriverClosedLoop = new ConfigDriverClosedLoop();
 	readonly external: ConfigDriverExternal = new ConfigDriverExternal();

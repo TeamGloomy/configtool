@@ -72,7 +72,8 @@
 											  :preset="getPresetCurrent(driver)" />
 							</td>
 							<td>
-								<select-input title="Operation mode of this driver. Defaults to SpreadCycle, depending on the board it may be changed to StealthChop to reduce motor noise"
+								<select-input :title="isSensorlessAxisDriver(driver) ? 'Mode is fixed by sensorless homing: StealthChop for TMC2209/2226, SpreadCycle for TMC2240/5160' : 'Operation mode of this driver. Defaults to SpreadCycle, depending on the board it may be changed to StealthChop to reduce motor noise'"
+											  :disabled="isSensorlessAxisDriver(driver)"
 											  :required="false" v-model="driver.mode" :options="getDriverModes(driver)"
 											  :preset="ConfigDriverMode.spreadCycle" />
 							</td>
@@ -241,7 +242,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watchEffect } from "vue";
 
 import Card from "@/components/Card.vue";
 import StealthChopCalculator from "@/components/calculators/StealthChopCalculator.vue";
@@ -250,7 +251,8 @@ import CheckInput from "@/components/inputs/CheckInput.vue";
 import NumberInput from "@/components/inputs/NumberInput.vue";
 
 import { useStore } from "@/store";
-import { ConfigDriver, ConfigDriverClosedLoopEncoderType, ConfigDriverMode } from "@/store/model/ConfigDriver";
+import { ConfigDriver, ConfigDriverClosedLoopEncoderType, ConfigDriverMode, requiredStallChopMode } from "@/store/model/ConfigDriver";
+import { EndstopType } from "@duet3d/objectmodel";
 import { ExpansionBoards, getExpansionBoardDefinition, type ExpansionBoardDescriptor } from "@/store/ExpansionBoards";
 import { isSTM32BoardType, type STM32BoardDescriptor } from "@/store/STM32Boards";
 
@@ -395,7 +397,45 @@ function setDriverType(driverIndex: number, value: string) {
 		rParts[driverIndex] = "";
 		store.data.configTool.stm32DriverRsense = rParts.join(",");
 	}
+	// Changing the driver type may change the chopper mode required for sensorless homing.
+	const driver = store.data.configTool.drivers.find(d => !d.id.board && d.id.driver === driverIndex);
+	if (driver && isSensorlessAxisDriver(driver)) {
+		driver.mode = requiredStallChopMode(value);
+	}
 }
+
+/**
+ * True if this mainboard driver belongs to an axis configured with motor load detection
+ * (sensorless homing), which forces a specific chopper mode.
+ */
+function isSensorlessAxisDriver(driver: ConfigDriver): boolean {
+	if (driver.id.board) {
+		return false;
+	}
+	const axisIndex = store.data.move.axes.findIndex(axis => axis.drivers.some(d => d.equals(driver.id)));
+	if (axisIndex < 0 || axisIndex >= store.data.sensors.endstops.length) {
+		return false;
+	}
+	const endstop = store.data.sensors.endstops[axisIndex];
+	return !!endstop && (endstop.type === EndstopType.motorStallAny || endstop.type === EndstopType.motorStallIndividual);
+}
+
+// Keep the chopper mode in sync with the sensorless-homing requirement: StealthChop for
+// TMC2209/2226 (StallGuard4), SpreadCycle for TMC2240/5160 (StallGuard2). Covers axis/driver
+// remapping and configs loaded with motor load detection already enabled.
+watchEffect(() => {
+	if (!isSTM32BoardType(store.data.boardType as string)) {
+		return;
+	}
+	for (const driver of store.data.configTool.drivers) {
+		if (isSensorlessAxisDriver(driver)) {
+			const mode = requiredStallChopMode(getDriverType(driver.id.driver));
+			if (driver.mode !== mode) {
+				driver.mode = mode;
+			}
+		}
+	}
+});
 
 function getDriverRsense(driverIndex: number): number {
 	const raw = store.data.configTool.stm32DriverRsense;

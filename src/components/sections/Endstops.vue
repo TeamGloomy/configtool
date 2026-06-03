@@ -103,6 +103,8 @@ const EndstopLocationOptions: Array<SelectOption> = [
 <script setup lang="ts">
 import { Axis, Endstop, EndstopType, KinematicsName, ProbeType } from "@duet3d/objectmodel";
 
+import { requiredStallChopMode } from "@/store/model/ConfigDriver";
+
 import ConfigSection from "@/components/ConfigSection.vue";
 import HomingSpeedsInput from "@/components/inputs/HomingSpeedsInput.vue";
 import PortInput from "@/components/inputs/PortInput.vue";
@@ -149,6 +151,22 @@ function setEndstopType(index: number, type: EndstopType | null): void {
 				store.data.sensors.endstops[index] = new Endstop();
 			}
 			store.data.sensors.endstops[index]!.type = type;
+
+			// Sensorless homing only works with the driver in the right chopper mode:
+			// StealthChop for TMC2209/2226 (StallGuard4), SpreadCycle for TMC2240/5160 (StallGuard2).
+			if ((type === EndstopType.motorStallAny || type === EndstopType.motorStallIndividual) &&
+				index < store.data.move.axes.length) {
+				const driverTypes = (store.data.configTool.stm32DriverTypes ?? "").split(",");
+				for (const axisDriver of store.data.move.axes[index].drivers) {
+					if (axisDriver.board) {
+						continue;	// per-slot driver type only configurable for the mainboard
+					}
+					const configDriver = store.data.configTool.drivers.find(d => d.id.equals(axisDriver));
+					if (configDriver) {
+						configDriver.mode = requiredStallChopMode(driverTypes[axisDriver.driver] ?? "");
+					}
+				}
+			}
 		}
 	}
 }
