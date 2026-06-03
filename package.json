@@ -3,8 +3,8 @@
   "version": "3.6.0-STM32+1",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
+    "serve": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "@intlify/vue-i18n-loader": "^1.0.0",
     "@vue/cli-plugin-babel": "^4.5.11",
     "@vue/cli-service": "^4.5.6",
+    "cross-env": "^10.1.0",
     "ejs-lint": "^1.1.0",
     "vue-cli-plugin-i18n": "^2.0.1",
     "vue-template-compiler": "^2.6.12"

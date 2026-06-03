@@ -5,6 +5,12 @@
 			<h4 class="text-muted mb-5">{{$t('start.instructions')}}</h4>
 		</div>
 
+		<b-alert show variant="info" class="text-center">
+			Using an <strong>STM32H7</strong> based board (e.g. BTT Kraken, BTT Scylla, BTT SKR3 H743/H723, Fly E3 Ultra, Fly ProX10, Fly Super5/Super8 Pro)?
+			Those boards now have their own dedicated configuration tool at
+			<a href="https://teamgloomy.github.io/configtool" target="_blank">teamgloomy.github.io/configtool</a>.
+		</b-alert>
+
 		<b-card bg-variant="light" class="mb-3">
 			<p>{{$t('start.instructions')}}</p>
 

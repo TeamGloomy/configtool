@@ -7,10 +7,10 @@
 						<b-form-select :value="template.board" @change="setSelectedBoard($event)" v-preset="preset.board" :title="$t('general.boardDescription')">
 							<option v-if="template.showLPC" value="azsmz">Azsmz Mini</option>
 							<option v-if="template.showLPC" value="azteegX5_1.1">Azteeg X5 Mini v1.1</option>
-							<option value="btt_kraken">BTT Kraken</option>
+							<!-- STM32H7 boards (Kraken, Scylla, E3 Ultra, ProX10, Super5/8 Pro, SKR3) are now
+							     configured in the dedicated tool at https://teamgloomy.github.io/configtool -->
 							<option value="biqoctopus_1.1">BTT Octopus v1.1 F429</option>
 							<option value="biqoctopuspro_1.0">BTT Octopus Pro v1.0 F429</option>
-							<option value="btt_scylla_v1">BTT Scylla V1</option>
 							<option v-if="template.showLPC" value="fly_cdy">Fly-CDY</option>
 							<option value="fly_cdyv2">Fly-CDYv2</option>
 							<option value="fly_cdyv3">Fly-CDYv3</option>
@@ -18,16 +18,11 @@
 							<option value="fly_e3_v2">Fly-E3-v2</option>
 							<option value="fly_e3_pro">Fly-E3-Pro</option>
 							<option value="fly_e3_prov3">Fly-E3-Pro-v3</option>
-							<option value="fly_e3_ultra">Fly-E3-Ultra/Ultra-Max</option>
 							<option value="fly_F407ZG">Fly-F407ZG</option>
 							<option value="fly_gemini">Fly-Gemini-V1</option>
 							<option value="fly_geminiv1.1">Fly-Gemini-V1.1</option>
 							<option value="fly_geminiv2.0">Fly-Gemini-V2.0</option>
-							<option value="fly_prox10_h723">Fly-ProX10 H723</option>
-							<option value="fly_super5_h723">Fly-Super5-Pro H723</option>
 							<option value="fly_super8">Fly-Super8</option>
-							<option value="fly_super8h7">Fly-Super8-Pro H743</option>
-							<option value="fly_super8_pro_h723">Fly-Super8-Pro H723</option>
 							<option v-if="template.showLPC" value="mkssbase_1.3">MKS SBase 1.3</option>
 							<option v-if="template.showLPC" value="mkssgenl_1.0">MKS SGen L v1.0</option>
 							<option v-if="template.showLPC" value="mkssgenl_2.0">MKS SGen L v2.0</option>
@@ -41,9 +36,6 @@
 							<option v-if="template.showLPC" value="biquskr_1.3">SKR v1.3</option>
 							<option v-if="template.showLPC" value="biquskr_1.4">SKR v1.4</option>
 							<option value="biquskr_2">SKR v2.0</option>
-							<option value="biquskr_3">SKR v3 H743</option>#
-							<option value="biquskr_3_ez">SKR v3 EZ</option>
-							<option value="biquskr_3_h723">SKR v3 H723</option>
 							<option v-if="template.showLPC" value="smoothieboard">Smoothieboard</option>
 							<!--option value="duet085">Duet 0.8.5</option>
 							<option value="duetwifi10">Duet 2 WiFi</option>
