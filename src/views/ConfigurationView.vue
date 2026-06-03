@@ -1,8 +1,42 @@
+<style scoped>
+/* Free-layout mode: panels become absolutely positioned draggable cards. In the default
+   (stack) mode nothing here applies, so the normal document flow is preserved. */
+.panel-canvas.free {
+	position: relative;
+}
+
+.panel-canvas :deep(.card-header) {
+	cursor: grab;
+}
+
+.panel-canvas.dragging {
+	user-select: none;
+}
+
+.panel-canvas.dragging :deep(.card-header) {
+	cursor: grabbing;
+}
+</style>
+
 <template>
 	<main class="container">
-		<component v-for="section in sectionComponents" :is="section"></component>
-		
+		<div class="panel-canvas" :class="{ free: layoutEnabled, dragging: isDragging }" :style="canvasStyle"
+			 ref="canvasRef">
+			<div v-for="entry in panels" :key="entry.type" class="panel" :style="panelStyle(entry.type)"
+				 :ref="(el) => registerPanel(entry.type, el as HTMLElement | null)"
+				 @pointerdown="onPointerDown(entry.type, $event)">
+				<component :is="entry.component" />
+			</div>
+		</div>
+
 		<div class="mt-3"></div>
+
+		<div v-if="layoutEnabled" class="d-flex justify-content-center mb-3">
+			<button type="button" class="btn btn-outline-secondary btn-sm" @click.prevent="resetLayout">
+				<i class="bi bi-arrow-counterclockwise"></i>
+				Reset panel layout
+			</button>
+		</div>
 
 		<div v-if="firstErrorNode !== null" class="alert alert-danger d-flex justify-content-between mt-2">
 			<span>
@@ -25,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, computed, ref } from "vue";
+import { onBeforeUnmount, onMounted, computed, reactive, ref, watch, type Component } from "vue";
 import { useRouter } from "vue-router";
 
 import { ConfigSectionType, getSections } from "@/store/sections";
@@ -55,83 +89,259 @@ import Miscellaneous from "@/components/sections/Miscellaneous.vue";
 const router = useRouter();
 
 // Sections
-const sectionComponents = computed(() => {
-	const sections = getSections(), components = [];
-	for (const section of sections) {
-		switch (section) {
-			case ConfigSectionType.General:
-				components.push(General);
-				break;
-			case ConfigSectionType.Accessories:
-				components.push(Accessories);
-				break;
-			case ConfigSectionType.LedStrips:
-				components.push(LedStrips);
-				break;
-			case ConfigSectionType.Network:
-				components.push(Network);
-				break;
-			case ConfigSectionType.Expansion:
-				components.push(Expansion);
-				break;
-			case ConfigSectionType.SpiConfig:
-				components.push(SpiConfig);
-				break;
-			case ConfigSectionType.Accelerometers:
-				components.push(Accelerometers);
-				break;
-			case ConfigSectionType.Kinematics:
-				components.push(Kinematics);
-				break;
-			case ConfigSectionType.Drivers:
-				components.push(Drivers);
-				break;
-			case ConfigSectionType.Axes:
-				components.push(Axes);
-				break;
-			case ConfigSectionType.Extruders:
-				components.push(Extruders);
-				break;
-			case ConfigSectionType.FilamentMonitors:
-				components.push(FilamentMonitors);
-				break;
-			case ConfigSectionType.Probes:
-				components.push(Probes);
-				break;
-			case ConfigSectionType.Endstops:
-				components.push(Endstops);
-				break;
-			case ConfigSectionType.Compensation:
-				components.push(Compensation);
-				break;
-			case ConfigSectionType.Sensors:
-				components.push(Sensors);
-				break;
-			case ConfigSectionType.Heaters:
-				components.push(Heaters);
-				break;
-			case ConfigSectionType.Spindles:
-				components.push(Spindles);
-				break;
-			case ConfigSectionType.Lasers:
-				components.push(Lasers);
-				break;
-			case ConfigSectionType.Fans:
-				components.push(Fans);
-				break;
-			case ConfigSectionType.Tools:
-				components.push(Tools);
-				break;
-			case ConfigSectionType.Miscellaneous:
-				components.push(Miscellaneous);
-				break;
-			default:
-				const _exhaustiveCheck: never = section;
-				break;
+const componentMap: Record<ConfigSectionType, Component> = {
+	[ConfigSectionType.General]: General,
+	[ConfigSectionType.Accessories]: Accessories,
+	[ConfigSectionType.LedStrips]: LedStrips,
+	[ConfigSectionType.Network]: Network,
+	[ConfigSectionType.Expansion]: Expansion,
+	[ConfigSectionType.SpiConfig]: SpiConfig,
+	[ConfigSectionType.Accelerometers]: Accelerometers,
+	[ConfigSectionType.Kinematics]: Kinematics,
+	[ConfigSectionType.Drivers]: Drivers,
+	[ConfigSectionType.Axes]: Axes,
+	[ConfigSectionType.Extruders]: Extruders,
+	[ConfigSectionType.FilamentMonitors]: FilamentMonitors,
+	[ConfigSectionType.Probes]: Probes,
+	[ConfigSectionType.Endstops]: Endstops,
+	[ConfigSectionType.Compensation]: Compensation,
+	[ConfigSectionType.Sensors]: Sensors,
+	[ConfigSectionType.Heaters]: Heaters,
+	[ConfigSectionType.Spindles]: Spindles,
+	[ConfigSectionType.Lasers]: Lasers,
+	[ConfigSectionType.Fans]: Fans,
+	[ConfigSectionType.Tools]: Tools,
+	[ConfigSectionType.Miscellaneous]: Miscellaneous
+};
+
+const panels = computed(() => getSections().map(type => ({ type, component: componentMap[type] })));
+
+// ---- Free panel layout ----------------------------------------------------------------
+// Panels can be dragged anywhere by their title bar. When the user starts dragging, every
+// panel's current (stacked) position is captured and the layout switches to free positioning,
+// so there is no visual jump. The arrangement is persisted to localStorage.
+interface PanelPosition { x: number; y: number; w: number; z: number; }
+const STORAGE_KEY = "configtool.panelLayout";
+
+const layoutEnabled = ref(false);
+const positions = reactive<Record<string, PanelPosition>>({});
+const panelSizes = reactive<Record<string, { w: number; h: number }>>({});
+const maxZ = ref(1);
+const isDragging = ref(false);
+
+const canvasRef = ref<HTMLElement | null>(null);
+const panelEls = new Map<string, HTMLElement>();
+const resizeObserver = (typeof ResizeObserver !== "undefined")
+	? new ResizeObserver(entries => {
+		for (const e of entries) {
+			for (const [type, el] of panelEls) {
+				if (el === e.target) {
+					panelSizes[type] = { w: el.offsetWidth, h: el.offsetHeight };
+					break;
+				}
+			}
+		}
+	})
+	: null;
+
+function registerPanel(type: string, el: HTMLElement | null) {
+	const previous = panelEls.get(type);
+	if (previous && previous !== el) {
+		resizeObserver?.unobserve(previous);
+	}
+	if (el) {
+		panelEls.set(type, el);
+		resizeObserver?.observe(el);
+		panelSizes[type] = { w: el.offsetWidth, h: el.offsetHeight };
+	} else {
+		panelEls.delete(type);
+	}
+}
+
+function defaultPanelWidth(): number {
+	return canvasRef.value?.clientWidth || 720;
+}
+
+// The canvas grows to contain all panels so the page can scroll to reach them.
+const canvasStyle = computed(() => {
+	if (!layoutEnabled.value) {
+		return {};
+	}
+	let right = 0, bottom = 0;
+	for (const { type } of panels.value) {
+		const p = positions[type];
+		if (!p) {
+			continue;
+		}
+		const size = panelSizes[type];
+		right = Math.max(right, p.x + (size?.w ?? p.w));
+		bottom = Math.max(bottom, p.y + (size?.h ?? 0));
+	}
+	return { width: `${right + 24}px`, height: `${bottom + 24}px` };
+});
+
+function panelStyle(type: string) {
+	if (!layoutEnabled.value) {
+		return {};
+	}
+	const p = positions[type];
+	if (!p) {
+		return { position: "absolute" as const, visibility: "hidden" as const };
+	}
+	return {
+		position: "absolute" as const,
+		left: `${p.x}px`,
+		top: `${p.y}px`,
+		width: `${p.w}px`,
+		zIndex: p.z
+	};
+}
+
+// Capture every panel's current position relative to the canvas, then switch to free mode.
+function captureAndEnable() {
+	const canvas = canvasRef.value;
+	if (!canvas) {
+		return;
+	}
+	const canvasRect = canvas.getBoundingClientRect();
+	for (const { type } of panels.value) {
+		const el = panelEls.get(type);
+		if (!el) {
+			continue;
+		}
+		const rect = el.getBoundingClientRect();
+		positions[type] = {
+			x: Math.round(rect.left - canvasRect.left),
+			y: Math.round(rect.top - canvasRect.top),
+			w: Math.round(rect.width),
+			z: ++maxZ.value
+		};
+	}
+	layoutEnabled.value = true;
+}
+
+// Ensure every visible panel has a position once free mode is active (covers sections that
+// appear later, e.g. when CNC/laser capabilities are toggled on).
+watch([layoutEnabled, () => panels.value.map(p => p.type).join(",")], () => {
+	if (!layoutEnabled.value) {
+		return;
+	}
+	let bottom = 0;
+	for (const type in positions) {
+		bottom = Math.max(bottom, positions[type].y + (panelSizes[type]?.h ?? 0));
+	}
+	let added = false;
+	for (const { type } of panels.value) {
+		if (!positions[type]) {
+			positions[type] = { x: 0, y: bottom + 16, w: defaultPanelWidth(), z: ++maxZ.value };
+			bottom = positions[type].y + 240;
+			added = true;
 		}
 	}
-	return components;
+	if (added) {
+		saveLayout();
+	}
 });
+
+// Dragging (pointer-based so it works for mouse and touch). A small movement threshold avoids
+// turning a click on the title bar into an accidental move.
+let pending: { type: string; px: number; py: number } | null = null;
+let drag: { type: string; startX: number; startY: number; px: number; py: number } | null = null;
+
+function onPointerDown(type: string, event: PointerEvent) {
+	if (event.button !== 0) {
+		return;
+	}
+	const target = event.target as HTMLElement;
+	if (!target.closest(".card-header")) {
+		return;		// only the title bar is a drag handle
+	}
+	if (target.closest("a, button, input, select, textarea, label")) {
+		return;		// let interactive controls in the header work normally
+	}
+	pending = { type, px: event.clientX, py: event.clientY };
+	window.addEventListener("pointermove", onPointerMove);
+	window.addEventListener("pointerup", onPointerUp);
+}
+
+function onPointerMove(event: PointerEvent) {
+	if (drag) {
+		const p = positions[drag.type];
+		if (p) {
+			p.x = Math.max(0, Math.round(drag.startX + (event.clientX - drag.px)));
+			p.y = Math.max(0, Math.round(drag.startY + (event.clientY - drag.py)));
+		}
+		event.preventDefault();
+		return;
+	}
+	if (pending) {
+		if (Math.hypot(event.clientX - pending.px, event.clientY - pending.py) < 5) {
+			return;
+		}
+		if (!layoutEnabled.value) {
+			captureAndEnable();
+		}
+		const p = positions[pending.type];
+		if (p) {
+			p.z = ++maxZ.value;
+			drag = { type: pending.type, startX: p.x, startY: p.y, px: pending.px, py: pending.py };
+			isDragging.value = true;
+		}
+		pending = null;
+		event.preventDefault();
+	}
+}
+
+function onPointerUp() {
+	window.removeEventListener("pointermove", onPointerMove);
+	window.removeEventListener("pointerup", onPointerUp);
+	if (drag) {
+		drag = null;
+		isDragging.value = false;
+		saveLayout();
+	}
+	pending = null;
+}
+
+function resetLayout() {
+	layoutEnabled.value = false;
+	for (const key in positions) {
+		delete positions[key];
+	}
+	localStorage.removeItem(STORAGE_KEY);
+}
+
+function saveLayout() {
+	if (!layoutEnabled.value) {
+		localStorage.removeItem(STORAGE_KEY);
+		return;
+	}
+	localStorage.setItem(STORAGE_KEY, JSON.stringify({
+		enabled: true,
+		maxZ: maxZ.value,
+		positions
+	}));
+}
+
+function loadLayout() {
+	try {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (!saved) {
+			return;
+		}
+		const data = JSON.parse(saved);
+		if (data && data.enabled && data.positions) {
+			maxZ.value = data.maxZ ?? 1;
+			for (const type in data.positions) {
+				positions[type] = data.positions[type];
+			}
+			layoutEnabled.value = true;
+		}
+	} catch {
+		// Ignore corrupt layout data
+	}
+}
+loadLayout();
 
 // Scrollspy
 const observer = new IntersectionObserver(entries => {
@@ -190,5 +400,8 @@ onBeforeUnmount(() => {
 	// Stop tracking
 	observer.disconnect();
 	classObserver.disconnect();
+	resizeObserver?.disconnect();
+	window.removeEventListener("pointermove", onPointerMove);
+	window.removeEventListener("pointerup", onPointerUp);
 });
 </script>
