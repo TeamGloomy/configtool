@@ -118,17 +118,19 @@ heat.spiTempSensorChannel=<%- ct.stm32SpiTempChannel %>
 heat.spiTempSensorCSPins={<%- _csPins.join(',') %>}
 <% }
 
-// Sensorless homing DIAG pins. Only UART drivers (TMC2208/2209/2225/2226) use the DIAG pin —
-// TMC2240/5160 do stall detection over SPI and need no diag pin. Emit stepper.TmcDiagPins
-// listing the diag pin for each mainboard driver that is using sensorless on a UART driver,
-// NoPin for the rest. A driver counts as "using sensorless" if its StallGuard threshold is set
-// (Drivers section) OR an axis it drives uses a motor-stall endstop (Endstops section, M574 S3/S4).
-// The diag pin shares the endstop connector, so a configured driver's endstop input is unavailable.
+// Sensorless homing DIAG pins. Only TMC2209/2226 support StallGuard via the DIAG pin.
+// TMC2208/2225 have no StallGuard; TMC2240/5160 do stall detection over SPI — none of those
+// use a diag pin. Emit stepper.TmcDiagPins listing the diag pin for each mainboard driver that
+// is using sensorless on a StallGuard-capable driver, NoPin for the rest. A driver counts as
+// "using sensorless" if its StallGuard threshold is set (Drivers section) OR an axis it drives
+// uses a motor-stall endstop (Endstops section, M574 S3/S4). The diag pin shares the endstop
+// connector, so a configured driver's endstop input is unavailable.
 const _diagPins = model.boardDefinition?.diagPins;
 if (_diagPins && _diagPins.length > 0) {
-    // Per-slot driver type (empty / "tmcauto" = auto-detect, treated as a possible UART driver).
+    // Per-slot driver type (empty / "tmcauto" = auto-detect, assumed StallGuard-capable on
+    // these boards since the firmware defaults expect a TMC2209-class driver).
     const _types = ct.stm32DriverTypes ? ct.stm32DriverTypes.split(',') : [];
-    const _spiDriver = (t) => t === 'tmc5160' || t === 'external5160' || t === 'tmc2240';
+    const _stallCapable = (t) => !t || t === 'tmcauto' || t === 'tmc2209' || t === 'tmc2226';
 
     // Mainboard drivers that drive an axis configured with a motor-stall endstop type.
     const _stallDrivers = new Set();
@@ -141,10 +143,10 @@ if (_diagPins && _diagPins.length > 0) {
         }
     }
 
-    // Which mainboard (board 0) UART drivers are using sensorless (threshold set or stall endstop)?
+    // Which mainboard (board 0) StallGuard-capable drivers are using sensorless?
     const _sensorless = new Set();
     for (const d of model.configTool.drivers) {
-        if (d.id.board || _spiDriver(_types[d.id.driver])) continue;
+        if (d.id.board || !_stallCapable(_types[d.id.driver])) continue;
         if (d.sgThreshold !== 0 || _stallDrivers.has(d.id.driver)) {
             _sensorless.add(d.id.driver);
         }
