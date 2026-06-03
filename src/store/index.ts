@@ -40,6 +40,7 @@ import { defineStore } from "pinia";
 import ConfigModel from "@/store/model";
 import { ConfigPortFunction } from "@/store/model/ConfigPort";
 import { Boards, BoardType } from "@/store/Boards";
+import { STM32BoardType } from "@/store/STM32Boards";
 
 const defaultTemplate = initObject(ConfigModel, {
 	boards: initCollection(Board, [
@@ -169,7 +170,7 @@ const defaultTemplate = initObject(ConfigModel, {
 	}),
 	limits: initObject(Limits, Boards[BoardType.Duet3Mini5PlusWiFi].objectModelLimits),
 	network: initObject(Network, {
-		name: "Duet 3",
+		name: "Fly E3 Ultra",
 		interfaces: initCollection(NetworkInterface, [
 			{
 				activeProtocols: new ModelSet<NetworkProtocol>([NetworkProtocol.HTTP]),
@@ -221,15 +222,20 @@ const defaultTemplate = initObject(ConfigModel, {
 });
 defaultTemplate.validate();
 defaultTemplate.configTool.delta.calculateProbePoints(0, 0);
-defaultTemplate.configTool.assignPort("io0.in", ConfigPortFunction.endstop, 0);		// X endstop
-defaultTemplate.configTool.assignPort("io1.in", ConfigPortFunction.endstop, 1);		// Y endstop
-defaultTemplate.configTool.assignPort("io3.in", ConfigPortFunction.probeIn, 0);		// Z probe in
-defaultTemplate.configTool.assignPort("temp0", ConfigPortFunction.thermistor, 0);	// Bed temp
-defaultTemplate.configTool.assignPort("temp1", ConfigPortFunction.thermistor, 1);	// Nozzle temp
-defaultTemplate.configTool.assignPort("out0", ConfigPortFunction.heater, 0);		// Bed heater
-defaultTemplate.configTool.assignPort("out1", ConfigPortFunction.heater, 1);		// Nozzle heater
-defaultTemplate.configTool.assignPort("out3", ConfigPortFunction.fan, 0);			// Nozzle fan
-defaultTemplate.configTool.assignPort("out4", ConfigPortFunction.fan, 1);			// Nozzle thermostatic fan
+
+// Default to the Fly E3 Ultra — this is the STM32-focused TeamGloomy build of the tool.
+// Switching the board rebuilds the port list using the board's pin aliases (validate() ->
+// refreshPorts()), so the starter IO is wired up afterwards using those names.
+defaultTemplate.boardType = STM32BoardType.Fly_E3Ultra;
+defaultTemplate.configTool.assignPort("xstop", ConfigPortFunction.endstop, 0);		// X endstop
+defaultTemplate.configTool.assignPort("ystop", ConfigPortFunction.endstop, 1);		// Y endstop
+defaultTemplate.configTool.assignPort("probe", ConfigPortFunction.probeIn, 0);		// Z probe in
+defaultTemplate.configTool.assignPort("bedtemp", ConfigPortFunction.thermistor, 0);	// Bed temp
+defaultTemplate.configTool.assignPort("e0temp", ConfigPortFunction.thermistor, 1);	// Hot end temp
+defaultTemplate.configTool.assignPort("bed", ConfigPortFunction.heater, 0);			// Bed heater
+defaultTemplate.configTool.assignPort("e0heat", ConfigPortFunction.heater, 1);		// Hot end heater
+defaultTemplate.configTool.assignPort("fan0", ConfigPortFunction.fan, 0);			// Part-cooling fan
+defaultTemplate.configTool.assignPort("fan1", ConfigPortFunction.fan, 1);			// Hot end (thermostatic) fan
 
 export const useStore = defineStore("model", {
     state: () => {
