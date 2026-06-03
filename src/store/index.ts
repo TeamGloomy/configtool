@@ -207,7 +207,9 @@ const defaultTemplate = initObject(ConfigModel, {
 		]),
 		probes: initCollection(Probe, [
 			{
-				type: ProbeType.analog
+				// Default to a switch-type Z probe. On the default (STM32) board this is the
+				// unfiltered digital type, matching what the "Switch" preset produces there.
+				type: ProbeType.unfilteredDigital
 			}
 		])
 	}),
