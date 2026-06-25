@@ -182,7 +182,7 @@ export function getSectionTemplates(section?: ConfigSectionType) {
             }
             break;
         case ConfigSectionType.FilamentMonitors:
-            if (store.data.sensors.filamentMonitors.some(monitor => monitor !== null)) {
+            if (store.data.sensors.filamentMonitors.some(monitor => monitor != null)) {
                 result.push({ template: "config/filamentMonitors", data: null });
             }
             break;
