@@ -50,7 +50,7 @@
 			</button>
 		</div>
 
-		<input ref="inputJsonFile" type="file" accept="application/json" hidden @change="fileSelected">
+		<input ref="inputJsonFile" type="file" accept="application/json" aria-label="Import existing preset" hidden @change="fileSelected">
 	</main>
 </template>
 

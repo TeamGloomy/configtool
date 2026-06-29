@@ -124,10 +124,10 @@ onBeforeUnmount(() => {
 // Store observer
 store.$subscribe((mutation) => {
 	if (mutation.type === MutationType.direct) {
-		if (mutation.events.key === "darkTheme") {
+		if (mutation.events?.key === "darkTheme") {
 			// Update theme
 			updateTheme();
-		} else if (mutation.events.key !== "showSavePrompt") {
+		} else if (mutation.events?.key !== "showSavePrompt") {
 			// Keep track of model changes
 			store.dataModified = store.showSavePrompt = true;
 		}

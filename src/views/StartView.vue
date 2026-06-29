@@ -88,7 +88,7 @@
 			</template>
 		</base-dialog>
 
-		<input ref="inputJsonFile" type="file" accept="application/json" hidden @change="fileSelected">
+		<input ref="inputJsonFile" type="file" accept="application/json" aria-label="Load config template" hidden @change="fileSelected">
 	</main>
 </template>
 
