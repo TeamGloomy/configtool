@@ -21,7 +21,7 @@
         for (const driver of axis.drivers) {
             const board = model.boards.find(board => (board.canAddress ?? 0) === (driver.board ?? 0));
             if (board) {
-                const boardDefinition = (board.canAddress > 0) ? getExpansionBoardDefinition(board) : getBoardDefinition(model);
+                const boardDefinition = (board.canAddress > 0) ? getExpansionBoardDefinition(board) : model.getBoardDefinition();
                 if (!boardDefinition?.hasSmartDrivers) {
                     delete currents[axis.letter];
                     delete microstepping[axis.letter];
