@@ -7,13 +7,16 @@ if (isSTM32BoardType(model.boardType) && model.boardDefinition && model.boardDef
 M569.9 P0.<%- _i %> R<%- _setup.rsense %> S<%- _setup.scale %> ; driver <%- _i %> sense resistor
 <%  }
 }
-// 2. User-selected External TMC5160 drivers
+// 2. User-selected plug-in TMC5160 drivers (stepstick or external SPI)
 if (isSTM32BoardType(model.boardType) && model.configTool.stm32DriverTypes) {
     const _types = model.configTool.stm32DriverTypes.split(',');
     const _rsense = model.configTool.stm32DriverRsense ? model.configTool.stm32DriverRsense.split(',') : [];
     for (let _i = 0; _i < _types.length; _i++) {
-        if (_types[_i] === 'external5160' && _rsense[_i]) { -%>
-M569.9 P0.<%- _i %> R<%- _rsense[_i] %> ; external TMC5160 sense resistor for driver <%- _i %>
+        const _t = _types[_i];
+        if (_t === 'external5160' || _t === 'stepstick5160') {
+            const _r = _rsense[_i] || '0.075';
+            const _label = _t === 'stepstick5160' ? 'TMC5160 stepstick' : 'external TMC5160'; -%>
+M569.9 P0.<%- _i %> R<%- _r %> ; <%- _label %> sense resistor for driver <%- _i %>
 <%      }
     }
 }

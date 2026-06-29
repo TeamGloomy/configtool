@@ -22,8 +22,10 @@ export default defineConfig({
 		chunkSizeWarningLimit: 5000000,
 		rollupOptions: {
 			output: {
-				// Replace any character that isn't alphanumeric, -, _, . or / so hashes
-				// containing Base64 '+' aren't decoded as spaces by GitHub Pages' Nginx.
+				// Use hex hashes so generated filenames never contain '+' or '/' — characters
+				// that GitHub Pages / Nginx URL-decode to space/slash, causing 404s on dynamic
+				// imports. sanitizeFileName is kept as a second line of defence.
+				hashCharacters: "hex",
 				sanitizeFileName: (name) => name.replace(/[^\w\-./]/g, "_"),
 				chunkFileNames: "js/[name]-[hash].js",
 				entryFileNames: "js/[name]-[hash].js",

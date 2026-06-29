@@ -225,9 +225,17 @@ function getPresetExtruderValue<K extends keyof Extruder>(index: number, key: K)
 
 function getMaxCurrent(driver: DriverId | null) {
 	if (driver !== null) {
-		const boardDefinition = store.data.getBoardDefinition(driver.board);
-		if (boardDefinition) {
-			return boardDefinition.motorMaxCurrent;
+		const boardDef = store.data.getBoardDefinition(driver.board);
+		if (boardDef) {
+			const perDriverMax = boardDef.motorMaxCurrentPerDriver?.[driver.driver];
+			const boardMax = perDriverMax ?? boardDef.motorMaxCurrent;
+			if (driver.board === null && !("builtInDrivers" in boardDef && boardDef.builtInDrivers)) {
+				const driverTypes = store.data.configTool.stm32DriverTypes?.split(",") ?? [];
+				const driverType = driverTypes[driver.driver] ?? "";
+				if (driverType === "stepstick5160") return Math.min(boardMax, 3000);
+				if (driverType === "external5160") return Math.max(boardMax, 8000);
+			}
+			return boardMax;
 		}
 	}
 	return undefined;

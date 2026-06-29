@@ -90,7 +90,7 @@ const _hasCustomDriverType = _driverTypes.some(t => t && t !== 'tmcauto');
 if (_hasCustomDriverType && !model.boardDefinition?.builtInDrivers) {
     const _typeList = _driverTypes.map(t => {
         if (!t || t === 'tmcauto') return 'tmcauto';
-        if (t === 'external5160') return 'tmc5160';   // external 5160 = tmc5160 in board.txt
+        if (t === 'external5160' || t === 'stepstick5160') return 'tmc5160';
         return t;
     }).join(',');
 %>

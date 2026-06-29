@@ -13,6 +13,8 @@ export interface BaseBoardDescriptor {
 	hasVrefMonitor: boolean;
 	motorWarnCurrent: number;
 	motorMaxCurrent: number;
+	/** Per-driver overrides (indexed by driver slot). Falls back to motorMaxCurrent when absent. */
+	motorMaxCurrentPerDriver?: number[];
 	minVoltage: number,
 	maxVoltage: number,
 	numDrivers: number;                         // TODO add this to object model -> boards

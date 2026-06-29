@@ -112,16 +112,34 @@ aside {
 				</div>
 			</li>
 		</ul>
+
+		<div class="mt-auto pt-3 border-top">
+			<a href="javascript:void(0)" class="btn-toggle-nav d-flex align-items-center small text-decoration-none"
+			   style="padding: .1875rem .5rem; margin-left: 1.25rem;"
+			   title="Download the current configuration as a JSON file, even if there are errors"
+			   @click="downloadJson">
+				<i class="bi bi-database-fill-down me-1"></i>
+				Save Config JSON
+			</a>
+		</div>
 	</aside>
 </template>
 
 <script setup lang="ts">
+import saveAs from "file-saver";
 import { computed } from "vue";
 import { RouterLink } from "vue-router"
 
 import { ConfigSectionType, getSections } from "@/store/sections";
+import { useStore } from "@/store";
 
+const store = useStore();
 const sections = computed(() => getSections());
+
+function downloadJson() {
+	saveAs(new Blob([JSON.stringify(store.data)]), "configtool.json");
+	store.showSavePrompt = false;
+}
 
 function getSectionTitle(section: ConfigSectionType) {
 	if (section === ConfigSectionType.FilamentMonitors) {

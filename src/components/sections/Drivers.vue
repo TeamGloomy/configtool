@@ -50,9 +50,9 @@
 												  :model-value="getDriverType(driver.id.driver)"
 												  @update:model-value="setDriverType(driver.id.driver, $event)"
 												  :required="false" />
-									<number-input v-if="getDriverType(driver.id.driver) === 'external5160'"
+									<number-input v-if="getDriverType(driver.id.driver) === 'external5160' || getDriverType(driver.id.driver) === 'stepstick5160'"
 												  class="mt-1"
-												  title="Sense resistor value (Ω) of this external TMC5160 module"
+												  title="Sense resistor value (Ω) of this TMC5160 module"
 												  label="Rsense (Ω)"
 												  :model-value="getDriverRsense(driver.id.driver)"
 												  @update:model-value="setDriverRsense(driver.id.driver, $event)"
@@ -334,7 +334,17 @@ function hasMotorsMapped(driver: ConfigDriver) {
 }
 
 function getMaxCurrent(driver: ConfigDriver) {
-	return store.data.getBoardDefinition(driver.id.board)?.motorMaxCurrent;
+	const boardDef = store.data.getBoardDefinition(driver.id.board);
+	if (!boardDef) return undefined;
+	const perDriverMax = boardDef.motorMaxCurrentPerDriver?.[driver.id.driver];
+	const boardMax = perDriverMax ?? boardDef.motorMaxCurrent;
+	// For mainboard plug-in driver slots, apply driver-type-specific caps
+	if (driver.id.board === null && !("builtInDrivers" in boardDef && boardDef.builtInDrivers)) {
+		const driverType = getDriverType(driver.id.driver);
+		if (driverType === "stepstick5160") return Math.min(boardMax, 3000);
+		if (driverType === "external5160") return Math.max(boardMax, 8000);
+	}
+	return boardMax;
 }
 
 // ── STM32 driver type selection ──────────────────────────────────────────────
@@ -347,7 +357,8 @@ const driverTypeOptions: Array<SelectOption> = [
 	{ text: "TMC2226", value: "tmc2226" },
 	{ text: "TMC2240", value: "tmc2240" },
 	{ text: "TMC5160", value: "tmc5160" },
-	{ text: "External TMC5160", value: "external5160" },
+	{ text: "TMC5160 Stepstick (plug-in, 3A)", value: "stepstick5160" },
+	{ text: "External TMC5160 (SPI, up to 8A)", value: "external5160" },
 ];
 
 const stm32Def = computed(() => {
@@ -392,10 +403,17 @@ function setDriverType(driverIndex: number, value: string) {
 	const parts = store.data.configTool.stm32DriverTypes.split(",");
 	parts[driverIndex] = value;
 	store.data.configTool.stm32DriverTypes = parts.join(",");
-	if (value !== "external5160") {
+	if (value !== "external5160" && value !== "stepstick5160") {
 		const rParts = store.data.configTool.stm32DriverRsense.split(",");
 		rParts[driverIndex] = "";
 		store.data.configTool.stm32DriverRsense = rParts.join(",");
+	} else if (value === "stepstick5160") {
+		// Stepsticks use a standard 0.075 Ω sense resistor — pre-fill if not already set
+		const rParts = store.data.configTool.stm32DriverRsense.split(",");
+		if (!rParts[driverIndex]) {
+			rParts[driverIndex] = "0.075";
+			store.data.configTool.stm32DriverRsense = rParts.join(",");
+		}
 	}
 	// Changing the driver type may change the chopper mode required for sensorless homing.
 	const driver = store.data.configTool.drivers.find(d => !d.id.board && d.id.driver === driverIndex);

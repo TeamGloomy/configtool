@@ -318,6 +318,12 @@ interface MakeBoardParams {
     notes?: string[];
     /** Supported 12864 display types mapped to the SPI channel each uses on this board */
     displays?: Partial<Record<DisplayType, number>>;
+    /** Override the default motorMaxCurrent (2000 mA) for this board */
+    motorMaxCurrent?: number;
+    /** Override the default motorWarnCurrent (1600 mA) for this board */
+    motorWarnCurrent?: number;
+    /** Per-driver max current (mA); falls back to motorMaxCurrent when absent */
+    motorMaxCurrentPerDriver?: number[];
 }
 
 function makeLimits(numDrivers: number): Limits {
@@ -369,8 +375,9 @@ function makeBoard(p: MakeBoardParams): STM32BoardDescriptor {
         hasSmartDrivers:        true,
         hasStealthChop:         true,
         hasVrefMonitor:         p.hasVin ?? false,
-        motorWarnCurrent:       1600,
-        motorMaxCurrent:        2000,
+        motorWarnCurrent:       p.motorWarnCurrent ?? 1600,
+        motorMaxCurrent:        p.motorMaxCurrent ?? 2000,
+        motorMaxCurrentPerDriver: p.motorMaxCurrentPerDriver,
         minVoltage:             12,
         maxVoltage:             24,
         numDrivers:             p.numDrivers,
@@ -439,11 +446,13 @@ export const STM32Boards: Record<STM32BoardType, STM32BoardDescriptor> = {
             "Built-in TMC5160 drivers: the M569.9 sense-resistor lines are generated automatically (V1.0 uses R0.022).",
             "Remove the DIAG-pin jumpers on the first four drivers — RRF does not use them for sensorless homing on TMC5160.",
             "Driver power is 24-60V via HV-IN; fan output voltage is jumper-selectable (5V / 12V / VCC).",
+            "M1–M4 (drivers 0–3): up to 8A driving current; M5–M8 (drivers 4–7): up to 3A. Additional cooling recommended above 7A.",
         ],
         numDrivers: 8,
         hasWiFi: true, hasSBC: true, hasVin: false,
         builtInDrivers: true,
         m569DriverSetup: { rsense: 0.022, scale: 8, driverCount: 4 },
+        motorMaxCurrentPerDriver: [8000, 8000, 8000, 8000, 3000, 3000, 3000, 3000],
         accelPreset: { spiChannel: 5, csPin: "D.14", intPin: "G.3" },
         thermistors: ["bedtemp", "e0temp", "e1temp", "e2temp", "e3temp", "adc1", "adc2"],
         heaters:     ["bed", "e0heat", "e1heat", "e2heat", "e3heat"],
@@ -510,11 +519,13 @@ heat.spiTempSensorCSPins={C.9,A.8}`,
             "Built-in TMC5160 drivers: the M569.9 sense-resistor lines are generated automatically (V1.1 uses R0.05).",
             "Remove the DIAG-pin jumpers on the first four drivers — RRF does not use them for sensorless homing on TMC5160.",
             "Driver power is 24-60V via HV-IN; fan output voltage is jumper-selectable (5V / 12V / VCC).",
+            "M1–M4 (drivers 0–3): up to 4.7A peak; M5–M8 (drivers 4–7): up to 3A.",
         ],
         numDrivers: 8,
         hasWiFi: true, hasSBC: true, hasVin: false,
         builtInDrivers: true,
         m569DriverSetup: { rsense: 0.05, scale: 4.7, driverCount: 4 },
+        motorMaxCurrentPerDriver: [4700, 4700, 4700, 4700, 3000, 3000, 3000, 3000],
         accelPreset: { spiChannel: 5, csPin: "D.14", intPin: "G.3" },
         thermistors: ["bedtemp", "e0temp", "e1temp", "e2temp", "e3temp", "adc1", "adc2"],
         heaters:     ["bed", "e0heat", "e1heat", "e2heat", "e3heat"],
@@ -915,10 +926,13 @@ sbc.spiChannel=6`,
         shortName: "scylla1_0_h723", longName: "BTT Scylla V1.0 STM32H723", manufacturer: "BTT",
         builtInDrivers: true,
         m569DriverSetup: { rsense: 0.05, scale: 10, driverCount: 4 },
+        motorMaxCurrent: 4700,
+        motorWarnCurrent: 3500,
         notes: [
             "Requires RepRapFirmware 3.5.1 or later.",
             "Built-in TMC5160 drivers: the M569.9 sense-resistor lines are generated automatically (R0.05).",
             "24-60V input; the aux outputs run at the input voltage (there is no separate aux rail).",
+            "Maximum driver current: 4.7A peak per driver.",
         ],
         numDrivers: 4,
         hasWiFi: true, hasSBC: true, hasVin: false,
