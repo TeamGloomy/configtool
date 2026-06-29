@@ -9,7 +9,7 @@ section {
 	<header class="navbar navbar-light bg-body-tertiary sticky-top">
 		<!-- for sm and down -->
 		<div class="d-md-none container-fluid flex-nowrap">
-			<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
+			<button class="navbar-toggler" type="button" aria-label="Toggle navigation" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar">
 				<span class="navbar-toggler-icon"></span>
 			</button>
 			<a href="#" class="navbar-brand ms-2 d-inline-block text-truncate float-end">
@@ -20,7 +20,7 @@ section {
 			<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar">
 				<div class="offcanvas-header pb-0">
 					<h5 class="offcanvas-title" id="offcanvasNavbarLabel">Navigation Menu</h5>
-					<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+					<button type="button" class="btn-close text-reset" aria-label="Close" data-bs-dismiss="offcanvas"></button>
 				</div>
 				<div class="ps-2">
 					<sidebar />

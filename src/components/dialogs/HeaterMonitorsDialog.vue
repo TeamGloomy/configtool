@@ -54,7 +54,7 @@
 										  :preset="getPreset(index, 'sensor')" />
 						</td>
 						<td>
-							<button type="button" class="btn btn-sm btn-danger mt-1"
+							<button type="button" class="btn btn-sm btn-danger mt-1" aria-label="Delete heater monitor"
 									@click.stop.prevent="props.monitors?.splice(index, 1)">
 								<i class="bi-trash"></i>
 							</button>

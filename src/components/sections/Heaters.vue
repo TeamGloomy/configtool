@@ -99,7 +99,7 @@
 									</number-input>
 								</td>
 								<td>
-									<button class="btn btn-sm btn-danger mt-1" @click.prevent="deleteHeater(index)">
+									<button type="button" class="btn btn-sm btn-danger mt-1" aria-label="Delete heater" @click.prevent="deleteHeater(index)">
 										<i class="bi-trash"></i>
 									</button>
 								</td>
@@ -216,7 +216,7 @@
 												  :options="getSlowHeaters(bedHeater)" />
 								</td>
 								<td>
-									<button class="btn btn-sm btn-danger mt-1"
+									<button type="button" class="btn btn-sm btn-danger mt-1" aria-label="Delete bed heater"
 											@click.prevent="store.data.heat.bedHeaters[index] = -1">
 										<i class="bi-trash"></i>
 									</button>
@@ -235,7 +235,7 @@
 											  :options="getSlowHeaters(-1)" />
 							</td>
 							<td>
-								<button class="btn btn-sm btn-danger mt-1" @click.prevent="bedHeaterToAdd = -1">
+								<button type="button" class="btn btn-sm btn-danger mt-1" aria-label="Cancel" @click.prevent="bedHeaterToAdd = -1">
 									<i class="bi-trash"></i>
 								</button>
 							</td>
@@ -292,7 +292,7 @@
 												  :options="getSlowHeaters(chamberHeater)" />
 								</td>
 								<td>
-									<button class="btn btn-sm btn-danger mt-1"
+									<button type="button" class="btn btn-sm btn-danger mt-1" aria-label="Delete chamber heater"
 											@click.prevent="store.data.heat.chamberHeaters[index] = -1">
 										<i class="bi-trash"></i>
 									</button>
@@ -311,7 +311,7 @@
 											  :options="getSlowHeaters(-1)" />
 							</td>
 							<td>
-								<button class="btn btn-sm btn-danger mt-1" @click.prevent="chamberHeaterToAdd = -1">
+								<button type="button" class="btn btn-sm btn-danger mt-1" aria-label="Cancel" @click.prevent="chamberHeaterToAdd = -1">
 									<i class="bi-trash"></i>
 								</button>
 							</td>

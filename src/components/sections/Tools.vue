@@ -88,14 +88,14 @@
 								<fan-list class="mt-1" :fans="tool.fans" />
 							</td>
 							<td>
-								<button class="btn btn-sm mt-1" :class="getToolClass(tool)"
-										@click.prevent="configureTool(tool)">
+								<button type="button" class="btn btn-sm mt-1" :class="getToolClass(tool)"
+										aria-label="Configure tool" @click.prevent="configureTool(tool)">
 									<i class="bi bi-gear"></i>
 								</button>
 							</td>
 							<td>
-								<button class="btn btn-sm btn-danger mt-1"
-										@click.prevent="removeTool(tool)">
+								<button type="button" class="btn btn-sm btn-danger mt-1"
+										aria-label="Delete tool" @click.prevent="removeTool(tool)">
 									<i class="bi bi-trash"></i>
 								</button>
 							</td>

@@ -18,6 +18,7 @@
 
 		<div class="dropdown">
 			<button ref="dropdownButton" type="button" class="btn btn-outline-success btn-sm text-nowrap"
+					aria-label="Add extruder"
 					:disabled="availableExtruders.length === 0" data-bs-toggle="dropdown" data-bs-auto-close="true"
 					@click.prevent="dropdown?.show()">
 				<i class="bi-plus"></i>

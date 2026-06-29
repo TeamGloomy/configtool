@@ -9,7 +9,7 @@
 		<span v-if="props.fans.length === 0" class="text-muted me-2 mb-1">
 			<i class="bi-info-circle"></i> none
 		</span>
-		<button v-for="(fan, index) in props.fans" tsype="button"
+		<button v-for="(fan, index) in props.fans" type="button"
 				class="btn btn-outline-primary btn-sm text-nowrap" v-title="getFanName(fan)"
 				@click.prevent="removeFan(fan, index)">
 			{{ `F${fan}` }}
@@ -18,6 +18,7 @@
 
 		<div class="dropdown">
 			<button ref="dropdownButton" type="button" class="btn btn-outline-success btn-sm text-nowrap"
+					aria-label="Add fan"
 					:disabled="availableFans.length === 0" data-bs-toggle="dropdown" data-bs-auto-close="true"
 					@click.prevent="dropdown?.show()">
 				<i class="bi-plus"></i>

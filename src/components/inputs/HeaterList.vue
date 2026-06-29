@@ -9,7 +9,7 @@
 		<span v-if="props.heaters.length === 0" class="text-muted me-2 mb-1">
 			<i class="bi-info-circle"></i> none
 		</span>
-		<button v-for="(heater, index) in props.heaters" tsype="button"
+		<button v-for="(heater, index) in props.heaters" type="button"
 				class="btn btn-outline-primary btn-sm text-nowrap" v-title="`Heater #${heater}`"
 				@click.prevent="removeHeater(heater, index)">
 			{{ `H${heater}` }}
@@ -18,6 +18,7 @@
 
 		<div class="dropdown">
 			<button ref="dropdownButton" type="button" class="btn btn-outline-success btn-sm text-nowrap"
+					aria-label="Add heater"
 					:disabled="availableHeaters.length === 0" data-bs-toggle="dropdown" data-bs-auto-close="true"
 					@click.prevent="dropdown?.show()">
 				<i class="bi-plus"></i>
