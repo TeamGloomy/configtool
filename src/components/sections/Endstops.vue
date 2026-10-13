@@ -64,9 +64,11 @@
 												  :preset="getPresetEndstopLocation(axisIndex)" />
 								</td>
 								<td>
-									<homing-speeds-input v-if="getEndstopType(axisIndex) !== null && (axis.letter !== 'Z' || getEndstopType(axisIndex) !== EndstopType.ZProbeAsEndstop)"
-														 :speeds="getHomingSpeeds(axis, configDriver)"
-														 :preset="getPresetHomingSpeeds(axisIndex)" />
+									<two-value-input v-if="getEndstopType(axisIndex) !== null && (axis.letter !== 'Z' || getEndstopType(axisIndex) !== EndstopType.ZProbeAsEndstop)"
+													 :values="getHomingSpeeds(axis, configDriver)"
+													 toggle-title="Home twice per axis" first-title="First speed when homing"
+													 second-title="Second speed when homing"
+													 :preset="getPresetHomingSpeeds(axisIndex)" />
 								</td>
 							</template>
 							<template v-else>
@@ -106,7 +108,7 @@ import { Axis, Endstop, EndstopType, KinematicsName, ProbeType } from "@duet3d/o
 import { requiredStallChopMode } from "@/store/model/ConfigDriver";
 
 import ConfigSection from "@/components/ConfigSection.vue";
-import HomingSpeedsInput from "@/components/inputs/HomingSpeedsInput.vue";
+import TwoValueInput from "@/components/inputs/TwoValueInput.vue";
 import PortInput from "@/components/inputs/PortInput.vue";
 import SelectInput from "@/components/inputs/SelectInput.vue";
 
@@ -229,6 +231,13 @@ function getEndstopTypeOptions(axis: Axis): Array<SelectOption> {
 		});
 	}
 
+	if (axis.drivers.length > 0 && axis.drivers.every(driver => driver.board && store.data.getBoardDefinition(driver.board)?.hasClosedLoopDrivers)) {
+		options.push({
+			text: "Encoder Position Error",
+			value: EndstopType.motorStallEncoder
+		});
+	}
+
 	// No endstop is always possible, too
 	options.push({
 		text: "None",
@@ -288,7 +297,7 @@ function getHomingSpeeds(axis: Axis, configDriver: ConfigDriver): Array<number> 
 				return getAxisHomingSpeeds('X');
 			}
 			break;
-		case KinematicsName.delta:
+		case KinematicsName.linearDelta:
 		case KinematicsName.rotaryDelta:
 			if (['X', 'Y', 'Z'].includes(axis.letter)) {
 				return getAxisHomingSpeeds('X');

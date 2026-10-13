@@ -15,30 +15,22 @@
 			</h4>
 		</div>
 
-		<div class="row mb-5">
-			<div class="col-3"></div>
-			<div class="col-6 text-center">
-				<h4 class="mb-3">
-					Please choose your firmware version to continue:
-				</h4>
+		<div class="text-center mb-5">
+			<h4 class="mb-3">
+				Please choose your firmware version to continue:
+			</h4>
 
-				<div class="card">
-					<div class="card-body py-4">
-						<input type="radio" class="btn-check" name="firmwareVersion" id="v34" value="v34" autocomplete="off"
-							   v-model="firmwareVersion">
-						<label class="btn btn-outline-secondary btn-lg me-1" for="v34">Version 3.4 or older</label>
+			<input type="radio" class="btn-check" name="firmwareVersion" id="v34" value="v34" autocomplete="off"
+				   v-model="firmwareVersion">
+			<label class="btn btn-outline-secondary btn-lg me-1" for="v34">Version 3.4 or older</label>
 
-						<input type="radio" class="btn-check" name="firmwareVersion" id="v35" value="v35" autocomplete="off"
-							   v-model="firmwareVersion">
-						<label class="btn btn-outline-success btn-lg mx-1" for="v35">Version 3.5 or 3.6</label>
+			<input type="radio" class="btn-check" name="firmwareVersion" id="v35" value="v35" autocomplete="off"
+				   v-model="firmwareVersion">
+			<label class="btn btn-outline-secondary btn-lg mx-1" for="v35">Version 3.5 or 3.6</label>
 
-						<input type="radio" class="btn-check" name="firmwareVersion" id="v37" value="v37" autocomplete="off"
-							   v-model="firmwareVersion">
-						<label class="btn btn-outline-secondary btn-lg ms-1" for="v37">Version 3.7 or newer</label>
-					</div>
-				</div>
-			</div>
-			<div class="col-3"></div>
+			<input type="radio" class="btn-check" name="firmwareVersion" id="v37" value="v37" autocomplete="off"
+				   v-model="firmwareVersion">
+			<label class="btn btn-outline-success btn-lg ms-1" for="v37">Version 3.7</label>
 		</div>
 
 		<div class="d-flex justify-content-center mb-3">
@@ -110,13 +102,13 @@ import packageInfo from "../../package.json";
 const store = useStore();
 const router = useRouter();
 
-const firmwareVersion = ref<"v34" | "v35" | "v37">("v35");
+const firmwareVersion = ref<"v34" | "v35" | "v37">("v37");
 const unsupportedFirmwareDialogShown = ref(false);
 
 const unsupportedFirmwareUrl = computed(() => {
 	switch (firmwareVersion.value) {
 		case "v34": return "https://configtool.reprapfirmware.org/legacy";
-		case "v37": return "https://configtool.reprapfirmware.org/";
+		case "v35": return "https://configtool.reprapfirmware.org/3.6/";
 		default: return "";
 	}
 });
@@ -128,7 +120,7 @@ function startFromScratch() {
 		}
 	}
 
-	if (firmwareVersion.value === "v35") {
+	if (firmwareVersion.value === "v37") {
 		store.$reset();
 		router.push("/Configuration");
 	} else {

@@ -130,7 +130,7 @@ export function getSectionTemplates(section?: ConfigSectionType) {
         case ConfigSectionType.Accessories: {
             const displayType = store.data.configTool.stm32DisplayType as DisplayType;
             const displaySelected = !!displayType && !!DISPLAY_TYPES[displayType];
-            if (store.data.boards.some(board => !board.canAddress && board.directDisplay !== null) || store.data.panelDueChannel >= 0 ||
+            if ((store.data.mainBoard !== null && store.data.mainBoard.directDisplay !== null) || store.data.panelDueChannel >= 0 ||
                 displaySelected) {
                 result.push({ template: "config/accessories", data: null });
             }

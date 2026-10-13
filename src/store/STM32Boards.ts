@@ -1,4 +1,4 @@
-import { Board, initObject, Limits, MinMaxCurrent, NetworkInterface, NetworkInterfaceType } from "@duet3d/objectmodel";
+import { initObject, Limits, MainBoard, MinMaxCurrent, NetworkInterface, NetworkInterfaceType } from "@duet3d/objectmodel";
 
 import { PortType } from "@/store/BaseBoard";
 import type { BoardDescriptor } from "@/store/Boards";
@@ -398,16 +398,18 @@ function makeBoard(p: MakeBoardParams): STM32BoardDescriptor {
             // appear here, or they pollute the LED strip / gpOut port dropdowns.
             [PortType.gpOut]:         [...(p.gpOut ?? []), ...(p.neopixelPins ?? [])],
             [PortType.heater]:        p.heaters,
+            [PortType.loadCell]:     [],
             [PortType.pwm]:           allOutputs,
             [PortType.scanning]:      [],
+            [PortType.spi]:          [],
             [PortType.spiCs]:         p.spiCs ?? [],
             [PortType.thermistor]:    p.thermistors,
+            [PortType.thermopile]:    [],
             [PortType.uart]:          p.uart ?? [],
         },
-        objectModelBoard: initObject(Board, {
+        objectModelBoard: initObject(MainBoard, {
             canAddress:            0,
-            ...(p.hasSBC ? { iapFileNameSBC: "firmware.bin" } : {}),
-            maxHeaters:            p.heaters.length,
+            ...(p.hasSBC ? { iapFileNameSBC: "firmware.bin" } : {}),
             maxMotors:             p.numDrivers,
             name:                  p.longName,
             shortName:             p.shortName,

@@ -1,4 +1,4 @@
-import { Board, initObject } from "@duet3d/objectmodel";
+import { type Board, ExpansionBoard, initObject } from "@duet3d/objectmodel";
 
 import { PortType, type BaseBoardDescriptor } from "@/store/BaseBoard";
 import { ConfigDriverClosedLoop, ConfigDriverClosedLoopEncoderType } from "./model/ConfigDriver";
@@ -18,19 +18,14 @@ export enum ExpansionBoardType {
 	TOOL1LC = "Duet 3 Tool Board 1LC",
 	TOOL1RR = "Duet 3 Roto Tool Board",
 	SZP = "Duet 3 Scanning Z-Probe Board",
+	TOOLINDX = "Bondtech INDX Tool Board",
 
 	Mini5plus = "Duet 3 Mini 5+",
 	MB6HC = "Duet 3 Main Board 6HC",
 	MB6XD = "Duet 3 Main Board 6XD",
 
 	Duet3Mini2Plus = "Duet 3 Mini 2+",                                              // virtual
-	Duet3Mini2XD = "Duet 3 Mini 2XD",                                               // virtual
-	DueX5 = "DueX 5",                                                               // virtual
-	Duet2ExpansionBreakout = "Duet 2 Expansion Breakout Board",                     // virtual
-
-	// Discontinued boards
-	DueX2 = "DueX 2 (discontinued)",                                                // virtual
-	Duet2Maestro2Plus = "Duet 2 Maestro Dual Stepper Expansion (discontinued)",     // virtual
+	Duet3Mini2XD = "Duet 3 Mini 2XD",                                              // virtual
 
 	// Community RP2040 toolboards (TeamGloomy / STM32/RRF ecosystem) — matches wiki supported_boards
 	FLY36RRF        = "Fly 36 RRF",
@@ -44,7 +39,7 @@ export enum ExpansionBoardType {
 	d8_pro_h723     = "Fly D8 Pro H723",
 	mmu_h723        = "Fly MMU H723",
 	afclite1_h723   = "LDO AFC Lite H723",
-	longboi1_h723   = "LDO Longboi H723",
+	longboi1_h723   = "LDO Longboi H723"
 }
 
 /**
@@ -55,6 +50,8 @@ export interface ExpansionBoardDescriptor extends BaseBoardDescriptor {
 	hasBuiltInAccelerometer: boolean;
 	/** True for community/TeamGloomy boards — hidden unless showCommunityBoards is enabled */
 	community?: boolean;
+	hasBoardThermistor: boolean;
+	objectModelBoard: ExpansionBoard;
 }
 
 /**
@@ -76,10 +73,9 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 32,
 		numDrivers: 3,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 1,
 			firmwareFileName: "Duet3Firmware_EXP3HC.bin",
-			maxHeaters: 3,
 			maxMotors: 3,
 			shortName: "EXP3HC"
 		}),
@@ -91,14 +87,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in", "io3.in", "io4.in", "io5.in", "spi.cs0", "spi.cs1", "spi.cs2"],
 			[PortType.gpOut]: ["io1.out", "io2.out", "io3.out", "io4.out", "io5.out"],
 			[PortType.heater]: ["out0", "out1", "out2"],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io1.out", "io4.out"],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: ["spi.cs0", "spi.cs1", "spi.cs2", "spi.cs3"],
 			[PortType.thermistor]: ["temp0", "temp1", "temp2"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
-		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		supportsAccelerometer: true,
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.EXP1XD]: {
 		hasADCAutoCalibration: false,
@@ -115,10 +115,9 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 48,
 		numDrivers: 1,
 		microstepInterpolations: [],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 122,
 			firmwareFileName: "Duet3Firmware_EXP1XD.bin",
-			maxHeaters: 0,
 			maxMotors: 1,
 			shortName: "EXP1XD"
 		}),
@@ -130,14 +129,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in"],
 			[PortType.gpOut]: ["io0.out", "io2.out"],
 			[PortType.heater]: ["out0", "out1"],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io0.out", "io2.out"],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: ["temp0"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.SZP]: {
 		hasADCAutoCalibration: false,
@@ -154,10 +157,9 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 5,
 		numDrivers: 0,
 		microstepInterpolations: [],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 120,
 			firmwareFileName: "Duet3Firmware_SZP.bin",
-			maxHeaters: 0,
 			maxMotors: 0,
 			shortName: "SZP"
 		}),
@@ -169,14 +171,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: [],
 			[PortType.gpOut]: [],
 			[PortType.heater]: [],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: [],
 			[PortType.scanning]: ["i2c.ldc1612"],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: [],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: true,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.EXP1HCL]: {
 		hasADCAutoCalibration: true,
@@ -193,10 +199,9 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 48,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 123,
 			firmwareFileName: "Duet3Firmware_EXP1HCL.bin",
-			maxHeaters: 0,
 			maxMotors: 1,
 			shortName: "EXP1HCL"
 		}),
@@ -208,14 +213,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in"],
 			[PortType.gpOut]: ["io0.out", "io1.out"],
 			[PortType.heater]: [],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io0.out", "io1.out"],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: ["temp0", "temp1"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.M23CL]: {
 		hasADCAutoCalibration: true,
@@ -235,10 +244,9 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 24,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 123,
 			firmwareFileName: "Duet3Firmware_M23CL.bin",
-			maxHeaters: 0,
 			maxMotors: 1,
 			shortName: "M23CL"
 		}),
@@ -250,14 +258,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: [],
 			[PortType.gpOut]: [],
 			[PortType.heater]: [],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: [],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: [],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: true
 	},
 	[ExpansionBoardType.TOOL1LC]: {
 		hasADCAutoCalibration: true,
@@ -274,10 +286,9 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 32,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 121,
 			firmwareFileName: "Duet3Firmware_TOOL1LC.bin",
-			maxHeaters: 0,
 			maxMotors: 1,
 			shortName: "TOOL1LC"
 		}),
@@ -289,14 +300,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in", "io3.in"],
 			[PortType.gpOut]: ["io0.out"],
 			[PortType.heater]: ["out0"],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io0.out"],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: ["temp0", "temp1"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: true,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.TOOL1RR]: {
 		hasADCAutoCalibration: true,
@@ -313,10 +328,9 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 32,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 121,
 			firmwareFileName: "Duet3Firmware_TOOL1RR.bin",
-			maxHeaters: 0,
 			maxMotors: 1,
 			shortName: "TOOL1RR"
 		}),
@@ -328,14 +342,60 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in", "io3.in"],
 			[PortType.gpOut]: ["io0.out"],
 			[PortType.heater]: ["out0"],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io0.out"],
 			[PortType.scanning]: ["i2c.ldc1612"],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: ["temp0", "temp1", "temp2"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: true,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
+	},
+	[ExpansionBoardType.TOOLINDX]: {
+		hasADCAutoCalibration: true,
+		hasClosedLoopDrivers: false,
+		closedLoopConfig: null,
+		hasInputPullUps: true,
+		hasMcuTempSensor: true,
+		hasSmartDrivers: true,
+		hasStealthChop: true,
+		hasVrefMonitor: false,
+		motorWarnCurrent: 800,
+		motorMaxCurrent: 1000,
+		minVoltage: 22,
+		maxVoltage: 26,
+		numDrivers: 1,
+		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 121,
+			firmwareFileName: "Duet3Firmware_TOOLINDX.bin",
+			maxMotors: 1,
+			shortName: "TOOLINDX"
+		}),
+		ports: {
+			[PortType.analogIn]: [],
+			[PortType.fan]: ["pcfan", "hsfan"],
+			[PortType.fanTacho]: ["pcfan.tach", "hsfan.tach"],
+			[PortType.gpIn]: ["io0.in"],
+			[PortType.gpInInterrupt]: ["io0.in"],
+			[PortType.gpOut]: ["led"],
+			[PortType.heater]: ["nozzleheat"],
+			[PortType.loadCell]: ["loadcell"],
+			[PortType.pwm]: [],
+			[PortType.scanning]: ["i2c.ldc1612"],
+			[PortType.spi]: [],
+			[PortType.spiCs]: [],
+			[PortType.thermistor]: ["coiltemp"],
+			[PortType.thermopile]: ["i2c"],
+			[PortType.uart]: []
+		},
+		supportsAccelerometer: true,
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: true
 	},
 	[ExpansionBoardType.Mini5plus]: {
 		hasADCAutoCalibration: true,
@@ -352,9 +412,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 25,
 		numDrivers: 7,          // This isn't quite right, but we don't support nested expansion boards
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 1,
-			maxHeaters: 3,
 			maxMotors: 5,
 			name: "Duet 3 Mini 5+",
 			shortName: "Mini5plus"
@@ -367,14 +426,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in", "io3.in", "io4.in", "io5.in", "io6.in", "spi.cs1", "spi.cs2"],
 			[PortType.gpOut]: ["io0.out", "io1.out", "io2.out", "io3.out", "io4.out+pson"],
 			[PortType.heater]: ["out0", "out1", "out2"],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io1.out", "io2.out", "io3.out"],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: ["spi.cs1", "spi.cs2", "spi.cs3"],
 			[PortType.thermistor]: ["temp0", "temp1", "temp2"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: ["usb", "io0.in+io0.out"]
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.MB6HC]: {
 		hasADCAutoCalibration: true,
@@ -391,9 +454,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 32,
 		numDrivers: 6,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 1,
-			maxHeaters: 3,
 			maxMotors: 5,
 			name: "Duet 3 MB6HC",
 			shortName: "MB6HC"
@@ -406,14 +468,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in", "io3.in", "io4.in", "io5.in", "io6.in", "io7.in", "io8.in", "spi.cs0", "spi.cs1", "spi.cs2", "spi.cs3"],
 			[PortType.gpOut]: ["io0.out", "io1.out", "io2.out", "io3.out", "io4.out", "io5.out", "io6.out", "io7.out", "io8.out", "led", "pson"],
 			[PortType.heater]: ["out0", "out1", "out2", "out3"],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io4.out", "io5.out", "io7.out"],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: ["spi.cs0", "spi.cs1", "spi.cs2", "spi.cs3"],
 			[PortType.thermistor]: ["temp0", "temp1", "temp2", "temp3"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: ["usb", "io0.in+io0.out", "io1.in+io1.out"]
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.MB6XD]: {
 		hasADCAutoCalibration: true,
@@ -430,9 +496,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 30,
 		numDrivers: 6,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			canAddress: 1,
-			maxHeaters: 3,
 			maxMotors: 5,
 			shortName: "MB6XD",
 			name: "Duet 3 MB6XD",
@@ -445,14 +510,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: ["io0.in", "io1.in", "io2.in", "io3.in", "io4.in", "io5.in", "io6.in", "io7.in", "io8.in", "spi.cs1", "spi.cs2", "spi.cs3", "spi.cs4"],
 			[PortType.gpOut]: ["io0.out", "io1.out", "io2.out", "io3.out", "io4.out", "io5.out", "io6.out", "io7.out", "io8.out", "led", "pson"],
 			[PortType.heater]: ["out0", "out1", "out2", "out3"],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: ["io4.out", "io7.out", "laser+vfd"],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: ["spi.cs1", "spi.cs2", "spi.cs3", "spi.cs4"],
 			[PortType.thermistor]: ["temp0", "temp1", "temp2", "temp3"],
+			[PortType.thermopile]: [],
 			[PortType.uart]: ["usb", "io0.in+io0.out", "io1.in+io1.out"]
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.Duet3Mini2Plus]: {
 		hasADCAutoCalibration: true,
@@ -469,7 +538,7 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 25,
 		numDrivers: 2,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			maxMotors: 2
 		}),
 		ports: {
@@ -480,14 +549,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: [],
 			[PortType.gpOut]: [],
 			[PortType.heater]: [],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: [],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: [],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 	[ExpansionBoardType.Duet3Mini2XD]: {
 		hasADCAutoCalibration: false,
@@ -504,7 +577,7 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 25,
 		numDrivers: 2,
 		microstepInterpolations: [],
-		objectModelBoard: initObject(Board, {
+		objectModelBoard: initObject(ExpansionBoard, {
 			maxMotors: 2
 		}),
 		ports: {
@@ -515,157 +588,18 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpInInterrupt]: [],
 			[PortType.gpOut]: [],
 			[PortType.heater]: [],
+			[PortType.loadCell]: [],
 			[PortType.pwm]: [],
 			[PortType.scanning]: [],
+			[PortType.spi]: [],
 			[PortType.spiCs]: [],
 			[PortType.thermistor]: [],
+			[PortType.thermopile]: [],
 			[PortType.uart]: []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
-	},
-	[ExpansionBoardType.DueX5]: {
-		hasADCAutoCalibration: false,
-		hasClosedLoopDrivers: false,
-		closedLoopConfig: null,
-		hasInputPullUps: false,
-		hasMcuTempSensor: true,
-		hasSmartDrivers: true,
-		hasStealthChop: false,
-		hasVrefMonitor: true,
-		motorWarnCurrent: 2000,
-		motorMaxCurrent: 2400,
-		minVoltage: 11,
-		maxVoltage: 25,
-		numDrivers: 5,
-		microstepInterpolations: [16],
-		objectModelBoard: initObject(Board, {
-			maxHeaters: 5,
-			maxMotors: 5
-		}),
-		ports: {
-			[PortType.analogIn]: [],
-			[PortType.fan]: ["duex.fan3", "duex.fan4", "duex.fan5", "duex.fan6", "duex.fan7", "duex.fan8"],
-			[PortType.fanTacho]: ["duex.pb6"],
-			[PortType.gpIn]: ["duex.e2stop", "duex.e3stop", "duex.e4stop", "duex.e5stop", "duex.e6stop", "duex.gp1", "duex.gp2", "duex.gp3", "duex.gp4"],
-			[PortType.gpInInterrupt]: ["duex.cs5", "duex.cs6", "duex.cs7", "duex.cs8"],
-			[PortType.gpOut]: ["duex.gp1", "duex.gp2", "duex.gp3", "duex.gp4"],
-			[PortType.heater]: ["duex.e2heat", "duex.e3heat", "duex.e4heat", "duex.e5heat", "duex.e6heat"],
-			[PortType.pwm]: ["duex.pwm1", "duex.pwm2", "duex.pwm3", "duex.pwm4", "duex.pwm5"],
-			[PortType.scanning]: [],
-			[PortType.spiCs]: ["duex.cs5", "duex.cs6", "duex.cs7", "duex.cs8"],
-			[PortType.thermistor]: ["duex.e2temp", "duex.e3temp", "duex.e4temp", "duex.e5temp", "duex.e6temp"],
-			[PortType.uart]: []
-		},
-		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
-	},
-	[ExpansionBoardType.Duet2ExpansionBreakout]: {
-		hasADCAutoCalibration: false,
-		hasClosedLoopDrivers: false,
-		closedLoopConfig: null,
-		hasInputPullUps: false,
-		hasSmartDrivers: false,
-		hasMcuTempSensor: true,
-		hasStealthChop: false,
-		hasVrefMonitor: true,
-		motorWarnCurrent: -1,
-		motorMaxCurrent: -1,
-		minVoltage: 11,
-		maxVoltage: 25,
-		numDrivers: 5,
-		microstepInterpolations: [],
-		objectModelBoard: initObject(Board, {
-			maxHeaters: 5,
-			maxMotors: 5
-		}),
-		ports: {
-			[PortType.analogIn]: [],
-			[PortType.fan]: [],
-			[PortType.fanTacho]: ["duex.pb6"],
-			[PortType.gpIn]: ["duex.e2stop", "duex.e3stop", "duex.e4stop", "duex.e5stop", "duex.e6stop", "duex.gp1", "duex.gp2", "duex.gp3", "duex.gp4"],
-			[PortType.gpInInterrupt]: ["duex.cs5", "duex.cs6", "duex.cs7", "duex.cs8"],
-			[PortType.gpOut]: ["duex.gp1", "duex.gp2", "duex.gp3", "duex.gp4"],
-			[PortType.heater]: ["duex.e2heat", "duex.e3heat", "duex.e4heat", "duex.e5heat", "duex.e6heat"],
-			[PortType.pwm]: ["duex.pwm1", "duex.pwm2", "duex.pwm3", "duex.pwm4", "duex.pwm5"],
-			[PortType.scanning]: [],
-			[PortType.spiCs]: ["duex.cs5", "duex.cs6", "duex.cs7", "duex.cs8"],
-			[PortType.thermistor]: ["duex.e2temp", "duex.e3temp", "duex.e4temp", "duex.e5temp", "duex.e6temp"],
-			[PortType.uart]: []
-		},
-		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
-	},
-	[ExpansionBoardType.DueX2]: {
-		hasADCAutoCalibration: false,
-		hasClosedLoopDrivers: false,
-		closedLoopConfig: null,
-		hasInputPullUps: false,
-		hasMcuTempSensor: true,
-		hasSmartDrivers: true,
-		hasStealthChop: false,
-		hasVrefMonitor: true,
-		motorWarnCurrent: 2000,
-		motorMaxCurrent: 2400,
-		minVoltage: 11,
-		maxVoltage: 25,
-		numDrivers: 2,
-		microstepInterpolations: [],
-		objectModelBoard: initObject(Board, {
-			maxHeaters: 5,
-			maxMotors: 2
-		}),
-		ports: {
-			[PortType.analogIn]: [],
-			[PortType.fan]: ["duex.fan3", "duex.fan4", "duex.fan5", "duex.fan6", "duex.fan7", "duex.fan8"],
-			[PortType.fanTacho]: ["duex.pb6"],
-			[PortType.gpIn]: ["duex.e2stop", "duex.e3stop", "duex.e4stop", "duex.e5stop", "duex.e6stop", "duex.gp1", "duex.gp2", "duex.gp3", "duex.gp4"],
-			[PortType.gpInInterrupt]: ["duex.cs5", "duex.cs6", "duex.cs7", "duex.cs8"],
-			[PortType.gpOut]: ["duex.gp1", "duex.gp2", "duex.gp3", "duex.gp4"],
-			[PortType.heater]: ["duex.e2heat", "duex.e3heat", "duex.e4heat", "duex.e5heat", "duex.e6heat"],
-			[PortType.pwm]: ["duex.pwm1", "duex.pwm2", "duex.pwm3", "duex.pwm4", "duex.pwm5"],
-			[PortType.scanning]: [],
-			[PortType.spiCs]: ["duex.cs5", "duex.cs6", "duex.cs7", "duex.cs8"],
-			[PortType.thermistor]: ["duex.e2temp", "duex.e3temp", "duex.e4temp", "duex.e5temp", "duex.e6temp"],
-			[PortType.uart]: []
-		},
-		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
-	},
-	[ExpansionBoardType.Duet2Maestro2Plus]: {
-		hasADCAutoCalibration: false,
-		hasClosedLoopDrivers: false,
-		closedLoopConfig: null,
-		hasInputPullUps: false,
-		hasMcuTempSensor: true,
-		hasSmartDrivers: true,
-		hasStealthChop: true,
-		hasVrefMonitor: true,
-		motorWarnCurrent: 1200,
-		motorMaxCurrent: 1600,
-		minVoltage: 11,
-		maxVoltage: 25,
-		numDrivers: 2,
-		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			maxMotors: 2
-		}),
-		ports: {
-			[PortType.analogIn]: [],
-			[PortType.fan]: [],
-			[PortType.fanTacho]: [],
-			[PortType.gpIn]: [],
-			[PortType.gpInInterrupt]: [],
-			[PortType.gpOut]: [],
-			[PortType.heater]: [],
-			[PortType.pwm]: [],
-			[PortType.scanning]: [],
-			[PortType.spiCs]: [],
-			[PortType.thermistor]: [],
-			[PortType.uart]: []
-		},
-		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 
 	// ── Community RP2040 Toolboards ────────────────────────────────────────
@@ -686,9 +620,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			canAddress: 121,
-			maxHeaters: 1,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 121,
 			maxMotors: 1,
 			shortName: "FLY36RRF"
 		}),
@@ -701,13 +634,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["io0.out"],
 			[PortType.heater]:        ["out0"],
 			[PortType.pwm]:           ["io0.out"],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      [],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["temp0", "temp1"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: true,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.SB2040MAX3]: {
@@ -726,9 +663,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			canAddress: 121,
-			maxHeaters: 1,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 121,
 			maxMotors: 1,
 			shortName: "SB2040MAX3"
 		}),
@@ -741,13 +677,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["rgbled"],
 			[PortType.heater]:        ["out0"],
 			[PortType.pwm]:           [],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      ["i2c.ldc1612"],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["temp0", "temp1"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: true,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.SB2040PROMAX3]: {
@@ -766,9 +706,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128, 256],
-		objectModelBoard: initObject(Board, {
-			canAddress: 121,
-			maxHeaters: 1,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 121,
 			maxMotors: 1,
 			shortName: "SB2040PROMAX3"
 		}),
@@ -781,13 +720,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["rgbled"],
 			[PortType.heater]:        ["out0"],
 			[PortType.pwm]:           [],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      ["i2c.ldc1612"],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["temp0", "temp1"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: true,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.SHT36MAX3]: {
@@ -806,9 +749,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 1,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			canAddress: 121,
-			maxHeaters: 1,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 121,
 			maxMotors: 1,
 			shortName: "SHT36MAX3"
 		}),
@@ -821,13 +763,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["io0.out", "rgbled"],
 			[PortType.heater]:        ["out0"],
 			[PortType.pwm]:           ["io0.out"],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      ["i2c.ldc1612"],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["temp0", "temp1"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: true,
-		hasBuiltInAccelerometer: true
+		hasBuiltInAccelerometer: true,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.PITBV2_0]: {
@@ -846,9 +792,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 2,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128, 256],
-		objectModelBoard: initObject(Board, {
-			canAddress: 121,
-			maxHeaters: 0,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 121,
 			maxMotors: 2,
 			shortName: "PITBV2_0"
 		}),
@@ -861,13 +806,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["rgbled"],
 			[PortType.heater]:        [],
 			[PortType.pwm]:           [],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      [],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["temp0", "temp1", "temp2"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.STRIDEMAXV2_0]: {
@@ -886,9 +835,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 2,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128, 256],
-		objectModelBoard: initObject(Board, {
-			canAddress: 121,
-			maxHeaters: 0,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 121,
 			maxMotors: 2,
 			shortName: "STRIDEMAXV2_0"
 		}),
@@ -901,13 +849,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["rgbled"],
 			[PortType.heater]:        [],
 			[PortType.pwm]:           [],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      [],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["temp0", "temp1", "temp2"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 
 	// ── Community STM32H7 Boards in CAN Expansion Mode ────────────────────
@@ -928,9 +880,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 8,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			canAddress: 119,
-			maxHeaters: 4,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 119,
 			maxMotors: 8,
 			shortName: "d8_pro_h723"
 		}),
@@ -943,13 +894,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["neopixel", "neopixel1"],
 			[PortType.heater]:        ["bed", "e0heat", "e1heat", "e2heat"],
 			[PortType.pwm]:           ["servo", "servo0"],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      [],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["bedtemp", "e0temp", "e1temp", "e2temp"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.mmu_h723]: {
@@ -968,9 +923,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 4,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			canAddress: 119,
-			maxHeaters: 0,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 119,
 			maxMotors: 4,
 			shortName: "mmu_h723"
 		}),
@@ -983,13 +937,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["servo0", "servo1", "servo2", "servo3", "neopixel"],
 			[PortType.heater]:        [],
 			[PortType.pwm]:           ["servo0", "servo1", "servo2", "servo3"],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      [],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    [],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.afclite1_h723]: {
@@ -1008,9 +966,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 4,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			canAddress: 119,
-			maxHeaters: 0,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 119,
 			maxMotors: 4,
 			shortName: "afclite1_h723"
 		}),
@@ -1023,13 +980,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["neopixel1", "neopixel2", "neopixel3", "neopixel4"],
 			[PortType.heater]:        [],
 			[PortType.pwm]:           [],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      [],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    [],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	},
 
 	[ExpansionBoardType.longboi1_h723]: {
@@ -1048,9 +1009,8 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 		maxVoltage: 28,
 		numDrivers: 4,
 		microstepInterpolations: [1, 2, 4, 8, 16, 32, 64, 128],
-		objectModelBoard: initObject(Board, {
-			canAddress: 119,
-			maxHeaters: 1,
+		objectModelBoard: initObject(ExpansionBoard, {
+			canAddress: 119,
 			maxMotors: 4,
 			shortName: "longboi1_h723"
 		}),
@@ -1063,13 +1023,17 @@ export const ExpansionBoards: Record<ExpansionBoardType, ExpansionBoardDescripto
 			[PortType.gpOut]:         ["neopixel1", "neopixel2", "neopixel3", "neopixel4", "neopixel5"],
 			[PortType.heater]:        ["out1"],
 			[PortType.pwm]:           [],
+			[PortType.loadCell]:      [],
+			[PortType.spi]:           [],
+			[PortType.thermopile]:     [],
 			[PortType.scanning]:      [],
 			[PortType.spiCs]:         [],
 			[PortType.thermistor]:    ["th0"],
 			[PortType.uart]:          []
 		},
 		supportsAccelerometer: false,
-		hasBuiltInAccelerometer: false
+		hasBuiltInAccelerometer: false,
+		hasBoardThermistor: false
 	}
 }
 

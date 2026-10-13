@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { MainBoard } from "@duet3d/objectmodel";
 import saveAs from "file-saver";
 import JSZip from "jszip";
 import { onMounted, ref } from "vue";
@@ -146,7 +147,7 @@ async function downloadRRF(): Promise<Array<File>> {
 			}
 
 			// Download IAP file only for the mainboard
-			if (!board.canAddress && board.iapFileNameSD) {
+			if (board instanceof MainBoard && board.iapFileNameSD !== null) {
 				const response = await fetch(`${import.meta.env.BASE_URL}assets/RepRapFirmware/${board.iapFileNameSD}`);
 				if (!response.ok) {
 					throw new Error(`Failed to download ${board.iapFileNameSD}: ${response.status} ${response.statusText}`);

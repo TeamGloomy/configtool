@@ -9,7 +9,6 @@ export class ConfigTempSensor extends ModelObject {                     // TODO 
 	seriesR: number | null = null;
 
 	filtered: boolean = true;											// only used by LinearAnalog
-	bipolar: boolean = false;											// only used by ADS131
 	minTemp: number = 0;												// temp at ADC == min
 	maxTemp: number = 200;												// temp at ADC == max
 
@@ -21,4 +20,5 @@ export class ConfigTempSensor extends ModelObject {                     // TODO 
 	baseSensor: number | null = null;									// referenced sensor, e.g. by DHT humidity
 
 	stm32Pin: string = "";												// STM32 free-form pin: signal pin (DHT) or CS pin (BME280/MAX317xx)
+	canBoard: number | null = null;										// only used by BoardTemp
 }

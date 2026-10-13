@@ -6,8 +6,9 @@
 // Actions runners can always reach. The official configtool.duet3d.com host blocks datacenter
 // IPs (403 from CI), so it can't be used here.
 //   - Firmware (.bin/.uf2) + DuetWebControl-SD.zip are published as individual release assets.
-//   - IAP files are only inside the combined "Duet2and3Firmware-*.zip" asset, so we download
-//     that once and extract the needed IAP files from it.
+//   - SD IAP files are published as individual release assets from 3.7 on; older releases (and
+//     the SBC IAP files) are only inside the combined "Duet3Firmware-<version>.zip" (formerly
+//     "Duet2and3Firmware-*.zip") asset, so we fall back to downloading that once and extracting.
 //
 // STM32 / community board firmware is NOT fetched here — it is downloaded live from
 // raw.githubusercontent.com at bundle time (that host does send CORS headers for the browser).
@@ -43,7 +44,7 @@ function collectFirmwareFiles() {
 	const boardsTs = readFileSync(join(repoRoot, "src", "store", "Boards.ts"), "utf8");
 	const fw = new Set(), iap = new Set();
 	let m;
-	const fwRe = /firmwareFileName\s*:\s*"([^"]+)"/g;
+	const fwRe = /(?:firmwareFileName|wifiFirmwareFileName)\s*:\s*"([^"]+)"/g;
 	while ((m = fwRe.exec(boardsTs)) !== null) fw.add(m[1]);
 	const iapRe = /(?:iapFileNameSD|iapFileNameSBC)\s*:\s*"([^"]+)"/g;
 	while ((m = iapRe.exec(boardsTs)) !== null) iap.add(m[1]);
@@ -127,13 +128,25 @@ async function main() {
 		}
 	}
 
-	// 3. IAP files — only inside the combined "Duet2and3Firmware-*.zip" asset. Download once
-	//    and extract the needed ones. Skipped gracefully if all IAPs already present or the
+	// 3. Remaining IAP files — extracted from the combined firmware zip. Download once and
+	//    extract the needed ones. Skipped gracefully if all IAPs already present or the
 	//    zip / unzip support is unavailable.
-	const iapNeeded = iap.filter(n => force || !existsSync(join(RRF_DIR, n)));
+	for (const name of iap) {
+		const dest = join(RRF_DIR, name), url = rrfAssets.get(name);
+		if ((force || !existsSync(dest)) && url) {
+			try {
+				const size = await downloadTo(url, dest);
+				bytes += size; ok++;
+				note("✓", `RepRapFirmware/${name}`, ` (${(size / 1024).toFixed(0)} KB)`);
+			} catch (e) {
+				note("⚠", `optional RepRapFirmware/${name}`, ` — ${e.message}, trying firmware zip`);
+			}
+		}
+	}
+	const iapNeeded = iap.filter(n => !existsSync(join(RRF_DIR, n)));
 	if (iapNeeded.length > 0) {
 		try {
-			const zipName = [...rrfAssets.keys()].find(n => /^Duet2and3Firmware.*\.zip$/.test(n));
+			const zipName = [...rrfAssets.keys()].find(n => /^(?:Duet2and3|Duet3)Firmware-\d.*\.zip$/.test(n));
 			if (!zipName) throw new Error("combined firmware zip not found in release");
 			const { default: JSZip } = await import("jszip");
 			const r = await fetch(rrfAssets.get(zipName), { headers: UA });
