@@ -57,10 +57,30 @@ async function ghJson(url) {
 	return r.json();
 }
 
-/** Latest non-prerelease, non-draft release for a repo. */
+/** Parse "v3.7.0" / "3.6.4" into [major, minor, patch]; non-numeric parts count as 0. */
+function parseVersion(tag) {
+	return String(tag).replace(/^v/i, "").split("-")[0].split(".").map(n => parseInt(n, 10) || 0);
+}
+
+function compareVersions(a, b) {
+	const pa = parseVersion(a), pb = parseVersion(b);
+	for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+		const d = (pa[i] ?? 0) - (pb[i] ?? 0);
+		if (d !== 0) return d;
+	}
+	return 0;
+}
+
+/**
+ * Highest-version non-prerelease, non-draft release for a repo. GitHub lists releases by publish
+ * date, so a maintenance release of an older line (e.g. DWC 3.6.4 published after 3.7.0) would
+ * otherwise be picked over the newer line.
+ */
 async function latestRelease(repo) {
 	const releases = await ghJson(`https://api.github.com/repos/${repo}/releases`);
-	const rel = releases.find(r => !r.prerelease && !r.draft) ?? releases[0];
+	const stable = releases.filter(r => !r.prerelease && !r.draft)
+		.sort((a, b) => compareVersions(b.tag_name, a.tag_name));
+	const rel = stable[0] ?? releases[0];
 	if (!rel) throw new Error(`No release found for ${repo}`);
 	return rel;
 }
