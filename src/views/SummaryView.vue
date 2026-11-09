@@ -326,8 +326,8 @@ async function generateBundle() {
 			try {
 				const content = await render(item.name, { ...(item.data ?? {}), preview: false });
 				const outputFile = getOutputFilename(item.name);
-				// board.txt goes to SD card root; everything else to sys/
-				const zipPath = (item.name === "boardtxt") ? outputFile : `sys/${outputFile}`;
+				// all generated files, including board.txt, go in sys/
+				const zipPath = `sys/${outputFile}`;
 				zip.file(zipPath, content);
 				item.state = ProgressState.ready;
 			} catch (e) {
